@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+python setup.py build
+python setup.py install \
+    --skip-build \
+    --root="$1" \
+    --optimize=1

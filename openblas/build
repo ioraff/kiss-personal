@@ -8,10 +8,10 @@ mk() {
 	NO_AFFINITY=1 \
 	NO_STATIC=1 \
 	INTERFACE64=1 \
-	NUM_THREADS=$(nproc) \
+	NUM_THREADS="$(nproc)" \
 	MAJOR_VERSION=3 \
 	"$@"
 }
 
-CFLAGS= mk CFLAGS="$CPPFLAGS $CFLAGS"
+CFLAGS='' mk CFLAGS="$CPPFLAGS $CFLAGS"
 mk install

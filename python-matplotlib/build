@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+cat <<-EOF > setup.cfg
+[libs]
+system_freetype = true
+system_qhull = true
+EOF
+
+python setup.py build
+python setup.py install \
+    --root "$1" \
+    --prefix=/usr \
+    --optimize=1 \
+    --skip-build

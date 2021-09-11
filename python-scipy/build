@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+sed '/<vector>/a #include <stdint.h>' \
+    scipy/optimize/rectangular_lsap/rectangular_lsap.cpp
+
+python setup.py config_fc --fcompiler=gnu95 build
+python setup.py install \
+    --prefix=/usr \
+    --root="$1" \
+    --optimize=1

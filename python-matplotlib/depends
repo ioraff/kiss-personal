@@ -1,0 +1,10 @@
+fontconfig
+freetype-harfbuzz
+python
+python-cycler
+python-dateutil
+python-kiwisolver
+python-numpy
+python-pillow
+python-pyparsing
+qhull

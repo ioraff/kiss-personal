@@ -1,0 +1,9 @@
+brotli
+cmake        make
+go           make
+gtest        make
+libusb
+lz4
+pcre2        make
+protobuf
+zstd

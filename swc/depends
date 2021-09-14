@@ -1,0 +1,7 @@
+libdrm
+libinput
+libxkbcommon
+pixman
+wayland
+wayland-protocols
+wld

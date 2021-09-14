@@ -44,6 +44,8 @@ meson \
     --buildtype=release \
     -Dglx-read-only-text=true \
     -Dplatforms=wayland \
+    -Dopengl=true \
+    -Dshared-glapi=enabled \
     -Dglx=disabled \
     -Degl=enabled \
     -Dvalgrind=false \

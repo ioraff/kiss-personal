@@ -1,0 +1,4 @@
+libpng
+libjpeg-turbo
+meson         build
+tiff

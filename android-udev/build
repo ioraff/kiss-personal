@@ -1,4 +1,0 @@
-#!/bin/sh -e
-
-mkdir -p "$1/etc/udev/rules.d"
-cp -v 51-android.rules "$1/etc/udev/rules.d/51-android.rules"

@@ -1,4 +1,0 @@
-#!/bin/sh -e
-
-make PREFIX=/usr ENABLE_XWAYLAND=0
-make PREFIX=/usr ENABLE_XWAYLAND=0 install

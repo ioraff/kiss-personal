@@ -1,4 +1,0 @@
-#!/bin/sh -e
-
-make PREFIX=/usr DRM_DRIVERS=intel
-make PREFIX=/usr DRM_DRIVERS=intel install

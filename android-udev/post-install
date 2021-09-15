@@ -1,3 +1,0 @@
-#!/bin/sh
-
-chmod a+r /etc/udev/rules.d/51-android.rules

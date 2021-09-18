@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --without-speex \
+    --enable-vcut
+
+make
+make install

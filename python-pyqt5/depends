@@ -1,5 +1,0 @@
-python-pyqt-builder make
-python-pyqt5-sip
-qt5
-qt5-wayland
-sip                 make

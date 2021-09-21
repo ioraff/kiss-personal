@@ -22,12 +22,14 @@
 
     cd -; cd ..
 }
+
 export PYTHONPATH
+export DESTDIR="$1"
+export CFLAGS="$CFLAGS -DGLX_X86_READONLY_TEXT"
 
 # Fix issues with musl and firefox.
 # https://bugs.freedesktop.org/show_bug.cgi?id=35268
 # https://github.com/mesa3d/mesa/commit/9f37c9903b87f86a533bfaffa72f0ecb285b02b2
-# https://gitlab.freedesktop.org/mesa/mesa/-/issues/966
 sed "/pre_args += '-DUSE_ELF_TLS'/d" meson.build > _
 mv -f _ meson.build
 
@@ -42,18 +44,12 @@ meson \
     --mandir=/usr/share/man \
     --localstatedir=/var \
     --buildtype=release \
-    -Dglx-read-only-text=true \
-    -Dplatforms=wayland \
-    -Dopengl=true \
-    -Dshared-glapi=enabled \
-    -Dglx=disabled \
-    -Degl=enabled \
-    -Dvalgrind=false \
+    -Dplatforms=x11 \
+    -Ddri-drivers='' \
+    -Dgallium-drivers=iris \
+    -Dvulkan-drivers=intel \
     -Dzstd=false \
     -Dglvnd="${glvnd_enabled:-false}" \
-    -Dvulkan-drivers=intel \
-    -Ddri-drivers=i965 \
-    -Dgallium-drivers=iris \
     . output
 
 ninja -C output

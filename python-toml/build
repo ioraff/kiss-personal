@@ -1,7 +1,0 @@
-#!/bin/sh -e
-
-python setup.py build
-python setup.py install \
-    --optimize=1 \
-    --prefix=/usr \
-    --root="$1"

@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --mandir=/usr/share/man \
+    --with-mapdir=/usr/share/fonts/util \
+    --with-fontrootdir=/usr/share/fonts \
+
+make
+make install

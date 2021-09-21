@@ -1,7 +1,0 @@
-#!/bin/sh -e
-
-./autogen.sh
-./configure \
-    --prefix=/usr
-
-make install

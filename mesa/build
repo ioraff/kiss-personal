@@ -24,7 +24,6 @@
 }
 
 export PYTHONPATH
-export DESTDIR="$1"
 export CFLAGS="$CFLAGS -DGLX_X86_READONLY_TEXT"
 
 # Fix issues with musl and firefox.
@@ -48,6 +47,7 @@ meson \
     -Ddri-drivers='' \
     -Dgallium-drivers=iris \
     -Dvulkan-drivers=intel \
+    -Dvalgrind=false \
     -Dzstd=false \
     -Dglvnd="${glvnd_enabled:-false}" \
     . output

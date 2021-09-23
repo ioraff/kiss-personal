@@ -33,7 +33,6 @@ EOF
     --disable-sandboxed-triggers \
     --disable-documentation \
     --disable-introspection \
-    --disable-xauth \
     --with-priv-mode=none
 
 make

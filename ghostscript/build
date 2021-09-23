@@ -1,0 +1,17 @@
+#!/bin/sh -e
+
+rm -rf freetype jbig2dec jpeg lcms2mt libpng openjpeg tiff zlib
+
+./configure \
+    --prefix=/usr \
+    --disable-gtk \
+    --disable-dbus \
+    --with-drivers=ALL \
+    --with-fontpaths=/usr/share/ghostscript/fonts/:/usr/share/fonts \
+    --with-system-libtiff \
+    --enable-dynamic \
+    --disable-static \
+    --with-jbig2dec
+
+make so all
+make -j1 DESTDIR="$1" install-so install

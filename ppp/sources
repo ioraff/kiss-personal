@@ -1,4 +1,0 @@
-https://github.com/paulusmack/ppp/archive/ppp-VERSION.tar.gz
-patches/0011-build-sys-don-t-put-connect-errors-log-to-etc-ppp.patch
-patches/fix-paths.patch
-patches/musl-fix-headers.patch

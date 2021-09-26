@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+meson \
+    --prefix=/usr \
+    -Dxvfb=false \
+    -Dxdmcp=false \
+    -Dsecure-rpc=false \
+    -Dsha1=libmd \
+    -Depoxy=false \
+    . output
+
+ninja -C output
+ninja -C output install

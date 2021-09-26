@@ -1,12 +1,17 @@
 #!/bin/sh -e
 
 ./configure \
-    --cc="${CC:-cc}" \
-    --cxx="${CXX:-c++}" \
+    --cc="$CC" \
+    --cxx="$CXX" \
     --prefix=/usr \
     --disable-debug \
     --disable-libxml2 \
     --disable-static \
+    --disable-libxcb \
+    --disable-libxcb-shm \
+    --disable-libxcb-xfixes \
+    --disable-libxcb-shape \
+    --disable-xlib \
     --enable-gpl \
     --enable-libass \
     --enable-libdav1d \
@@ -26,6 +31,6 @@
     --x86asmexe=nasm \
 
 make
-make DESTDIR="$1" install
+make install
 
 rm -rf "$1/usr/share/ffmpeg/examples"

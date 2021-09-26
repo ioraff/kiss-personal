@@ -20,8 +20,8 @@
 meson \
     --prefix=/usr \
     -Dvalgrind=false \
-    -Dradeon=false \
     -Damdgpu=false \
+    -Dradeon=false \
     -Dnouveau=false \
     . build
 

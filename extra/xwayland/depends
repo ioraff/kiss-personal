@@ -1,0 +1,5 @@
+font-util
+libepoxy
+libmd
+wayland
+wayland-protocols make

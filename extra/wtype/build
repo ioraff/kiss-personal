@@ -2,7 +2,6 @@
 
 meson \
     --prefix=/usr \
-    -Denable_asm=true \
     . output
 
 ninja -C output

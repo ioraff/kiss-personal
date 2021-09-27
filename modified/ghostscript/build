@@ -1,5 +1,9 @@
 #!/bin/sh -e
 
+patch -Np1 < 2010_add_build_timestamp_setting.patch
+
+sed -i "s/gscms_transformm_color_const/gscms_transform_color_const/" base/gsicc_lcms2.c
+
 rm -rf freetype jbig2dec jpeg lcms2mt libpng openjpeg tiff zlib
 
 ./configure \
@@ -7,11 +11,9 @@ rm -rf freetype jbig2dec jpeg lcms2mt libpng openjpeg tiff zlib
     --disable-gtk \
     --disable-dbus \
     --with-drivers=ALL \
-    --with-fontpaths=/usr/share/ghostscript/fonts/:/usr/share/fonts \
-    --with-system-libtiff \
-    --enable-dynamic \
-    --disable-static \
-    --with-jbig2dec
+    --with-fontpaths=/usr/share/ghostscript/fonts/:/usr/share/fonts
 
 make so all
-make -j1 DESTDIR="$1" install-so install
+make -j1 install-so install
+
+rm -rf "$1/usr/share/man/de/"

@@ -4,13 +4,13 @@ mk() {
     make \
         PREFIX=/usr \
         USE_OPENMP=0 \
-	NO_LAPACK=0 \
-	NO_AFFINITY=1 \
-	NO_STATIC=1 \
-	INTERFACE64=1 \
-	NUM_THREADS="$(nproc)" \
-	MAJOR_VERSION=3 \
-	"$@"
+        NO_LAPACK=0 \
+        NO_AFFINITY=1 \
+        NO_STATIC=1 \
+        INTERFACE64=1 \
+        NUM_THREADS="$(nproc)" \
+        MAJOR_VERSION=3 \
+        "$@"
 }
 
 CFLAGS='' mk CFLAGS="$CPPFLAGS $CFLAGS"

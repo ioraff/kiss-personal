@@ -1,11 +1,11 @@
 #!/bin/sh -e
 
+rm -rf expat jbig2dec jpeg lcms2mt libpng openjpeg tiff zlib
+
 patch -Np1 < 2010_add_build_timestamp_setting.patch
 
 sed "s/gscms_transformm_color_const/gscms_transform_color_const/" \
     base/gsicc_lcms2.c > _ ; mv -f _ base/gsicc_lcms2.c
-
-rm -rf freetype jbig2dec jpeg lcms2mt libpng openjpeg tiff zlib
 
 ./configure \
     --prefix=/usr \

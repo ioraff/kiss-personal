@@ -1,9 +1,12 @@
 #!/bin/sh -e
 
-cat <<-EOF > setup.cfg
+cat > setup.cfg << EOF
 [libs]
-system_freetype = true
-system_qhull = true
+enable_lto = True
+system_freetype = True
+
+[rc_options]
+backend = TkAgg
 EOF
 
 python setup.py build

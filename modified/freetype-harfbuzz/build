@@ -20,10 +20,10 @@ build_graphite() (
 
     cmake -B build \
         -DCMAKE_INSTALL_PREFIX=/usr \
-	-DCMAKE_C_FLAGS:STRING="$CFLAGS" \
-	-DCMAKE_BUILD_TYPE:STRING=None \
-	-DGRAPHITE2_COMPARE_RENDERER=OFF \
-	-DGRAPHITE2_NFILEFACE=ON
+        -DCMAKE_C_FLAGS:STRING="$CFLAGS" \
+        -DCMAKE_BUILD_TYPE:STRING=None \
+        -DGRAPHITE2_COMPARE_RENDERER=OFF \
+        -DGRAPHITE2_NFILEFACE=ON
 
     cmake --build   build
     cmake --install build
@@ -41,7 +41,7 @@ build_harfbuzz() (
         -Dgobject=disabled \
         -Dcairo=disabled \
         -Dicu=disabled \
-	-Dgraphite=enabled \
+        -Dgraphite=enabled \
         -Dbenchmark=disabled \
         -Dtests=disabled \
         . output
@@ -61,5 +61,5 @@ export CXXFLAGS="$CXXFLAGS -L$DESTDIR/usr/lib"
 
 build_freetype -Dharfbuzz=disabled
 build_graphite
-CFLAGS="$CFLAGS -lstdc++" build_harfbuzz
+build_harfbuzz
 build_freetype -Dharfbuzz=enabled --reconfigure

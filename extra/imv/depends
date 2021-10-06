@@ -1,1 +1,8 @@
-wayland
+glu
+libX11
+libheif
+libjpeg-turbo
+libpng
+libxcb
+libxkbcommon
+tiff

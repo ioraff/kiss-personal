@@ -1,5 +1,25 @@
 #!/bin/sh -e
 
+{
+    cd pybind11
+
+    unset DESTDIR
+
+    python setup.py build
+    python setup.py install \
+        --root="$PWD/dist" \
+        --skip-build \
+        --optimize='1'
+
+    cd dist/usr/lib/python*/site-packages
+
+    PYTHONPATH=$PWD:$(python -c "import sys; print(':'.join(sys.path))")
+
+    cd -; cd ..
+}
+
+export PYTHONPATH
+
 sed -i '/<vector>/a #include <stdint.h>' \
     scipy/optimize/rectangular_lsap/rectangular_lsap.cpp
 

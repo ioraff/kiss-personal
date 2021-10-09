@@ -25,7 +25,7 @@ index 48995b497..41b5f952d 100644
    FLATPAK_CONTEXT_DEVICE_SHM         = 1 << 3,
 +  FLATPAK_CONTEXT_DEVICE_SND         = 1 << 4,
  } FlatpakContextDevices;
- 
+
  typedef enum {
 diff --git a/common/flatpak-context.c b/common/flatpak-context.c
 index 58cee2a74..3c227f86e 100644
@@ -38,14 +38,14 @@ index 58cee2a74..3c227f86e 100644
 +  "snd",
    NULL
  };
- 
+
 diff --git a/common/flatpak-run.c b/common/flatpak-run.c
-index 24ec48e43..1108cf62e 100644
+index 3da5f332..c6e87e43 100644
 --- a/common/flatpak-run.c
 +++ b/common/flatpak-run.c
-@@ -1272,6 +1272,13 @@ flatpak_run_add_environment_args (FlatpakBwrap    *bwrap,
-           if (real_dev_shm != NULL)
-               flatpak_bwrap_add_args (bwrap, "--bind", real_dev_shm, "/dev/shm", NULL);
+@@ -1561,6 +1561,13 @@ flatpak_run_add_environment_args (FlatpakBwrap    *bwrap,
+                                   "--bind", shared_dev_shm, "/dev/shm",
+                                   NULL);
          }
 +
 +      if (context->devices & FLATPAK_CONTEXT_DEVICE_SND)
@@ -55,8 +55,13 @@ index 24ec48e43..1108cf62e 100644
 +            flatpak_bwrap_add_args (bwrap, "--dev-bind", "/dev/snd", "/dev/snd", NULL);
 +        }
      }
- 
-   flatpak_context_append_bwrap_filesystem (context, bwrap, app_id, app_id_dir, previous_app_id_dirs, &exports);
+
+   exports = flatpak_context_get_exports_full (context,
+@@ -4511,3 +4518,4 @@ flatpak_run_app (FlatpakDecomposed *app_ref,
+
+   return TRUE;
+ }
++
 diff --git a/doc/flatpak-build-finish.xml b/doc/flatpak-build-finish.xml
 index d92eeb4de..2c8f64ba2 100644
 --- a/doc/flatpak-build-finish.xml
@@ -108,7 +113,7 @@ index 7e445ac1d..a1610a6ba 100644
 @@ -180,6 +180,13 @@
                                  Available since 0.6.12.
                              </para></listitem></varlistentry>
- 
+
 +                            <varlistentry><term><option>snd</option></term>
 +                            <listitem><para>
 +                                Sound

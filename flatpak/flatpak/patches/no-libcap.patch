@@ -7,11 +7,11 @@ index 4a7c51d..3cd365f 100644
  #include "flatpak-run-private.h"
  #include "flatpak-instance.h"
 -#include <sys/capability.h>
- 
+
  static GOptionEntry options[] = {
    { NULL }
  };
- 
+
 -static void
 -drop_all_caps (void)
 -{
@@ -27,7 +27,7 @@ index 4a7c51d..3cd365f 100644
 @@ -226,8 +216,6 @@ flatpak_builtin_enter (int           argc,
    if (setuid (uid))
      return flatpak_fail (error, _("Can't switch uid"));
- 
+
 -  drop_all_caps ();
 -
    envp_array = g_ptr_array_new_with_free_func (g_free);
@@ -35,8 +35,8 @@ index 4a7c51d..3cd365f 100644
      {
 diff --git a/bubblewrap/bubblewrap.c b/bubblewrap/bubblewrap.c
 index b3d52bc..59b0076 100644
---- a/bubblewrap/bubblewrap.c
-+++ b/bubblewrap/bubblewrap.c
+--- a/subprojects/bubblewrap/bubblewrap.c
++++ b/subprojects/bubblewrap/bubblewrap.c
 @@ -28,7 +28,6 @@
  #include <sys/eventfd.h>
  #include <sys/fsuid.h>
@@ -62,7 +62,7 @@ index b3d52bc..59b0076 100644
 -  if (capset (&hdr, data) < 0)
 -    die_with_error ("capset failed");
  }
- 
+
  static void
  drop_all_caps (bool keep_requested_caps)
  {
@@ -102,7 +102,7 @@ index b3d52bc..59b0076 100644
 -        die_with_error ("capset failed");
 -    }
  }
- 
+
  static bool
  has_caps (void)
  {
@@ -115,7 +115,7 @@ index b3d52bc..59b0076 100644
 -  return data[0].permitted != 0 || data[1].permitted != 0;
 +  return 0;
  }
- 
+
  /* Most of the code here is used both to add caps to the ambient capabilities
 @@ -659,49 +605,6 @@ has_caps (void)
  static void
@@ -165,7 +165,7 @@ index b3d52bc..59b0076 100644
 -        }
 -    }
  }
- 
+
  static void
 @@ -748,10 +651,6 @@ acquire_privs (void)
    /* Are we setuid ? */
@@ -216,7 +216,7 @@ index b3d52bc..59b0076 100644
 -      requested_caps[0] = data[0].effective;
 -      requested_caps[1] = data[1].effective;
      }
- 
+
    /* Else, we try unprivileged user namespaces */
 @@ -2043,52 +1918,16 @@ parse_args_recurse (int          *argcp,
          }
@@ -225,7 +225,7 @@ index b3d52bc..59b0076 100644
 -          cap_value_t cap;
            if (argc < 2)
              die ("--cap-add takes an argument");
- 
+
 -          opt_cap_add_or_drop_used = TRUE;
 -
 -          if (strcasecmp (argv[1], "ALL") == 0)
@@ -269,6 +269,6 @@ index b3d52bc..59b0076 100644
 -                requested_caps[1] &= ~CAP_TO_MASK_1 (cap - 32);
 -            }
 +            die ("--cap-add takes an argument");
- 
+
            argv += 1;
            argc -= 1;

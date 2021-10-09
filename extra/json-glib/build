@@ -1,9 +1,0 @@
-#!/bin/sh -e
-
-meson \
-    --prefix=/usr \
-    -Dgtk_doc=disabled \
-    . build
-
-ninja -C build
-ninja -C build install

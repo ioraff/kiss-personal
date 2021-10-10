@@ -1,4 +1,35 @@
 #!/bin/sh -e
 
-make EXTRA_CFLAGS="$CFLAGS" EXTRA_LDFLAGS="$LDFLAGS" LTO=1
+out=$PWD/out
+mkdir -p out
+
+(
+    cd libmd
+
+    ./configure \
+        --prefix=/usr \
+        --disable-shared
+
+    make
+    make DESTDIR="$out" install
+)
+
+export CFLAGS="$CFLAGS -I$out/usr/include"
+export LDFLAGS="$CFLAGS -L$out/usr/lib"
+
+(
+
+    cd libbsd
+
+    ./configure \
+        --prefix=/usr \
+        --disable-shared
+
+    make
+    make DESTDIR="$out" install
+)
+
+export PKG_CONFIG_PATH="$out/usr/lib/pkgconfig"
+
+make LTO=1
 make PREFIX=/usr install

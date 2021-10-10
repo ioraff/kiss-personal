@@ -1,2 +1,4 @@
 dbus
+glib
+libudev-zero
 readline

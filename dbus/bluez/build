@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --exec-prefix=/usr \
+    --disable-systemd \
+    --enable-library \
+    --disable-obex \
+    --mandir=/usr/share/man \
+    --with-udevdir=/etc/udev \
+    --disable-manpages
+
+make
+make install

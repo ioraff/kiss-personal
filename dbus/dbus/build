@@ -1,0 +1,16 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --enable-user-session \
+    --disable-asserts \
+    --without-x \
+    --with-system-socket=/run/dbus/system_bus_socket \
+    --disable-doxygen-docs \
+    --with-system-pid-file=/run/dbus/pid \
+    --with-console-auth-dir=/run/console
+
+make
+make install

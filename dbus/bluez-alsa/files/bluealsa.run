@@ -1,0 +1,5 @@
+#!/bin/sh
+
+sv check bluetoothd >/dev/null || exit 1
+install -d -m0755 -g audio /run/bluealsa
+exec chpst -u root:audio bluealsa

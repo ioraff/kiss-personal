@@ -1,0 +1,31 @@
+#!/bin/sh -e
+
+out=$PWD/out
+mkdir -p out
+
+(
+    cd sbc
+
+    ./configure \
+        --prefix=/usr \
+        --disable-shared \
+        --disable-tester
+
+    make
+    make DESTDIR="$out" install
+)
+
+export SBC_CFLAGS="-I$out/usr/include"
+export SBC_LIBS="-L$out/usr/lib -lsbc"
+autoreconf --install
+
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --disable-static
+
+make
+make install
+
+install -Dm755 bluealsa.run "$1/etc/sv/bluealsa/run"
+ln -s /run/runit/supervise.bluealsa "$1/etc/sv/bluealsa/supervise"

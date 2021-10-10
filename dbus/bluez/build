@@ -12,3 +12,6 @@
 
 make
 make install
+
+install -Dm755 bluetoothd.run "$1/etc/sv/bluetoothd/run"
+ln -s /run/runit/supervise.bluetoothd "$1/etc/sv/bluetoothd/supervise"

@@ -2,13 +2,12 @@
 
 ./configure \
     --prefix=/usr \
-    --exec-prefix=/usr \
+    --libexecdir=/usr/lib \
     --disable-systemd \
     --enable-library \
+    --disable-manpages \
     --disable-obex \
-    --mandir=/usr/share/man \
-    --with-udevdir=/etc/udev \
-    --disable-manpages
+    --with-udevdir=/etc/udev
 
 make
 make install

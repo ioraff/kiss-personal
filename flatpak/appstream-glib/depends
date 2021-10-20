@@ -1,8 +1,0 @@
-gdk-pixbuf
-gtk+3
-glib
-gperf
-json-glib
-libarchive
-libsoup
-meson make

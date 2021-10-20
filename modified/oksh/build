@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --bindir=/usr/bin \
+    --mandir=/usr/share/man \
+    --enable-ksh
+
+make
+make install

@@ -11,10 +11,6 @@ extra:
 	Mostly python packages and their dependencies, as well as some media
 	libraries and tools.
 
-flatpak:
-	Flatpak and some of its dependencies. The most up-to-date repository of
-	these packages of those searched by kiss-find.
-
 modified:
 	My own forks from other repos. Should obviously not be used as is
 	unless you happen to have the same needs and file system as me.

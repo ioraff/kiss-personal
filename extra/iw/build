@@ -2,7 +2,7 @@
 
 patch -p1 < libnl_tiny.patch
 
-(cd libnl && make ALL_LIBS=libnl-tiny.a)
+make ALL_LIBS=libnl-tiny.a -C libnl
 
 export PKG_CONFIG_PATH="$PWD/libnl:$PKG_CONFIG_PATH"
 export CFLAGS="$CFLAGS -I$PWD/libnl/include -L$PWD/libnl"

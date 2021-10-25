@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+install -Dm644 docx2txt.config "$1/etc/docx2txt.config"
+install -Dm755 docx2txt.pl     "$1/usr/bin/docx2txt"

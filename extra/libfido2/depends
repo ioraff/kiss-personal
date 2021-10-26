@@ -1,0 +1,4 @@
+libudev-zero
+linux-headers make
+openssl
+zlib

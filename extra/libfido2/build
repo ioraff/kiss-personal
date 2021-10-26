@@ -1,0 +1,30 @@
+#!/bin/sh -e
+
+out=$PWD/out
+mkdir -p out
+
+(
+    cd libcbor
+
+    cmake -B build \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DCMAKE_INSTALL_LIBDIR=lib \
+        -DBUILD_SHARED_LIBS=False \
+        -DCMAKE_BUILD_TYPE=None
+
+    cmake --build   build
+    DESTDIR="$out" cmake --install build
+)
+
+export PKG_CONFIG_PATH="$out/usr/lib/pkgconfig"
+export CFLAGS="$CFLAGS -I$out/usr/include"
+export LDFLAGS="$CFLAGS -L$out/usr/lib"
+
+cmake -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DBUILD_SHARED_LIBS=True \
+    -DCMAKE_BUILD_TYPE=None
+
+cmake --build   build
+cmake --install build

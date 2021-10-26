@@ -1,13 +1,13 @@
 #!/bin/sh -e
 
-patch -p1 < libnl_tiny.patch
-
 make ALL_LIBS=libnl-tiny.a -C libnl
 
 export PKG_CONFIG_PATH="$PWD/libnl:$PKG_CONFIG_PATH"
-export CFLAGS="$CFLAGS -I$PWD/libnl/include -L$PWD/libnl"
-export CFLAGS="$CFLAGS -static -D_GNU_SOURCE"
-export LDFLAGS="$LDFLAGS $CFLAGS"
+export CFLAGS="$CFLAGS -I$PWD/libnl/include -D_GNU_SOURCE"
+export LDFLAGS="$LDFLAGS -static -L$PWD/libnl"
 
-make
-make PREFIX=/usr SBINDIR=/usr/bin install
+make \
+    NL1FOUND="" NL2FOUND=Y NLLIBNAME=libnl-tiny LIBS=-lnl-tiny \
+    PREFIX=/usr \
+    SBINDIR=/usr/bin \
+    install

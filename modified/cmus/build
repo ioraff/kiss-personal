@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+./configure \
+    prefix=/usr \
+    CONFIG_OSS=n \
+    CONFIG_FFMPEG=n
+
+make
+make install

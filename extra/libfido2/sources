@@ -1,2 +1,2 @@
-git+https://github.com/Yubico/libfido2#5dd4949551ee4c7f474768eadcadfd43812f9ac2
+https://github.com/Yubico/libfido2/archive/refs/tags/1.9.0.tar.gz
 https://github.com/PJK/libcbor/archive/refs/tags/v0.8.0.tar.gz libcbor

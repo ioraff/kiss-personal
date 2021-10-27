@@ -1,1 +1,2 @@
-/home/omr/.local/share/kiss/repo/extra/dhcpcd/files/dhcpcd.run
+#!/bin/sh
+exec dhcpcd -BMq 2>&1

@@ -6,7 +6,8 @@ rm -rf pkgs/sqlite3*
     --prefix=/usr \
     --mandir=/usr/share/man \
     --enable-threads \
-    --enable-64bit
+    --enable-64bit \
+    --with-system-sqlite
 
 make INSTALL_ROOT="$1" install install-private-headers
 ln -sf tclsh${2%.*}     "$1/usr/bin/tclsh"

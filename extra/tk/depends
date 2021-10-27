@@ -1,3 +1,5 @@
+fontconfig
+libX11
 libXScrnSaver
 libXft
 tcl

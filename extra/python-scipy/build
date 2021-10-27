@@ -29,7 +29,7 @@ q
 EOF
 
 export SCIPY_USE_PYTHRAN=0
-python setup.py config_fc --fcompiler=gnu95 build
+python setup.py build
 python setup.py install \
     --prefix=/usr \
     --root="$1" \

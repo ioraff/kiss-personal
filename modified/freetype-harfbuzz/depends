@@ -1,17 +1,1 @@
-cmake make
-expat
-libX11
-libXau
-libXdamage
-libXext
-libXfixes
-libXrender
-libXxf86vm
-libdrm
-libpng
-libxcb
-libxshmfence
-mesa
-meson   make
-pixman
-pkgconf make
+/home/omr/.local/share/kiss/repo-tex/extra/freetype-harfbuzz/depends

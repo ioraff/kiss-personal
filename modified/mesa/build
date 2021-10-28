@@ -22,12 +22,12 @@
 
     cd -; cd ..
 }
-
 export PYTHONPATH
 
 # Fix issues with musl and firefox.
 # https://bugs.freedesktop.org/show_bug.cgi?id=35268
 # https://github.com/mesa3d/mesa/commit/9f37c9903b87f86a533bfaffa72f0ecb285b02b2
+# https://gitlab.freedesktop.org/mesa/mesa/-/issues/966
 sed "/pre_args += '-DUSE_ELF_TLS'/d" meson.build > _
 mv -f _ meson.build
 
@@ -47,6 +47,8 @@ meson \
     -Ddri-drivers='' \
     -Dgallium-drivers=iris \
     -Dvulkan-drivers=intel \
+    -Dglx=auto \
+    -Degl=enabled \
     -Dvalgrind=false \
     -Dzstd=false \
     -Dglvnd="${glvnd_enabled:-false}" \

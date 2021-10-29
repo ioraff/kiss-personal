@@ -1,25 +1,5 @@
 #!/bin/sh -e
 
-{
-    cd pybind11
-
-    unset DESTDIR
-
-    python setup.py build
-    python setup.py install \
-        --root="$PWD/dist" \
-        --skip-build \
-        --optimize='1'
-
-    cd dist/usr/lib/python*/site-packages
-
-    PYTHONPATH=$PWD:$(python -c "import sys; print(':'.join(sys.path))")
-
-    cd -; cd ..
-}
-
-export PYTHONPATH
-
 ed scipy/optimize/rectangular_lsap/rectangular_lsap.cpp >/dev/null <<EOF
 /vector/a
 #include <stdint.h>
@@ -28,8 +8,16 @@ w
 q
 EOF
 
-export SCIPY_USE_PYTHRAN=0
-python setup.py build
+cat > site.cfg <<EOF
+[ALL]
+library_dirs = /usr/lib
+include_dirs = /usr/include
+EOF
+
+export NPY_NUM_BUILD_JOBS="$(nproc)"
+export NPY_USE_BLAS_ILP64=1
+
+python setup.py config_fc --fcompiler=gnu95 build
 python setup.py install \
     --prefix=/usr \
     --root="$1" \

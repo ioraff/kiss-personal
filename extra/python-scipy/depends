@@ -1,6 +1,7 @@
-boost          make
 cython         make
-eigen          make
 openblas
+pybind11       make
 python
 python-numpy
+python-pillow
+python-pythran make

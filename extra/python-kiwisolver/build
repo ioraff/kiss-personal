@@ -1,5 +1,21 @@
 #!/bin/sh -e
 
+{
+    cd cppy
+
+    python setup.py build
+    python setup.py install \
+        --prefix=/usr \
+        --root="$PWD/dist"
+
+    cd dist/usr/lib/python*/site-packages
+
+    PYTHONPATH=$PWD:$(python -c "import sys; print(':'.join(sys.path))")
+
+    cd -; cd ..
+}
+export PYTHONPATH
+
 python setup.py build
 python setup.py install \
     --prefix=/usr \

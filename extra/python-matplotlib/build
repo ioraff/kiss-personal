@@ -1,8 +1,7 @@
 #!/bin/sh -e
 
-cat > setup.cfg << EOF
+cat > setup.cfg <<EOF
 [libs]
-enable_lto = True
 system_freetype = True
 
 [rc_options]

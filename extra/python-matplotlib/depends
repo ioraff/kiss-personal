@@ -1,4 +1,3 @@
-fontconfig
 freetype-harfbuzz
 python
 python-cycler
@@ -7,3 +6,4 @@ python-kiwisolver
 python-numpy
 python-pillow
 python-pyparsing
+tk

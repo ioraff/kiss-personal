@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+python setup.py build
+python setup.py install \
+    --root="$1" \
+    --optimize=1 \
+    --skip-build
+
+rm -r "$1"/usr/lib/python*/site-packages/pythran/boost

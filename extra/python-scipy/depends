@@ -1,6 +1,5 @@
 cython         make
 openblas
-pybind11       make
 python
 python-numpy
 python-pillow

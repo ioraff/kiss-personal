@@ -1,17 +1,35 @@
 #!/bin/sh -e
 
+unset DESTDIR
+
+cp -ar openblas openblas-ilp64
+
 mk() {
     make \
-        PREFIX=/usr \
+        NO_STATIC=1 \
         USE_OPENMP=0 \
         NO_LAPACK=0 \
-        NO_AFFINITY=1 \
-        NO_STATIC=1 \
-        INTERFACE64=1 \
-        NUM_THREADS="$(nproc)" \
         MAJOR_VERSION=3 \
+        NO_AFFINITY=1 \
+        NUM_THREADS="$(nproc)" \
+        DYNAMIC_ARCH=0 \
         "$@"
 }
 
-CFLAGS='' mk CFLAGS="$CPPFLAGS $CFLAGS"
-mk install
+CFLAGS='' mk -C openblas \
+    CFLAGS="$CFLAGS" \
+    PREFIX=/usr
+CFLAGS='' mk -C openblas-ilp64 \
+    CFLAGS="$CFLAGS" \
+    PREFIX=/usr \
+    INTERFACE64=1 \
+    SYMBOLSUFFIX=64_
+
+mk -C openblas \
+    PREFIX="$1/usr" \
+    install
+mk -C openblas-ilp64 \
+    PREFIX="$1/usr" \
+    INTERFACE64=1 \
+    SYMBOLSUFFIX=64_ \
+    install

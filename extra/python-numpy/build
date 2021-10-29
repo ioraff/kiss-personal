@@ -1,16 +1,16 @@
 #!/bin/sh -e
 
-cat > site.cfg << EOF
-[openblas_ilp64]
-libraries = openblas
+cat > site.cfg <<EOF
+[openblas64_]
+libraries = openblas64_
 library_dirs = /usr/lib
 include_dirs = /usr/include
 runtime_library_dirs = /usr/lib
 EOF
 
 export NPY_USE_BLAS_ILP64=1
-export NPY_BLAS_ILP64_ORDER=openblas_ilp64
-export NPY_LAPACK_ILP64_ORDER=openblas_ilp64
+export NPY_BLAS_ILP64_ORDER=openblas64_
+export NPY_LAPACK_ILP64_ORDER=openblas64_
 
 python setup.py build \
     -j "$(nproc)"

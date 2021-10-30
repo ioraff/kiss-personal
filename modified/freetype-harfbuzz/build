@@ -50,16 +50,16 @@ build_harfbuzz() (
     ninja -C output install
 )
 
-build_freetype -Dharfbuzz=disabled
-
-export LDFLAGS="$LDFLAGS -L$DESTDIR/usr/lib"
+# Point Freetype to the Harfbuzz files.
+export CFLAGS="$CFLAGS -I$DESTDIR/usr/include/harfbuzz"
+export CFLAGS="$CFLAGS -L$DESTDIR/usr/lib "
 export PKG_CONFIG_PATH=$DESTDIR/usr/lib/pkgconfig
 
-build_graphite
+# Point Harfbuzz to the Freetype files.
+export CXXFLAGS="$CXXFLAGS -I$DESTDIR/usr/include/freetype2"
+export CXXFLAGS="$CXXFLAGS -L$DESTDIR/usr/lib"
 
-CXXFLAGS="$CXXFLAGS -I$DESTDIR/usr/include/freetype2" \
-    LDFLAGS="$LDFLAGS -lstdc++" \
-    build_harfbuzz
-
-CFLAGS="$CFLAGS -I$DESTDIR/usr/include/harfbuzz" \
-    build_freetype -Dharfbuzz=enabled --reconfigure
+build_freetype -Dharfbuzz=disabled
+LDFLAGS="$LDFLAGS -lstdc++" build_graphite
+build_harfbuzz
+build_freetype -Dharfbuzz=enabled --reconfigure

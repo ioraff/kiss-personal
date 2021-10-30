@@ -1,4 +1,6 @@
+boost          make
 cython         make
+eigen          make
 openblas
 python
 python-numpy

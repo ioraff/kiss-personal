@@ -33,3 +33,9 @@ mk -C openblas-ilp64 \
     INTERFACE64=1 \
     SYMBOLSUFFIX=64_ \
     install
+
+sed "s|$1||" "$1"/usr/lib/cmake/openblas/OpenBLASConfig.cmake > _
+mv -f _ "$1"/usr/lib/cmake/openblas/OpenBLASConfig.cmake
+
+sed "s|$1||" "$1"/usr/lib/pkgconfig/openblas.pc > _
+mv -f _ "$1"/usr/lib/pkgconfig/openblas.pc

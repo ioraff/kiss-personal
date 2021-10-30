@@ -60,6 +60,6 @@ export CXXFLAGS="$CXXFLAGS -I$DESTDIR/usr/include/freetype2"
 export CXXFLAGS="$CXXFLAGS -L$DESTDIR/usr/lib"
 
 build_freetype -Dharfbuzz=disabled
-LDFLAGS="$LDFLAGS -lstdc++" build_graphite
-build_harfbuzz
+build_graphite
+LDFLAGS="$LDFLAGS -lstdc++" build_harfbuzz
 build_freetype -Dharfbuzz=enabled --reconfigure

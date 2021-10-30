@@ -6,36 +6,24 @@ cp -ar openblas openblas-ilp64
 
 mk() {
     make \
+        PREFIX=/usr \
         NO_STATIC=1 \
-        USE_OPENMP=0 \
-        NO_LAPACK=0 \
         MAJOR_VERSION=3 \
         NO_AFFINITY=1 \
         NUM_THREADS="$(nproc)" \
-        DYNAMIC_ARCH=0 \
         "$@"
 }
 
-CFLAGS='' mk -C openblas \
-    CFLAGS="$CFLAGS" \
-    PREFIX=/usr
-CFLAGS='' mk -C openblas-ilp64 \
-    CFLAGS="$CFLAGS" \
-    PREFIX=/usr \
+mk -C openblas
+mk -C openblas-ilp64 \
     INTERFACE64=1 \
     SYMBOLSUFFIX=64_
 
 mk -C openblas \
-    PREFIX="$1/usr" \
+    DESTDIR="$1" \
     install
 mk -C openblas-ilp64 \
-    PREFIX="$1/usr" \
+    DESTDIR="$1" \
     INTERFACE64=1 \
     SYMBOLSUFFIX=64_ \
     install
-
-sed "s|$1||" "$1"/usr/lib/cmake/openblas/OpenBLASConfig.cmake > _
-mv -f _ "$1"/usr/lib/cmake/openblas/OpenBLASConfig.cmake
-
-sed "s|$1||" "$1"/usr/lib/pkgconfig/openblas.pc > _
-mv -f _ "$1"/usr/lib/pkgconfig/openblas.pc

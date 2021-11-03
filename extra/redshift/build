@@ -1,0 +1,46 @@
+#!/bin/sh -e
+
+out=$PWD/out
+mkdir -p out
+
+{
+    cd perl-xml-parser
+
+    perl Makefile.PL INSTALLDIRS=vendor
+    make
+    make DESTDIR="$PWD/dist" install
+
+    cd dist/usr/lib/perl*/vendor_perl/*/x86_64-linux-thread-multi
+    export PERLLIB="$PWD"
+
+    cd -; cd ..
+}
+
+(
+    cd gettext-tiny
+
+    make prefix=/usr LIBINTL=MUSL
+    make prefix=/usr LIBINTL=MUSL DESTDIR="$out" install
+)
+
+(
+    cd intltool
+
+    ./configure \
+        --prefix=/usr
+
+    make
+    make DESTDIR="$out" install
+)
+
+export PATH="$out/usr/bin:$PATH"
+
+./configure \
+    --prefix=/usr \
+    --disable-nls \
+    --disable-gui \
+    --disable-geoclue2 \
+    --disable-vidmode
+
+make
+make install

@@ -1,2 +1,0 @@
-#!/bin/sh
-exec dhcpcd -BMq 2>&1

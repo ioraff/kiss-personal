@@ -11,6 +11,7 @@ rm -rf pkgs/sqlite3*
         --enable-64bit \
         --with-system-sqlite
 
+    make
     make INSTALL_ROOT="$1" install install-private-headers
     ln -sf tclsh"${2%.*}"     "$1/usr/bin/tclsh"
     ln -sf libtcl"${2%.*}".so "$1/usr/lib/libtcl.so"

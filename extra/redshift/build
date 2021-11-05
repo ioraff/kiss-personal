@@ -8,9 +8,9 @@ mkdir -p out
 
     perl Makefile.PL INSTALLDIRS=vendor
     make
-    make DESTDIR="$PWD/dist" install
+    make DESTDIR="$out" install
 
-    cd dist/usr/lib/perl*/vendor_perl/*/x86_64-linux-thread-multi
+    cd "$out"/usr/lib/perl*/vendor_perl/*/x86_64-linux-thread-multi
     export PERLLIB="$PWD"
 
     cd -; cd ..

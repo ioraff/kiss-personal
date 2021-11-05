@@ -2,28 +2,40 @@
 
 rm -rf pkgs/sqlite3*
 
-./unix/configure \
-    --prefix=/usr \
-    --mandir=/usr/share/man \
-    --enable-threads \
-    --enable-64bit \
-    --with-system-sqlite
+(
+    cd unix
+    ./configure \
+        --prefix=/usr \
+        --mandir=/usr/share/man \
+        --enable-threads \
+        --enable-64bit \
+        --with-system-sqlite
 
-make INSTALL_ROOT="$1" install install-private-headers
-ln -sf tclsh${2%.*}     "$1/usr/bin/tclsh"
-ln -sf libtcl${2%.*}.so "$1/usr/lib/libtcl.so"
+    make INSTALL_ROOT="$1" install install-private-headers
+    ln -sf tclsh"${2%.*}"     "$1/usr/bin/tclsh"
+    ln -sf libtcl"${2%.*}".so "$1/usr/lib/libtcl.so"
 
-install -Dm644 unix/tcl.m4 -t "$1/usr/share/aclocal"
+    install -Dm644 tcl.m4 -t "$1/usr/share/aclocal"
+)
 
-tdbcver=tdbc1.1.2
-sed -e "s#$PWD/tcl$2/unix/pkgs/$tdbcver#/usr/lib/$tdbcver#" \
-    -e "s#$PWD/tcl$2/pkgs/$tdbcver/generic#/usr/include#" \
-    -e "s#$PWD/tcl$2/pkgs/$tdbcver/library#/usr/lib/tcl${2%.*}#" \
-    -e "s#$PWD/tcl$2/pkgs/$tdbcver#/usr/include#" \
-    -i "$1/usr/lib/$tdbcver/tdbcConfig.sh"
+# remove buildroot traces
+sed -e "s#$PWD/unix#/usr/lib#" \
+    -e "s#$PWD#/usr/include#" \
+    -i "$1/usr/lib/tclConfig.sh"
 
-itclver=itcl4.2.1
-sed -e "s#$PWD/tcl$2/unix/pkgs/$itclver#/usr/lib/$itclver#" \
-    -e "s#$PWD/tcl$2/pkgs/$itclver/generic#/usr/include#" \
-    -e "s#$PWD/tcl$2/pkgs/$itclver#/usr/include#" \
-    -i "$1/usr/lib/$itclver/itclConfig.sh"
+cd pkgs/tdbc*
+tdbc="${PWD##*/}"
+cd -
+sed -e "s#$PWD/unix/pkgs/$tdbc#/usr/lib/$tdbc#" \
+    -e "s#$PWD/pkgs/$tdbc/generic#/usr/include#" \
+    -e "s#$PWD/pkgs/$tdbc/library#/usr/lib/tcl${2%.*}#" \
+    -e "s#$PWD/pkgs/$tdbc#/usr/include#" \
+    -i "$1/usr/lib/$tdbc/tdbcConfig.sh"
+
+cd pkgs/itcl*
+itcl="${PWD##*/}"
+cd -
+sed -e "s#$PWD/unix/pkgs/$itcl#/usr/lib/$itcl#" \
+    -e "s#$PWD/pkgs/$itcl/generic#/usr/include#" \
+    -e "s#$PWD/pkgs/$itcl#/usr/include#" \
+    -i "$1/usr/lib/$itcl/itclConfig.sh"

@@ -8,15 +8,11 @@ dbus:
 	of those searched by kiss-find.
 
 extra:
-	Mostly python packages and their dependencies, as well as some media
+	Mostly numerical packages and their dependencies, as well as some media
 	libraries and tools.
 
-modified:
-	My own forks from other repos. Should obviously not be used as is
-	unless you happen to have the same needs and file system as me.
 
-
-Every commit is signed with my GPG key, which has the fingerprint:
+Every commit is signed with my GPG key, which has the following fingerprint:
 
 5BAF 496C CC19 1FBA 1938  4D4E A68B 10E2 554D EBCB
 

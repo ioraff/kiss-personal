@@ -23,4 +23,5 @@ done
 # remove buildroot traces
 sed -e "s#$PWD/unix#/usr/lib#" \
     -e "s#$PWD#/usr/include#" \
-    -i "$1/usr/lib/tkConfig.sh"
+    "$1/usr/lib/tkConfig.sh" > _
+mv -f _ "$1/usr/lib/tkConfig.sh"

@@ -22,7 +22,8 @@ rm -rf pkgs/sqlite3*
 # remove buildroot traces
 sed -e "s#$PWD/unix#/usr/lib#" \
     -e "s#$PWD#/usr/include#" \
-    -i "$1/usr/lib/tclConfig.sh"
+    "$1/usr/lib/tclConfig.sh" > _
+mv -f _ "$1/usr/lib/tclConfig.sh"
 
 cd pkgs/tdbc*
 tdbc="${PWD##*/}"
@@ -31,7 +32,8 @@ sed -e "s#$PWD/unix/pkgs/$tdbc#/usr/lib/$tdbc#" \
     -e "s#$PWD/pkgs/$tdbc/generic#/usr/include#" \
     -e "s#$PWD/pkgs/$tdbc/library#/usr/lib/tcl${2%.*}#" \
     -e "s#$PWD/pkgs/$tdbc#/usr/include#" \
-    -i "$1/usr/lib/$tdbc/tdbcConfig.sh"
+    "$1/usr/lib/$tdbc/tdbcConfig.sh" > _
+mv -f _ "$1/usr/lib/$tdbc/tdbcConfig.sh"
 
 cd pkgs/itcl*
 itcl="${PWD##*/}"
@@ -39,4 +41,5 @@ cd -
 sed -e "s#$PWD/unix/pkgs/$itcl#/usr/lib/$itcl#" \
     -e "s#$PWD/pkgs/$itcl/generic#/usr/include#" \
     -e "s#$PWD/pkgs/$itcl#/usr/include#" \
-    -i "$1/usr/lib/$itcl/itclConfig.sh"
+    "$1/usr/lib/$itcl/itclConfig.sh" > _
+mf -f _ "$1/usr/lib/$tdbc/tdbcConfig.sh"

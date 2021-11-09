@@ -1,0 +1,5 @@
+python
+python-pyqt-builder make
+python-pyqt5-sip
+qt5
+sip

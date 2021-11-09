@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+sip-build \
+    --confirm-license
+
+make -C build
+make -C build INSTALL_ROOT="$1" install

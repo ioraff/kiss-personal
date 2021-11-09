@@ -42,4 +42,4 @@ sed -e "s#$PWD/unix/pkgs/$itcl#/usr/lib/$itcl#" \
     -e "s#$PWD/pkgs/$itcl/generic#/usr/include#" \
     -e "s#$PWD/pkgs/$itcl#/usr/include#" \
     "$1/usr/lib/$itcl/itclConfig.sh" > _
-mf -f _ "$1/usr/lib/$tdbc/tdbcConfig.sh"
+mv -f _ "$1/usr/lib/$tdbc/tdbcConfig.sh"

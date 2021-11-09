@@ -3,9 +3,6 @@
 cat > setup.cfg <<EOF
 [libs]
 system_freetype = True
-
-[rc_options]
-backend = TkAgg
 EOF
 
 python setup.py build

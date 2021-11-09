@@ -1,8 +1,7 @@
-glu
-libX11
+icu
+libglvnd
 libheif
 libjpeg-turbo
 libpng
-libxcb
 libxkbcommon
 tiff

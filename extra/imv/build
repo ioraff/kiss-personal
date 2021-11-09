@@ -2,7 +2,7 @@
 
 meson \
     --prefix=/usr \
-    -Dwindows=x11 \
+    -Dwindows=wayland \
     . output
 
 ninja -C output

@@ -1,7 +1,3 @@
-freetype-harfbuzz
-lcms
 libjpeg-turbo
-libwebp
-openjpeg2
 python
 zlib

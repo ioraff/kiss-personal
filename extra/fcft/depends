@@ -1,0 +1,6 @@
+fontconfig
+freetype-harfbuzz
+pixman
+scdoc make
+wayland
+wayland-protocols make

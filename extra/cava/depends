@@ -1,0 +1,6 @@
+alsa-lib
+autoconf make
+automake make
+fftw
+libtool  make
+ncurses

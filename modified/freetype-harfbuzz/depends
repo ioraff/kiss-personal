@@ -1,0 +1,8 @@
+cmake make
+expat
+libdrm
+libpng
+mesa
+meson   make
+pixman
+pkgconf make

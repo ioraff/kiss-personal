@@ -1,0 +1,61 @@
+#!/bin/sh -e
+
+export F77=gfortran
+export CFLAGS="$CFLAGS -O3 -fomit-frame-pointer -malign-double -fstrict-aliasing -ffast-math"
+
+cp -pR fftw fftw-double
+cp -pR fftw fftw-long-double
+cp -pR fftw fftw-quad
+
+(
+    cd fftw
+
+    ./configure \
+        --prefix=/usr \
+        --enable-shared \
+        --enable-threads \
+        --enable-sse \
+        --enable-avx \
+        --enable-single
+)
+
+(
+    cd fftw-double
+
+    ./configure \
+        --prefix=/usr \
+        --enable-shared \
+        --enable-threads \
+        --enable-sse2 \
+        --enable-avx
+)
+
+(
+    cd fftw-long-double
+
+    ./configure \
+        --prefix=/usr \
+        --enable-shared \
+        --enable-threads \
+        --enable-long-double
+)
+
+(
+    cd fftw-quad
+
+    ./configure \
+        --prefix=/usr \
+        --enable-shared \
+        --enable-threads \
+        --enable-quad-precision
+)
+
+make -C fftw
+make -C fftw-double
+make -C fftw-long-double
+make -C fftw-quad
+
+make install -C fftw
+make install -C fftw-double
+make install -C fftw-long-double
+make install -C fftw-quad

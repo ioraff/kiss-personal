@@ -1,15 +1,34 @@
 #!/bin/sh -e
 
-./configure --prefix=/usr \
-            --sbindir=/usr/bin \
-            --libexecdir=/usr/lib/gnupg \
-            --enable-symcryptrun \
-            --enable-gpg-is-gpg2 \
-            --disable-ldap \
-            --disable-nls
+out=$PWD/out
+mkdir -p out
+
+(
+    cd ntbtls
+
+    ./configure \
+        --prefix=/usr \
+        --enable-static \
+        --disable-shared
+
+    make
+    make DESTDIR="$out" install
+)
+
+export CPPFLAGS="$CPPFLAGS -I$out/usr/include"
+export LDFLAGS="$LDFLAGS -L$out/usr/lib"
+
+./configure \
+    --prefix=/usr \
+    --sbindir=/usr/bin \
+    --libexecdir=/usr/lib/gnupg \
+    --enable-symcryptrun \
+    --enable-gpg-is-gpg2 \
+    --disable-ldap \
+    --disable-nls
 
 make
 make install
 
-ln -s /usr/bin/gpg2 "$1/usr/bin/gpg"
-ln -s /usr/bin/gpgv2 "$1/usr/bin/gpgv"
+ln -s gpg2  "$1/usr/bin/gpg"
+ln -s gpgv2 "$1/usr/bin/gpgv"

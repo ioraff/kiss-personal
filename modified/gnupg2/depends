@@ -1,7 +1,1 @@
-gnutls
-libassuan
-libgcrypt
-libgpg-error
-libksba
-npth
-pinentry
+/home/omr/.local/share/kiss/repo-community/community/gnupg2/depends

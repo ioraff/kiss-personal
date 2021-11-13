@@ -10,8 +10,7 @@ mv -f _ Makefile.in
     --sysconfdir=/etc \
     --disable-doc \
     --disable-full-doc \
-    --enable-hcache \
-    --enable-sidebar
+    --enable-hcache
 
 make
 make install-exec

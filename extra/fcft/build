@@ -2,6 +2,7 @@
 
 meson \
     --prefix=/usr \
+    --buildtype=release \
     . output
 
 ninja -C output

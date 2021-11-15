@@ -11,6 +11,13 @@ extra:
 	Mostly numerical packages and their dependencies, as well as some media
 	libraries and tools.
 
+modified:
+	Forks of packages from other repositories, with all unmodified files
+	symlinked to the parent repository.
+
+old:
+	Unmaintained packages, moved from extra/.
+
 
 Every commit is signed with my GPG key, which has the following fingerprint:
 

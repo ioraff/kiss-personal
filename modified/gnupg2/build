@@ -22,13 +22,9 @@ export LDFLAGS="$LDFLAGS -L$out/usr/lib"
     --prefix=/usr \
     --sbindir=/usr/bin \
     --libexecdir=/usr/lib/gnupg \
-    --enable-symcryptrun \
-    --enable-gpg-is-gpg2 \
+    --disable-scdaemon \
     --disable-ldap \
     --disable-nls
 
 make
 make install
-
-ln -s gpg2  "$1/usr/bin/gpg"
-ln -s gpgv2 "$1/usr/bin/gpgv"

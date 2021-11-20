@@ -1,0 +1,5 @@
+python
+python-pyqt-builder make
+python-pyqt6-sip
+qt6-base
+sip make

@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+sip-build \
+    --confirm-license \
+    --verbose
+
+make -C build
+make -C build INSTALL_ROOT="$1" install
+
+python    -m compileall -d / "$1"/usr/lib
+python -O -m compileall -d / "$1"/usr/lib

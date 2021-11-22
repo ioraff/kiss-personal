@@ -18,6 +18,13 @@ modified:
 old:
 	Unmaintained packages, moved from extra/.
 
+ssl:
+	Port of some packages to a different ssl library.  This typically has
+	involved nothing more than changing the depends file from openssl to
+	libressl.  Packages that support bearssl use that instead, and packages
+	that support libtls use that instead of libssl so as to use
+	libtls-bearssl.
+
 
 Every commit is signed with my GPG key, which has the following fingerprint:
 

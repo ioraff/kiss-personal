@@ -1,0 +1,16 @@
+#!/bin/sh -e
+
+for p in *.patch; do
+    patch -p1 < "$p"
+done
+
+make
+
+mkdir -p \
+    "$1/usr/bin" \
+    "$1/usr/include" \
+    "$1/usr/lib"
+cp -f build/brssl         "$1"/usr/bin
+cp -f inc/*               "$1"/usr/include
+cp -f build/libbearssl.a  "$1"/usr/lib
+cp -f build/libbearssl.so "$1"/usr/lib

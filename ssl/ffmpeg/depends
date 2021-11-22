@@ -3,7 +3,7 @@ lame
 libass
 libdrm
 libogg
-libressl
+libtls-bearssl
 libvorbis
 libvpx
 libwebp

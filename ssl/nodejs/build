@@ -1,7 +1,5 @@
 #!/bin/sh -e
 
-export CFLAGS="$CFLAGS -O3"
-export CXXFLAGS="$CXXFLAGS -O3"
 # Fix build when libatomic.so does not exist in the system.
 # This may be provided by compiler-rt which requires no additional
 # linker flags to be used.

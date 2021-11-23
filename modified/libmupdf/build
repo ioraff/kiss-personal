@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+patch -p1 < no-gumbo.patch
+
+export CFLAGS="$CFLAGS -fPIC -DFZ_ENABLE_HTML=0 -DFZ_ENABLE_EPUB=0"
+
+make \
+    prefix=/usr \
+    USE_SYSTEM_LIBS=yes \
+    HAVE_X11=no \
+    HAVE_GLUT=no \
+    install

@@ -1,0 +1,5 @@
+fontconfig
+freetype-harfbuzz
+libdrm
+pixman
+wayland

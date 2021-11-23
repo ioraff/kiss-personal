@@ -2,8 +2,7 @@
 
 ./configure \
     --prefix=/usr \
-    --sysconfdir=/etc \
-    --disable-tls
+    --sysconfdir=/etc
 
 make
 make install
@@ -12,3 +11,21 @@ mkdir -p "$1/etc/ssl/certs"
 cp -f update-certdata.sh "$1/etc/ssl"
 
 ln -s ../cert.pem "$1/etc/ssl/certs/ca-certificates.crt"
+
+# Provided by libtls-bearssl
+rm -rf \
+    "$1/usr/include/tls.h" \
+    "$1/usr/lib/libtls"* \
+    "$1/usr/lib/pkgconfig/libtls.pc" \
+    "$1/usr/share/man/man3/tls_read.3" \
+    "$1/usr/share/man/man3/tls_ocsp_process_response.3" \
+    "$1/usr/share/man/man3/tls_load_file.3" \
+    "$1/usr/share/man/man3/tls_init.3" \
+    "$1/usr/share/man/man3/tls_connect.3" \
+    "$1/usr/share/man/man3/tls_conn_version.3" \
+    "$1/usr/share/man/man3/tls_config_verify.3" \
+    "$1/usr/share/man/man3/tls_config_set_session_id.3" \
+    "$1/usr/share/man/man3/tls_config_set_protocols.3" \
+    "$1/usr/share/man/man3/tls_config_ocsp_require_stapling.3" \
+    "$1/usr/share/man/man3/tls_client.3" \
+    "$1/usr/share/man/man3/tls_accept_socket.3"

@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --with-screen=ncursesw \
+    --with-zlib
+
+make
+make install

@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+cat > config.mk <<EOF
+PREFIX          = /usr
+CC              = gcc
+CFLAGS          ?= -pipe
+
+ENABLE_DEBUG    = 0
+EOF
+
+make
+make install

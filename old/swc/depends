@@ -1,0 +1,7 @@
+libdrm
+libinput
+libudev-zero
+libxkbcommon
+pixman
+wayland
+wld

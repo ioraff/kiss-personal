@@ -1,0 +1,22 @@
+diff --git a/intel/batch.c b/intel/batch.c
+index 6dd22a3..c012eed 100644
+--- a/intel/batch.c
++++ b/intel/batch.c
+@@ -62,6 +62,7 @@ static const struct intel_device_info device_info_cnl_2x8 = { .gen = 10 };
+ static const struct intel_device_info device_info_cnl_3x8 = { .gen = 10 };
+ static const struct intel_device_info device_info_cnl_4x8 = { .gen = 10 };
+ static const struct intel_device_info device_info_cnl_5x8 = { .gen = 10 };
++static const struct intel_device_info device_info_tgl_gt2 = { .gen = 12 };
+ 
+ static const struct intel_device_info *
+ device_info(int device_id)
+diff --git a/intel/i965_pci_ids.h b/intel/i965_pci_ids.h
+index 57e70b7..e1be823 100644
+--- a/intel/i965_pci_ids.h
++++ b/intel/i965_pci_ids.h
+@@ -188,3 +188,5 @@ CHIPSET(0x5A50, cnl_5x8, "Intel(R) HD Graphics (Cannonlake 5x8 GT2)")
+ CHIPSET(0x5A51, cnl_5x8, "Intel(R) HD Graphics (Cannonlake 5x8 GT2)")
+ CHIPSET(0x5A52, cnl_5x8, "Intel(R) HD Graphics (Cannonlake 5x8 GT2)")
+ CHIPSET(0x5A54, cnl_5x8, "Intel(R) HD Graphics (Cannonlake 5x8 GT2)")
++CHIPSET(0x9A40, tgl_gt2, "Intel(R) Xe Graphics (Tigerlake GT2)")
++CHIPSET(0x9A49, tgl_gt2, "Intel(R) Xe Graphics (Tigerlake GT2)")

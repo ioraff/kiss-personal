@@ -1,0 +1,4 @@
+cmake make
+intel-gmmlib
+libpciaccess
+libva

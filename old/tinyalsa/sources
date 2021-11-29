@@ -1,0 +1,5 @@
+https://github.com/tinyalsa/tinyalsa/archive/1c5fb68ced57d838f2b7ecd0c00bc1fefc9ab60d.tar.gz
+patches/0001-fix-remaining_data_size-is-0-when-not-playing-a-wave.patch
+patches/0002-fix-the-zero-fd-closing-problem.patch
+patches/0003-make-use-of-snd_utils_close_dev_node-conditional-on-.patch
+patches/0004-expose-pcm_state-in-public-API.patch

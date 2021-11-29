@@ -1,0 +1,3 @@
+#!/bin/sh
+
+sh /usr/lib/oss/scripts/restore_drv.sh

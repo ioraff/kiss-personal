@@ -8,22 +8,20 @@ dbus:
 	of those searched by kiss-find.
 
 extra:
-	Mostly numerical packages and their dependencies, as well as some media
-	libraries and tools.
+	Various. Packages dependent on SSL/TLS are dependent on the ssl/ 
+	repository.
 
 modified:
 	Forks of packages from other repositories, with all unmodified files
 	symlinked to the parent repository.
 
 old:
-	Unmaintained packages, moved from extra/.
+	Unmaintained packages
 
 ssl:
-	Port of some packages to a different ssl library.  This typically has
-	involved nothing more than changing the depends file from openssl to
-	libressl.  Packages that support bearssl use that instead, and packages
-	that support libtls use that instead of libssl so as to use
-	libtls-bearssl.
+	libressl and (libtls-)bearssl. Packages that would otherwise depend on
+	openssl are modified so as to work with bearssl if possible, and
+	or libressl otherwise.
 
 
 Every commit is signed with my GPG key, which has the following fingerprint:

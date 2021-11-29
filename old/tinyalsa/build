@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+for p in *.patch; do
+    patch -p1 < "$p"
+done
+
+meson \
+    --prefix=/usr \
+    . output
+
+ninja -C output
+ninja -C output install
+
+cp -f include/tinyalsa/attributes.h "$1/usr/include/tinyalsa"

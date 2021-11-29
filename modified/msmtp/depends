@@ -1,1 +1,2 @@
-/home/omr/.local/share/kiss/repo-personal/ssl/msmtp/depends
+libtls-bearssl
+pkgconf make

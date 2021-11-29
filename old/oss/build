@@ -1,0 +1,28 @@
+#!/bin/sh -e
+
+unzip opensound-git-828399f5ed68a6944ac4b8fc95542a3b08ae7dcc.zip
+cd opensound-git-828399f5ed68a6944ac4b8fc95542a3b08ae7dcc
+
+export CFLAGS="-D_GNU_SOURCE"
+export LDFLAGS=""
+
+patch -p1 < ../tgl.patch
+
+sed '/<sys\/dir.h>/a #include <linux\/limits.h>/' \
+    os_cmd/Linux/ossdetect/ossdetect.c > _
+mv -f _ os_cmd/Linux/ossdetect/ossdetect.c
+
+rm -rf build
+mkdir -p build
+
+cd build
+../configure \
+    --enable-libsalsa=NO \
+    --only-drv=oss_hdaudio
+
+make build
+make copy
+
+cd "$1"
+
+chmod -R a+rX .  # FS#13815

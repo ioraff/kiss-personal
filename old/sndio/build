@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+for p in *.patch; do
+    patch -p1 < "$p"
+done
+
+sed 's/-DDEBUG//' libsndio/Makefile.in > _
+mv -f _ libsndio/Makefile.in
+
+./configure \
+    --prefix=/usr
+
+make
+make install

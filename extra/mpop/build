@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --disable-nls \
+    --with-tls=libtls \
+    --without-mpopd
+
+make
+make install

@@ -4,7 +4,6 @@ export LDFLAGS="$LDFLAGS -lterminfo"
 
 make
 make \
-    DESTDIR="$1" \
     PREFIX=/usr \
     MANPREFIX=/usr/share/man \
     install

@@ -1,6 +1,1 @@
-#!/bin/sh -e
-
-patch -p1 < static-no-libtool.patch
-
-make libtermkey.a
-make PREFIX=/usr DESTDIR="$1" install
+/home/omr/.local/share/kiss/repo-community/community/libtermkey/build

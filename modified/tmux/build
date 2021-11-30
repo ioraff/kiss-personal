@@ -1,7 +1,1 @@
-#!/bin/sh -e
-
-./configure \
-    --prefix=/usr
-
-make
-make DESTDIR="$1" install
+/home/omr/.local/share/kiss/repo-community/community/tmux/build

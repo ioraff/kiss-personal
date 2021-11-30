@@ -1,0 +1,4 @@
+alsa-lib
+automake make
+fftw
+libtool make

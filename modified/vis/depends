@@ -1,1 +1,4 @@
-/home/omr/.local/share/kiss/repo-community/community/vis/depends
+libtermkey make
+lpeg       make
+lua        make
+netbsd-curses

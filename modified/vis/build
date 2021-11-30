@@ -1,1 +1,9 @@
-/home/omr/.local/share/kiss/repo-community/community/vis/build
+#!/bin/sh -e
+
+./configure \
+	--prefix=/usr \
+	--enable-lua \
+	--enable-lpeg-static
+
+make
+make install

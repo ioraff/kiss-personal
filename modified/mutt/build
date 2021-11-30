@@ -5,7 +5,7 @@ sed 's/ doc contrib/ contrib/g' Makefile.in > _
 mv -f _ Makefile.in
 
 ./configure \
-    ac_cv_search_sasl_encode64=-lsasl2 \
+    LIBS='-lterminfo' \
     --prefix=/usr \
     --sysconfdir=/etc \
     --disable-doc \

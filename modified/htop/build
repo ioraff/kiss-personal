@@ -1,0 +1,12 @@
+#!/bin/sh -e
+
+./autogen.sh
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --enable-unicode \
+
+echo '#undef HAVE_LIBNCURSESW' >> config.h
+
+make
+make install

@@ -1,5 +1,5 @@
 alsa-lib
 flac
 libmad
-ncurses
+netbsd-curses
 opusfile

@@ -1,0 +1,11 @@
+--- a/meson.build
++++ b/meson.build
+@@ -264,7 +264,7 @@
+     'terminfo',
+     output: get_option('default-terminfo')[0],
+     input: preprocessed,
+-    command: [tic, '-x', '-o', '@OUTDIR@', '-e', '@0@,@0@-direct'.format(get_option('default-terminfo')), '@INPUT@'],
++    command: [tic, '-x', '-o', '@OUTDIR@/f/@0@'.format(get_option('default-terminfo')), '@INPUT@', '@0@'.format(get_option('default-terminfo')), '@0@-direct'.format(get_option('default-terminfo')) ],
+     install: true,
+     install_dir: terminfo_install_location
+   )

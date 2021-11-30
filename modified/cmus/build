@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+patch -p1 < curses.patch
+
 ./configure \
     prefix=/usr \
     CONFIG_CUE=n \

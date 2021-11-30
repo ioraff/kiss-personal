@@ -1,1 +1,15 @@
-/home/omr/.local/share/kiss/repo-community/community/cyrus-sasl/build
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --sbindir=/usr/bin \
+    --disable-cram \
+    --disable-digest \
+    --disable-scram \
+    --disable-otp \
+    --without-saslauthd \
+    --without-authdaemond
+
+make
+make install

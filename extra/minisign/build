@@ -1,0 +1,23 @@
+#!/bin/sh -e
+
+out=$PWD/out
+mkdir -p out
+
+(
+    cd libsodium
+
+    ./configure \
+        --prefix=/usr \
+        --disable-shared
+
+    make
+    make DESTDIR="$out" install
+)
+
+cmake -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DSODIUM_INCLUDE_DIR="$out/usr/include" \
+    -DSODIUM_LIBRARY="$out/usr/lib/libsodium.a"
+
+cmake --build   build
+cmake --install build

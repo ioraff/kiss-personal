@@ -15,8 +15,9 @@ mv -f _ src/Makefile.in
     --disable-manual \
     --disable-ldap \
     --disable-ares \
-    --without-openssl \
+    --with-openssl \
     --with-bearssl \
+    --with-default-ssl-backend=bearssl \
     --with-pic \
     --with-ca-bundle=/etc/ssl/cert.pem \
     --without-librtmp \

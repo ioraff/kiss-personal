@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --disable-pinentry-curses \
+    --enable-pinentry-tty
+
+make
+make install

@@ -8,6 +8,8 @@
     --disable-digest \
     --disable-scram \
     --disable-otp \
+    --disable-plain \
+    --disable-anon \
     --without-saslauthd \
     --without-authdaemond
 

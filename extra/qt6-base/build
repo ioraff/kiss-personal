@@ -18,6 +18,7 @@ cmake -B build \
     -DFEATURE_gtk3=OFF \
     -DFEATURE_icu=OFF \
     -DFEATURE_libudev=OFF \
+    -DFEATURE_openssl=OFF \
     -DFEATURE_SYSTEM_SQLITE=ON
 
 cmake --build   build

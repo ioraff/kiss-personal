@@ -4,5 +4,6 @@ python-cycler
 python-dateutil
 python-kiwisolver
 python-numpy
+python-packaging
 python-pillow
 python-pyparsing

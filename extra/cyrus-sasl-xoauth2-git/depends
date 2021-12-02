@@ -1,4 +1,4 @@
 autoconf make
 automake make
 cyrus-sasl
-libtool make
+libtool  make

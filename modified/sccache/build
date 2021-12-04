@@ -1,10 +1,36 @@
 #!/bin/sh -e
 
+export CARGO_HOME=$PWD
+
 export RUSTFLAGS="$RUSTFLAGS --remap-path-prefix=$PWD=."
+
+(
+    cd vendor
+
+    for crate in *.crate; do
+        tar xf "$crate"
+
+        sha256=$(sha256sum "$crate")
+        sha256=${sha256%% *}
+
+        printf '{"package":"%s","files":{}}\n' "$sha256" \
+            > "${crate%.crate}/.cargo-checksum.json"
+    done
+)
+
+mkdir -p .cargo
+
+cat > .cargo/config <<EOF
+[source.crates-io]
+replace-with = "vendored-sources"
+
+[source.vendored-sources]
+directory = "vendor"
+EOF
 
 cargo build \
     --release \
-    --locked \
+    --frozen \
     --no-default-features \
     --features native-zlib
 

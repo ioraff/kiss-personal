@@ -1,1 +1,6 @@
-https://github.com/sabotage-linux/netbsd-curses/archive/v0.3.2.tar.gz
+https://github.com/sabotage-linux/netbsd-curses/archive/5b78297a1276a7d64c3be78d1e54251a1203a44a.tar.gz
+patches/0001-Use-__fpurge-from-stdio_ext.h.patch
+patches/0002-Remove-duplicate-keymap-sequences-from-st-terminfo.patch
+patches/0003-Revert-Fix-for-PR-lib-56224.patch
+patches/0004-Don-t-wrap-when-adding-past-last-line-in-non-scrolli.patch
+patches/0005-Return-early-from-_cursesi_waddbytes-if-_cursesi_add.patch

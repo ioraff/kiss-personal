@@ -47,6 +47,9 @@ for f in zip unzip; do (
 
 export PATH="$PWD/junk/bin:$PATH"
 
+export CC=clang
+export CXX=clang++
+
 # If using libc++, CXXSTDLIB needs to be set manually.
 case $("$CC" -print-file-name=libc++.so) in */*)
     export CXXSTDLIB=c++
@@ -63,7 +66,7 @@ export MOZ_DEBUG_FLAGS=-g0
 export MOZBUILD_STATE_PATH=$PWD/state
 export MOZ_NOSPAM=1
 
-cat > .mozconfig << EOF
+cat > mozconfig-common <<EOF
 ac_add_options --enable-default-toolkit=cairo-gtk3-wayland
 ac_add_options --prefix=/usr
 ac_add_options --libdir=/usr/lib
@@ -75,6 +78,7 @@ ac_add_options --enable-install-strip
 ac_add_options --enable-official-branding
 ac_add_options --enable-application=browser
 ac_add_options --enable-optimize
+ac_add_options --enable-hardening
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-ffi
 ac_add_options --with-system-png
@@ -102,6 +106,37 @@ ac_add_options --disable-debug-symbols
 ac_add_options --disable-parental-controls
 ac_add_options --disable-system-extension-dirs
 EOF
+
+ulimit -n 4096
+
+# Build instrumented browser.
+cat > .mozconfig mozconfig-common - <<END
+ac_add_options --enable-profile-generate=cross
+END
+./mach build
+
+# Profile instrumented browser.
+./mach package
+LLVM_PROFDATA=llvm-profdata \
+JARLOG_FILE="$PWD/jarlog" \
+./mach python build/pgo/profileserver.py
+
+stat -c "Profile data found (%s bytes)" merged.profdata
+test -s merged.profdata
+
+stat -c "Jar log found (%s bytes)" jarlog
+test -s jarlog
+
+# Remove instrumented browser.
+./mach clobber
+
+# Build optimized browser.
+cat > .mozconfig mozconfig-common - <<END
+ac_add_options --enable-lto=cross
+ac_add_options --enable-profile-use=cross
+ac_add_options --with-pgo-profile-path=${PWD}/merged.profdata
+ac_add_options --with-pgo-jarlog=${PWD}/jarlog
+END
 
 ./mach build
 ./mach install

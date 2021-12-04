@@ -1,7 +1,5 @@
 #!/bin/sh -e
 
-patch -p1 < netbsd-curses_tic.patch
-
 meson \
     --prefix=/usr \
     --buildtype=release \
@@ -10,7 +8,6 @@ meson \
     -Dthemes=false \
     . output
 
-mkdir -p output/f
 ninja -C output
 ninja -C output install
 

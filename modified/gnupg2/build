@@ -16,13 +16,24 @@ mkdir -p out
 )
 
 export CPPFLAGS="$CPPFLAGS -I$out/usr/include"
-export LDFLAGS="$LDFLAGS -L$out/usr/lib"
+export LDFLAGS="$CPPFLAGS -L$out/usr/lib"
+export PATH=$PATH:$out/usr/bin
 
 ./configure \
     --prefix=/usr \
     --sbindir=/usr/bin \
     --libexecdir=/usr/lib/gnupg \
+    --disable-gpgsm \
     --disable-scdaemon \
+    --disable-keyboxd \
+    --disable-doc \
+    --disable-gpgtar \
+    --disable-wks-tools \
+    --disable-photo-viewers \
+    --disable-card-support \
+    --disable-ccid-driver \
+    --disable-sqlite \
+    --disable-gnutls \
     --disable-ldap \
     --disable-nls
 

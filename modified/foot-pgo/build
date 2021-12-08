@@ -26,6 +26,8 @@ meson \
     --force-fallback-for=fcft,tllist \
     -Dime=false \
     -Db_lto=true \
+    -Dterminfo=disabled \
+    -Dthemes=false \
     ../..
 
 # Generate PGO data.

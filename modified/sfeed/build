@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
-make
+make \
+    SFEED_CURSES_LDFLAGS='-lcurses -lterminfo'
 make \
     PREFIX=/usr \
     MANPREFIX=/usr/share/man \

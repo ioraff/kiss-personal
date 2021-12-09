@@ -1,2 +1,2 @@
 curl
-ncurses
+netbsd-curses

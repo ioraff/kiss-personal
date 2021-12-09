@@ -1,0 +1,19 @@
+#!/bin/sh -e
+
+# Fix alsamixer for netbsd-curses
+sed -e 's/ MIN_MENU_COMMAND/REQ_LEFT_ITEM/' \
+    -e 's/ MAX_MENU_COMMAND/REQ_PREV_MATCH/' \
+    alsamixer/bindings.h > _
+mv -f _ alsamixer/bindings.h
+
+./configure \
+    --prefix=/usr \
+    --sbindir=/usr/bin \
+    --with-udev-rules-dir=/usr/lib/udev/rules.d \
+    --disable-alsaconf \
+    --disable-bat \
+    --disable-xmlto \
+    --disable-nls
+
+make
+make install

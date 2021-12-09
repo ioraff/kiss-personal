@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+autoreconf -fi
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc
+
+echo '#undef HAVE_LIBNCURSESW' >> config.h
+
+make
+make install

@@ -49,11 +49,7 @@ export PATH="$PWD/junk/bin:$PATH"
 
 export CC=clang
 export CXX=clang++
-
-# If using libc++, CXXSTDLIB needs to be set manually.
-case $("$CC" -print-file-name=libc++.so) in */*)
-    export CXXSTDLIB=c++
-esac
+export CXXSTDLIB=c++
 
 # Instruct the compiler to trim absolute paths in resulting binaries and instead
 # change them to relative paths ($PWD/... ./...).
@@ -79,6 +75,7 @@ ac_add_options --enable-official-branding
 ac_add_options --enable-application=browser
 ac_add_options --enable-optimize
 ac_add_options --enable-hardening
+ac_add_options --enable-linker=lld
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-ffi
 ac_add_options --with-system-png
@@ -110,9 +107,9 @@ EOF
 ulimit -n 4096
 
 # Build instrumented browser.
-cat > .mozconfig mozconfig-common - <<END
+cat > .mozconfig mozconfig-common - <<EOF
 ac_add_options --enable-profile-generate=cross
-END
+EOF
 ./mach build
 
 # Profile instrumented browser.
@@ -121,22 +118,16 @@ LLVM_PROFDATA=llvm-profdata \
 JARLOG_FILE="$PWD/jarlog" \
 ./mach python build/pgo/profileserver.py
 
-stat -c "Profile data found (%s bytes)" merged.profdata
-test -s merged.profdata
-
-stat -c "Jar log found (%s bytes)" jarlog
-test -s jarlog
-
 # Remove instrumented browser.
 ./mach clobber
 
 # Build optimized browser.
-cat > .mozconfig mozconfig-common - <<END
+cat > .mozconfig mozconfig-common - <<EOF
 ac_add_options --enable-lto=cross
 ac_add_options --enable-profile-use=cross
 ac_add_options --with-pgo-profile-path=${PWD}/merged.profdata
 ac_add_options --with-pgo-jarlog=${PWD}/jarlog
-END
+EOF
 
 ./mach build
 ./mach install

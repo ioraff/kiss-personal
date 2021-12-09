@@ -1,1 +1,7 @@
-../../../repo/wayland/foot-pgo/depends
+fontconfig
+libxkbcommon
+meson   make
+pkgconf make
+python  make
+wayland
+wayland-protocols make

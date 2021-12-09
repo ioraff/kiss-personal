@@ -1,10 +1,10 @@
 #!/bin/sh -e
 
-for p in *.patch; do
-    patch -p1 < "$p"
-done
+patch -p1 < terminfo.patch
 
 make
 make PREFIX=/usr install
 
-ln -sf libcurses.a "$1/usr/lib/libncurses.a"
+for libs in curses terminfo panel menu form; do
+    chmod 755 "$1/usr/lib/lib${libs}.so"
+done

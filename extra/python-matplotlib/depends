@@ -2,8 +2,8 @@ freetype-harfbuzz
 python
 python-cycler
 python-dateutil
+python-fonttools
 python-kiwisolver
 python-numpy
-python-packaging
 python-pillow
 python-pyparsing

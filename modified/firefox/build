@@ -4,8 +4,18 @@ for p in *.patch; do
     patch -p1 < "$p"
 done
 
-# X11-less webrtc patch from bugzilla. Very large so a URL is used.
-patch -p1 < attachment.cgi\?id=9202429
+patch -p1 <<EOF
+--- a/dom/quota/PQuotaRequest.ipdl
++++ b/dom/quota/PQuotaRequest.ipdl
+@@ -3,6 +3,7 @@
+  * You can obtain one at http://mozilla.org/MPL/2.0/. */
+ 
+ include protocol PQuota;
++include "mozilla/dom/quota/SerializationHelpers.h";
+ 
+ using mozilla::dom::quota::FullOriginMetadata
+   from "mozilla/dom/quota/CommonMetadata.h";
+EOF
 
 # Build autoconf 2.13 for Firefox's sole use.
 # See: https://bugzilla.mozilla.org/show_bug.cgi?id=104642
@@ -47,9 +57,12 @@ for f in zip unzip; do (
 
 export PATH="$PWD/junk/bin:$PATH"
 
-export CC=clang
-export CXX=clang++
-export CXXSTDLIB=c++
+unset MAKEFLAGS
+
+# If using libc++, CXXSTDLIB needs to be set manually.
+case $("$CC" -print-file-name=libc++.so) in */*)
+    export CXXSTDLIB=c++
+esac
 
 # Instruct the compiler to trim absolute paths in resulting binaries and instead
 # change them to relative paths ($PWD/... ./...).
@@ -62,8 +75,7 @@ export MOZ_DEBUG_FLAGS=-g0
 export MOZBUILD_STATE_PATH=$PWD/state
 export MOZ_NOSPAM=1
 
-cat > mozconfig-common <<EOF
-ac_add_options --enable-default-toolkit=cairo-gtk3-wayland
+cat > .mozconfig <<EOF
 ac_add_options --prefix=/usr
 ac_add_options --libdir=/usr/lib
 ac_add_options --enable-alsa
@@ -75,7 +87,7 @@ ac_add_options --enable-official-branding
 ac_add_options --enable-application=browser
 ac_add_options --enable-optimize
 ac_add_options --enable-hardening
-ac_add_options --enable-linker=lld
+ac_add_options --with-system-icu
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-ffi
 ac_add_options --with-system-png
@@ -102,31 +114,8 @@ ac_add_options --disable-debug
 ac_add_options --disable-debug-symbols
 ac_add_options --disable-parental-controls
 ac_add_options --disable-system-extension-dirs
-EOF
-
-ulimit -n 4096
-
-# Build instrumented browser.
-cat > .mozconfig mozconfig-common - <<EOF
-ac_add_options --enable-profile-generate=cross
-EOF
-./mach build
-
-# Profile instrumented browser.
-./mach package
-LLVM_PROFDATA=llvm-profdata \
-JARLOG_FILE="$PWD/jarlog" \
-./mach python build/pgo/profileserver.py
-
-# Remove instrumented browser.
-./mach clobber
-
-# Build optimized browser.
-cat > .mozconfig mozconfig-common - <<EOF
-ac_add_options --enable-lto=cross
-ac_add_options --enable-profile-use=cross
-ac_add_options --with-pgo-profile-path=${PWD}/merged.profdata
-ac_add_options --with-pgo-jarlog=${PWD}/jarlog
+ac_add_options --without-wasm-sandboxed-libraries
+ac_add_options --without-ccache
 EOF
 
 ./mach build

@@ -6,10 +6,9 @@ export CFLAGS="$CFLAGS -DSMALL"
     --prefix=/usr \
     --disable-curses \
     --enable-ksh \
-    --enable-lto \
     --enable-static
 
-#echo '#undef EMACS' >> pconfig.h
+echo '#undef EMACS' >> pconfig.h
 
 make
 make install

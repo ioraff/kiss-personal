@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+cmake -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCOMPILER_RT_BUILD_XRAY=OFF
+
+cmake --build   build
+cmake --install build
+
+cd "$1"
+mkdir -p usr/lib/clang/$2/lib
+mv usr/lib/linux usr/lib/clang/$2/lib

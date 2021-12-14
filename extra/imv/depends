@@ -1,8 +1,6 @@
 icu
-libglvnd
 libheif
 libjpeg-turbo
 libpng
 libxkbcommon
 tiff
-wayland

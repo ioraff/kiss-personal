@@ -1,11 +1,11 @@
 #!/bin/sh -e
 
+patch -p1 < gen.patch
+
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
-    -DBUILD_SHARED_LIBS=True \
-    -DCMAKE_BUILD_TYPE=None \
-    -DINSTALL_DRIVER_SYSCONF=False
+    -DGEN8=OFF
 
 cmake --build   build
 cmake --install build

@@ -1,6 +1,10 @@
+cairo
+glu
 icu
 libheif
 libjpeg-turbo
 libpng
+libxcb
 libxkbcommon
+pango
 tiff

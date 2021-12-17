@@ -1,0 +1,15 @@
+cairo
+fontconfig
+freetype-harfbuzz
+gd
+gmp
+harfbuzz-icu
+icu
+libpng
+mpfr make
+perl
+pixman
+poppler
+texmf-dist
+zlib
+zziplib

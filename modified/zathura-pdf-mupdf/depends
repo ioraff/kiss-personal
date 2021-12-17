@@ -3,6 +3,5 @@ jbig2dec
 libjpeg-turbo
 libmupdf make
 meson make
-openjpeg2
 pkgconf make
 zathura

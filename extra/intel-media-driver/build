@@ -1,7 +1,5 @@
 #!/bin/sh -e
 
-patch -p1 < gen.patch
-
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \

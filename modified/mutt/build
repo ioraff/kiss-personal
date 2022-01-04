@@ -1,5 +1,21 @@
 #!/bin/sh -e
 
+patch -p1 <<EOF
+--- a/mutt_curses.h
++++ b/mutt_curses.h
+@@ -52,6 +52,10 @@
+ # include <curses.h>
+ #endif
+
++// #include <term.h> - can't include term.h, because it defines macro columns which clashes
++// with variable name used in mutt, so just define the prototype for tigetstr()
++char *tigetstr(const char *capname);
++
+ #define MUTT_ENTER_C '\n'
+ #define MUTT_ENTER_S "\n"
+
+EOF
+
 # Remove perl dependency.
 sed 's/ doc contrib/ contrib/g' Makefile.in > _
 mv -f _ Makefile.in

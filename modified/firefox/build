@@ -45,8 +45,7 @@ for f in zip unzip; do (
 export PATH="$PWD/junk/bin:$PATH"
 
 unset MAKEFLAGS
-export CC=/usr/bin/cc
-export CXX=/usr/bin/c++
+export CCACHE_DISABLE=1
 export CFLAGS="$CFLAGS -w"
 export CXXFLAGS="$CXXFLAGS -w"
 

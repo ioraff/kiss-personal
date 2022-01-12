@@ -1,22 +1,22 @@
 #!/bin/sh -e
 
-patch -p1 <<EOF
---- a/command_mode.c
-+++ b/command_mode.c
-@@ -435,8 +435,10 @@
- 		} else {
- 			current_win()->changed = 1;
- 		}
--		update_titleline();
--		update_statusline();
-+		if (cur_view) {
-+			update_titleline();
-+			update_statusline();
-+		}
- 	} else {
- 		struct cmus_opt *opt;
- 		char buf[OPTION_MAX_SIZE];
-EOF
+#patch -p1 <<EOF
+#--- a/command_mode.c
+#+++ b/command_mode.c
+#@@ -435,8 +435,10 @@
+# 		} else {
+# 			current_win()->changed = 1;
+# 		}
+#-		update_titleline();
+#-		update_statusline();
+#+		if (cur_view) {
+#+			update_titleline();
+#+			update_statusline();
+#+		}
+# 	} else {
+# 		struct cmus_opt *opt;
+# 		char buf[OPTION_MAX_SIZE];
+#EOF
 
 ./configure \
     prefix=/usr \

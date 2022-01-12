@@ -1,9 +1,0 @@
-#!/bin/sh -e
-
-./autogen.sh
-./configure \
-    --prefix=/usr \
-    --disable-output-ncurses
-
-make
-make install

@@ -81,7 +81,6 @@ ac_add_options --enable-official-branding
 ac_add_options --enable-application=browser
 ac_add_options --enable-optimize
 ac_add_options --enable-hardening
-ac_add_options --with-ccache=sccache
 ac_add_options --with-system-icu
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-ffi
@@ -89,8 +88,8 @@ ac_add_options --with-system-png
 ac_add_options --with-system-jpeg
 ac_add_options --with-system-zlib
 ac_add_options --with-system-pixman
-ac_add_options --without-system-nss
-ac_add_options --without-system-nspr
+ac_add_options --with-system-nss
+ac_add_options --with-system-nspr
 ac_add_options --disable-eme
 ac_add_options --disable-dbus
 ac_add_options --disable-gold

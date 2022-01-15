@@ -15,7 +15,7 @@ diff --git a/Modules/_hashopenssl.c b/Modules/_hashopenssl.c
 index b9e68c05c3..75eb76266a 100644
 --- a/Modules/_hashopenssl.c
 +++ b/Modules/_hashopenssl.c
-@@ -40,10 +40,12 @@
+@@ -45,10 +45,12 @@
  
  #define MUNCH_SIZE INT_MAX
  
@@ -26,9 +26,9 @@ index b9e68c05c3..75eb76266a 100644
  #define PY_OPENSSL_HAS_BLAKE2 1
 +#endif
  
- static PyModuleDef _hashlibmodule;
- 
-@@ -1794,6 +1796,7 @@ hashlib_md_meth_names(PyObject *module)
+ #if OPENSSL_VERSION_NUMBER >= 0x30000000L
+ #define PY_EVP_MD EVP_MD
+@@ -1884,6 +1886,7 @@ hashlib_md_meth_names(PyObject *module)
      return 0;
  }
  
@@ -36,7 +36,7 @@ index b9e68c05c3..75eb76266a 100644
  /*[clinic input]
  _hashlib.get_fips_mode -> int
  
-@@ -1831,6 +1834,7 @@ _hashlib_get_fips_mode_impl(PyObject *module)
+@@ -1921,6 +1924,7 @@ _hashlib_get_fips_mode_impl(PyObject *module)
      return result;
  #endif
  }

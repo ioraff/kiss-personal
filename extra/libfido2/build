@@ -16,13 +16,15 @@ mkdir -p out
     DESTDIR="$out" cmake --install build
 )
 
+export PKG_CONFIG_PATH=$out/usr/lib/pkgconfig
+
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
     -DBUILD_STATIC_LIBS=False \
     -DCMAKE_BUILD_TYPE=None \
-    -DCBOR_LIBRARY="$out/usr/lib/libcbor.a" \
-    -DCBOR_INCLUDE_DIR="$out/usr/include"
+    -DCBOR_INCLUDE_DIRS="$out/usr/include" \
+    -DCBOR_LIBRARY_DIRS="$out/usr/lib"
 
 cmake --build   build
 cmake --install build

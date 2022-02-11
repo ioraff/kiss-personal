@@ -44,10 +44,22 @@ for f in zip unzip; do (
 
 export PATH="$PWD/junk/bin:$PATH"
 
+# Detect what the current linker is.
+case "$(readlink "$(command -v ld)")" in
+    ld.bfd) ld="bfd";;
+    lld) ld="lld";;
+    *) ld="other";;
+esac
+
 unset MAKEFLAGS
-export CCACHE_DISABLE=1
-export CFLAGS="$CFLAGS -w"
-export CXXFLAGS="$CXXFLAGS -w"
+export CC=/usr/bin/clang
+export CXX=/usr/bin/clang++
+export AR=llvm-ar
+export NM=llvm-nm
+export RANLIB=llvm-ranlib
+export CFLAGS="--target=x86_64-pc-linux-musl $CFLAGS -w"
+export CXXFLAGS="--target=x86_64-pc-linux-musl $CXXFLAGS -w"
+export LLVM_PROFDATA=llvm-profdata
 
 sed "s/ccache_stats = None/return None/" \
     python/mozbuild/mozbuild/configure/check_debug_ranges.py >_
@@ -81,6 +93,10 @@ ac_add_options --enable-official-branding
 ac_add_options --enable-application=browser
 ac_add_options --enable-optimize
 ac_add_options --enable-hardening
+ac_add_options --enable-linker=lld
+ac_add_options --enable-lto=cross
+ac_add_options MOZ_PGO=1
+ac_add_options --with-ccache
 ac_add_options --with-system-icu
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-ffi
@@ -92,7 +108,6 @@ ac_add_options --with-system-nss
 ac_add_options --with-system-nspr
 ac_add_options --disable-eme
 ac_add_options --disable-dbus
-ac_add_options --disable-gold
 ac_add_options --disable-tests
 ac_add_options --disable-vtune
 ac_add_options --disable-updater
@@ -110,6 +125,8 @@ ac_add_options --disable-parental-controls
 ac_add_options --disable-system-extension-dirs
 ac_add_options --without-wasm-sandboxed-libraries
 EOF
+
+ulimit -n 4096
 
 ./mach build
 ./mach install

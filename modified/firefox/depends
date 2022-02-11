@@ -4,6 +4,7 @@ bzip2
 cairo
 cbindgen      make
 clang         make
+compiler-rt   make
 expat
 ffmpeg
 fontconfig
@@ -34,6 +35,7 @@ libpng
 libvpx
 libxcb
 libxshmfence
+lld           make
 llvm          make
 m4            make
 mesa

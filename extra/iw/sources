@@ -1,2 +1,3 @@
 https://mirrors.edge.kernel.org/pub/software/network/iw/iw-5.16.tar.xz
 https://github.com/sabotage-linux/libnl-tiny/archive/4225e93bec5304abee3386213213718367e54a93.tar.gz libnl
+patches/nl.patch

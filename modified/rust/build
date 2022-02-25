@@ -12,7 +12,7 @@ export RUSTFLAGS="$RUSTFLAGS --remap-path-prefix=$PWD=."
 # bootstrap library to allow for the removal of the internet
 # connection requirement per build.
 {
-    mkdir -p "${cache_dir:=build/cache/2021-12-02}"
+    mkdir -p "${cache_dir:=build/cache/2022-01-13}"
 
     for tarball in *.tar.xz\?no-extract; do
         mv -f "$tarball" "$cache_dir/${tarball%%\?no-extract}"
@@ -28,16 +28,17 @@ do
     mv -f _ "$f"
 done
 
+_clear_vendor_checksums() {
+    sed 's/\("files":{\)[^}]*/\1/' \
+        vendor/"$1"/.cargo-checksum.json > _
+    mv -f _ vendor/"$1"/.cargo-checksum.json
+}
+
 # Ignore checksums of files modified above.
-sed 's/\("files":{\)[^}]*/\1/' \
-    vendor/rustc-ap-rustc_target/.cargo-checksum.json > _
-mv -f _ vendor/rustc-ap-rustc_target/.cargo-checksum.json
-sed 's/\("files":{\)[^}]*/\1/' \
-    vendor/curl-sys/.cargo-checksum.json > _
-mv -f _ vendor/curl-sys/.cargo-checksum.json
-sed 's/\("files":{\)[^}]*/\1/' \
-    vendor/openssl-sys/.cargo-checksum.json > _
-mv -f _ vendor/openssl-sys/.cargo-checksum.json
+_clear_vendor_checksums curl-sys
+_clear_vendor_checksums libssh2-sys
+_clear_vendor_checksums openssl-sys
+_clear_vendor_checksums rustc-ap-rustc_target
 
 cat > config.toml <<EOF
 [llvm]
@@ -114,4 +115,3 @@ rm -rf \
     "$1/usr/share/doc" \
     "$1/usr/share/zsh" \
     "$1/usr/lib/rustlib/uninstall.sh"
-

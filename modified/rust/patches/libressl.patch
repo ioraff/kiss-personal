@@ -1,19 +1,33 @@
+--- a/vendor/libssh2-sys/libssh2/src/openssl.h
++++ b/vendor/libssh2-sys/libssh2/src/openssl.h
+@@ -57,8 +57,8 @@
+ #include <openssl/pem.h>
+ #include <openssl/rand.h>
+
+-#if OPENSSL_VERSION_NUMBER >= 0x10100000L && \
+-    !defined(LIBRESSL_VERSION_NUMBER)
++#if OPENSSL_VERSION_NUMBER >= 0x10100000L || \
++    LIBRESSL_VERSION_NUMBER >= 0x3050000fL
+ # define HAVE_OPAQUE_STRUCTS 1
+ #endif
+
 --- a/vendor/openssl-sys/build/main.rs
 +++ b/vendor/openssl-sys/build/main.rs
-@@ -237,6 +237,7 @@
+@@ -237,6 +237,8 @@
              (3, 3, 0) => ('3', '3', '0'),
              (3, 3, 1) => ('3', '3', '1'),
              (3, 3, _) => ('3', '3', 'x'),
 +            (3, 4, _) => ('3', '4', 'x'),
++            (3, 5, _) => ('3', '5', 'x'),
              _ => version_error(),
          };
 
-@@ -279,7 +280,7 @@
+@@ -279,7 +281,7 @@
          "
 
  This crate is only compatible with OpenSSL 1.0.1 through 1.1.1, or LibreSSL 2.5
 -through 3.3.x, but a different version of OpenSSL was found. The build is now aborting
-+through 3.4.x, but a different version of OpenSSL was found. The build is now aborting
++through 3.5.x, but a different version of OpenSSL was found. The build is now aborting
  due to this version mismatch.
 
  "

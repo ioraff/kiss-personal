@@ -1,4 +1,4 @@
-git+https://www.bearssl.org/git/BearSSL#b2ec2030e40acf5e9e4cd0f2669aacb27eadb540
+git+https://www.bearssl.org/git/BearSSL
 patches/0001-Add-missing-return-in-client-single-EC-choose-functi.patch
 patches/0002-Add-functions-to-retrieve-certificate-validity-perio.patch
 patches/0003-Add-flag-to-send-CertificateRequest.patch

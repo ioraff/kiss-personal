@@ -1,0 +1,22 @@
+--- a/src/rs1.c
++++ b/src/rs1.c
+@@ -9,7 +9,7 @@
+
+ #include "fido.h"
+
+-#if defined(LIBRESSL_VERSION_NUMBER)
++#if LIBRESSL_VERSION_NUMBER <= 0x3040000fL
+ static EVP_MD *
+ rs1_get_EVP_MD(void)
+ {
+--- a/src/rs256.c
++++ b/src/rs256.c
+@@ -11,7 +11,7 @@
+ #include "fido.h"
+ #include "fido/rs256.h"
+
+-#if defined(LIBRESSL_VERSION_NUMBER)
++#if LIBRESSL_VERSION_NUMBER <= 0x3040000fL
+ static EVP_MD *
+ rs256_get_EVP_MD(void)
+ {

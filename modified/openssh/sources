@@ -1,1 +1,2 @@
-../../../repo/extra/openssh/sources
+https://github.com/oasislinux/openssh/archive/4593a6cc8bd340107d4b211b2b8e519872d5709f.tar.gz
+files/sshd.run

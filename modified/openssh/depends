@@ -1,4 +1,2 @@
-autoconf make
-automake make
-bearssl
+libressl
 zlib

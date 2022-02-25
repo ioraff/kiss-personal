@@ -1,2 +1,1 @@
-git+https://github.com/oasislinux/openssh#1663fbadc45b95d21c4bf8c20a2cfff628e46d6d
-files/sshd.run
+../../../repo/extra/openssh/sources

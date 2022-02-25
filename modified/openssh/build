@@ -1,7 +1,5 @@
 #!/bin/sh -e
 
-autoreconf
-
 ./configure \
     --prefix=/usr \
     --datadir=/usr/share/openssh \
@@ -16,8 +14,7 @@ autoreconf
     --with-ssl-engine \
     --with-pid-dir=/run \
     --disable-wtmp \
-    --disable-utmp \
-    --with-bearssl
+    --disable-utmp
 
 make
 make DESTDIR="$1" install

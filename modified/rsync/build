@@ -7,10 +7,11 @@ mv -f _ Makefile.in
 
 ./configure \
     --prefix=/usr \
-    --with-included-popt \
+    --disable-openssl \
     --disable-xxhash \
     --disable-zstd \
     --disable-lz4 \
+    --with-included-popt \
     --without-included-zlib
 
 make

@@ -1,7 +1,5 @@
 cairo
 jbig2dec
-libjpeg-turbo
-libmupdf make
+libmupdf
 meson make
-pkgconf make
 zathura

@@ -1,11 +1,10 @@
 #!/bin/sh -e
 
-sed -e '/gumbo/d' -e '/libopenjp2/d' meson.build > _
+sed -e '/gumbo/d' -e '/libopenjp2/d' -e '/mupdfthird/d' meson.build > _
 mv -f _ meson.build
 
 meson \
     --prefix=/usr \
-    -Dlink-external=true \
     . output
 
 ninja -C output

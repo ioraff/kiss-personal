@@ -1,0 +1,27 @@
+#!/bin/sh -e
+
+(
+    cd yasm
+
+    ./configure \
+        --prefix=/
+
+    make
+    make DESTDIR="$PWD/../junk" install
+)
+
+export PATH="$PWD/junk/bin:$PATH"
+
+cmake -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_SHARED_LIBS=True \
+    -DENABLE_DOCS=OFF \
+    -DENABLE_EXAMPLES=OFF \
+    -DENABLE_TESTS=OFF
+
+cmake --build   build
+cmake --install build
+
+rm "$1/usr/lib/libaom.a"

@@ -9,7 +9,8 @@
     --disable-finger \
     --disable-news \
     --disable-ftp \
-    --disable-dired
+    --disable-dired \
+    --without-ssl
 
 make
 make install

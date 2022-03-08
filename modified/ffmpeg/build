@@ -8,6 +8,7 @@
     --disable-libxml2 \
     --disable-static \
     --enable-gpl \
+    --enable-libaom \
     --enable-libass \
     --enable-libdav1d \
     --enable-libdrm \

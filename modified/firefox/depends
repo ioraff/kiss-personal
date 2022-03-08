@@ -28,11 +28,16 @@ libXrandr
 libXrender
 libXt
 libXxf86vm
+libXtst
+libaom
+libdav1d
 libdrm
+libevent
 libffi
 libjpeg-turbo
 libpng
 libvpx
+libwebp
 libxcb
 libxshmfence
 lld           make

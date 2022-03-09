@@ -1,4 +1,3 @@
-#https://github.com/oasislinux/libfido2/archive/328395f410034d93d806bd36c9aa1584d802cd2e.tar.gz
-https://github.com/Yubico/libfido2/archive/VERSION.tar.gz
-https://github.com/PJK/libcbor/archive/refs/tags/v0.9.0.tar.gz libcbor
+https://github.com/Yubico/libfido2/archive/1.10.0.tar.gz
+https://github.com/PJK/libcbor/archive/v0.9.0.tar.gz libcbor
 patches/libressl.patch

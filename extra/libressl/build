@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc
+
+make
+make install
+
+mkdir -p "$1/etc/ssl/certs"
+cp -f update-certdata.sh "$1/etc/ssl"
+
+ln -s ../cert.pem "$1/etc/ssl/certs/ca-certificates.crt"

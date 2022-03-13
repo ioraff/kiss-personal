@@ -12,34 +12,11 @@ freetype-harfbuzz
 gdk-pixbuf
 glib
 gtk+3
-icu
-libICE
-libSM
-libX11
-libXau
-libXcomposite
-libXcursor
-libXdamage
-libXext
-libXfixes
-libXi
-libXinerama
-libXrandr
-libXrender
-libXt
-libXxf86vm
-libXtst
-libaom
-libdav1d
 libdrm
-libevent
 libffi
 libjpeg-turbo
 libpng
 libvpx
-libwebp
-libxcb
-libxshmfence
 lld           make
 llvm          make
 m4            make
@@ -54,4 +31,6 @@ pixman
 pkgconf       make
 python        make
 rust          make
+wayland
+wayland-protocols make
 zlib

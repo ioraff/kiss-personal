@@ -4,6 +4,9 @@ for p in *.patch; do
     patch -p1 < "$p"
 done
 
+mv widget/x11/keysym2ucs.c widget/gtk/keysym2ucs.c
+mv widget/x11/keysym2ucs.h widget/gtk/keysym2ucs.h
+
 # Build autoconf 2.13 for Firefox's sole use.
 # See: https://bugzilla.mozilla.org/show_bug.cgi?id=104642
 (
@@ -15,6 +18,18 @@ done
 
     make
     make install
+)
+
+# Build yasm for Firefox's sole use. Firefox is the only package which needs it
+# and upstream is kinda dead.
+(
+    cd yasm
+
+    ./configure \
+        --prefix=/
+
+    make
+    make DESTDIR="$PWD/../junk" install
 )
 
 # Build zip/unzip for Firefox's sole use.
@@ -33,18 +48,14 @@ for f in zip unzip; do (
 export PATH="$PWD/junk/bin:$PATH"
 
 unset MAKEFLAGS
-export CC=/usr/bin/clang
-export CXX=/usr/bin/clang++
+export CC=clang
+export CXX=clang++
 export AR=llvm-ar
 export NM=llvm-nm
 export RANLIB=llvm-ranlib
 export CFLAGS="--target=x86_64-pc-linux-musl $CFLAGS -w"
 export CXXFLAGS="--target=x86_64-pc-linux-musl $CXXFLAGS -w"
 export LLVM_PROFDATA=llvm-profdata
-
-sed 's/ccache_stats = None/return None/' \
-    python/mozbuild/mozbuild/controller/building.py > _
-mv -f _ python/mozbuild/mozbuild/controller/building.py
 
 # If using libc++, CXXSTDLIB needs to be set manually.
 case $("$CC" -print-file-name=libc++.so) in */*)
@@ -59,10 +70,10 @@ export LDFLAGS="$LDFLAGS -Wl,-rpath=/usr/lib/firefox,--enable-new-dtags"
 export RUSTFLAGS="$RUSTFLAGS -Cdebuginfo=0"
 export MACH_USE_SYSTEM_PYTHON=1
 export MOZ_DEBUG_FLAGS=-g0
-export MOZBUILD_STATE_PATH=$PWD/state
+export MOZBUILD_STATE_PATH="$PWD/state"
 export MOZ_NOSPAM=1
 
-cat > .mozconfig <<EOF
+cat > .mozconfig << EOF
 ac_add_options --prefix=/usr
 ac_add_options --libdir=/usr/lib
 ac_add_options --enable-alsa
@@ -73,8 +84,8 @@ ac_add_options --enable-install-strip
 ac_add_options --enable-official-branding
 ac_add_options --enable-application=browser
 ac_add_options --enable-optimize
+ac_add_options --with-wayland
 ac_add_options --enable-hardening
-ac_add_options --enable-sandbox
 ac_add_options --enable-linker=lld
 ac_add_options --enable-lto=cross
 ac_add_options MOZ_PGO=1
@@ -84,11 +95,9 @@ ac_add_options --with-system-png
 ac_add_options --with-system-jpeg
 ac_add_options --with-system-zlib
 ac_add_options --with-system-pixman
-ac_add_options --with-system-icu
-ac_add_options --with-system-libevent
-ac_add_options --with-system-webp
 ac_add_options --with-system-nss
 ac_add_options --with-system-nspr
+ac_add_options --without-wasm-sandboxed-libraries
 ac_add_options --disable-eme
 ac_add_options --disable-dbus
 ac_add_options --disable-tests
@@ -106,7 +115,6 @@ ac_add_options --disable-debug
 ac_add_options --disable-debug-symbols
 ac_add_options --disable-parental-controls
 ac_add_options --disable-system-extension-dirs
-ac_add_options --without-wasm-sandboxed-libraries
 EOF
 
 ulimit -n 4096
@@ -124,4 +132,3 @@ rm -rf \
     "$1/usr/lib/firefox/browser/features/webcompat-reporter@mozilla.org.xpi" \
     "$1/usr/lib/firefox/browser/features/webcompat@mozilla.org.xpi" \
     "$1/usr/lib/firefox/browser/features/doh-rollout@mozilla.org.xpi"
-

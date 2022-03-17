@@ -1,8 +1,14 @@
 #!/bin/sh -e
 
-./autogen.sh
-./configure \
-    --prefix=/usr
+cc -I. $CFLAGS -fPIC -c xoauth2_init.c -o xoauth2_init.o
+cc -I. $CFLAGS -fPIC -c xoauth2_str.c -o xoauth2_str.o
+cc -I. $CFLAGS -fPIC -c xoauth2_client.c -o xoauth2_client.o
+cc -I. $CFLAGS -fPIC -c xoauth2_server.c -o xoauth2_server.o
+cc -shared -fPIC -DPIC xoauth2_init.o xoauth2_str.o xoauth2_client.o \
+    xoauth2_server.o $CFLAGS $LDFLAGS -Wl,-soname -Wl,libxoauth2.so.0 -o \
+    libxoauth2.so.0.0.0
 
-make
-make install
+mkdir -p "$1/usr/lib/sasl2"
+cp libxoauth2.so.0.0.0 "$1/usr/lib/sasl2/"
+ln -s libxoauth2.so.0.0.0 "$1/usr/lib/sasl2/libxoauth2.so.0"
+ln -s libxoauth2.so.0.0.0 "$1/usr/lib/sasl2/libxoauth2.so"

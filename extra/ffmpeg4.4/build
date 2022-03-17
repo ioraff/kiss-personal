@@ -1,0 +1,50 @@
+#!/bin/sh -e
+
+./configure \
+    --cc="${CC:-cc}" \
+    --cxx="${CXX:-c++}" \
+    --prefix=/usr \
+    --incdir=/usr/include/ffmpeg4.4 \
+    --libdir=/usr/lib/ffmpeg4.4 \
+    --disable-debug \
+    --disable-doc \
+    --disable-programs \
+    --disable-libxml2 \
+    --disable-static \
+    --disable-libxcb \
+    --disable-libxcb-shm \
+    --disable-libxcb-xfixes \
+    --disable-libxcb-shape \
+    --disable-xlib \
+    --enable-gpl \
+    --enable-libaom \
+    --enable-libass \
+    --enable-libdav1d \
+    --enable-libdrm \
+    --enable-libmp3lame \
+    --enable-libopus \
+    --enable-libvorbis \
+    --enable-libvpx \
+    --enable-libwebp \
+    --enable-libx264 \
+    --enable-libx265 \
+    --enable-libxvid \
+    --enable-nonfree \
+    --enable-libtls \
+    --enable-shared \
+    --enable-version3 \
+    --x86asmexe=nasm
+
+make
+make install
+
+cd "$1"
+
+for f in usr/lib/ffmpeg4.4/*; do
+    case "$f" in
+        *.so) ln -srf -- usr/lib/"$(readlink "$f")" "$f" && continue ;;
+        *) [ ! -d "$f" ] && mv "$f" usr/lib
+    esac
+done
+
+rm -rf "${1:?}/usr/share"

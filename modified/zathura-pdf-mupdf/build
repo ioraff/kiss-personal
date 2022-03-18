@@ -1,7 +1,8 @@
 #!/bin/sh -e
 
-sed -e '/gumbo/d' -e '/libopenjp2/d' -e '/mupdfthird/d' meson.build > _
-mv -f _ meson.build
+export CFLAGS="$CFLAGS -fPIC"
+
+patch -p1 < meson.patch
 
 meson \
     --prefix=/usr \

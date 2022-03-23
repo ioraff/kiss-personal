@@ -2,6 +2,15 @@
 
 unset DESTDIR
 
+(
+    cd openblas
+    patch -p1 < no-perl.patch
+
+    chmod +x c_check
+    chmod +x f_check
+    chmod +x exports/gensymbol
+)
+
 cp -ar openblas openblas-ilp64
 
 mk() {

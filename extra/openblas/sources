@@ -1,1 +1,2 @@
 https://github.com/xianyi/OpenBLAS/archive/vVERSION.tar.gz openblas
+patches/no-perl.patch openblas

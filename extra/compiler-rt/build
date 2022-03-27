@@ -1,12 +1,12 @@
 #!/bin/sh -e
 
-sed 's/set(COMPILER_RT_HAS_SANITIZER_COMMON TRUE)/set(COMPILER_RT_HAS_SANITIZER_COMMON FALSE)/' cmake/config-ix.cmake > _
-mv -f _ cmake/config-ix.cmake
+mv Modules/* cmake/Modules/
 
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=Release \
-    -DCOMPILER_RT_BUILD_XRAY=OFF
+    -DCOMPILER_RT_BUILD_XRAY=OFF \
+    -DCOMPILER_RT_BUILD_SANITIZERS=OFF
 
 cmake --build   build
 cmake --install build

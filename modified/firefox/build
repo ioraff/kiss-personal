@@ -55,6 +55,7 @@ export NM=llvm-nm
 export RANLIB=llvm-ranlib
 export CFLAGS="--target=x86_64-pc-linux-musl $CFLAGS -w"
 export CXXFLAGS="--target=x86_64-pc-linux-musl $CXXFLAGS -w"
+export CCACHE_DISABLE=1
 export LLVM_PROFDATA=llvm-profdata
 
 # If using libc++, CXXSTDLIB needs to be set manually.

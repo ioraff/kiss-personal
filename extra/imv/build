@@ -3,7 +3,7 @@
 meson \
     --prefix=/usr \
     --force-fallback-for=inih \
-    -Dwindows=x11 \
+    -Dwindows=wayland \
     . output
 
 ninja -C output

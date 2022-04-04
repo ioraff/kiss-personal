@@ -19,6 +19,7 @@ mk() {
         NO_STATIC=1 \
         MAJOR_VERSION=3 \
         NO_AFFINITY=1 \
+        USE_OPENMP=1 \
         NUM_THREADS="$(nproc)" \
         "$@"
 }

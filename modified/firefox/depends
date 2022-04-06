@@ -6,7 +6,7 @@ cbindgen      make
 clang         make
 compiler-rt   make
 expat
-ffmpeg4.4
+ffmpeg
 fontconfig
 freetype-harfbuzz
 gdk-pixbuf

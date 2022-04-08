@@ -1,13 +1,5 @@
 #!/bin/sh -e
 
-ed scipy/optimize/rectangular_lsap/rectangular_lsap.cpp >/dev/null <<EOF
-/vector/a
-#include <stdint.h>
-.
-w
-q
-EOF
-
 cat > site.cfg <<EOF
 [ALL]
 library_dirs = /usr/lib

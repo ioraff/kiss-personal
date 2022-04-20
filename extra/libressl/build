@@ -2,10 +2,14 @@
 
 ./configure \
     --prefix=/usr \
-    --sysconfdir=/etc
+    --sysconfdir=/etc \
+    --enable-nc
 
 make
 make install
+
+mv -f "$1/usr/bin/nc"              "$1/usr/bin/libressl-nc"
+mv -f "$1/usr/share/man/man1/nc.1" "$1/usr/share/man/man1/libressl-nc.1"
 
 mkdir -p "$1/etc/ssl/certs"
 cp -f update-certdata.sh "$1/etc/ssl"

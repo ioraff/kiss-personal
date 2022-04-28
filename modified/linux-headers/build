@@ -1,4 +1,1 @@
-#!/bin/sh -e
-
-make mrproper
-make INSTALL_HDR_PATH="$1/usr" headers_install
+../../../repo/core/linux-headers/build

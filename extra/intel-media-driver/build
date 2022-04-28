@@ -1,14 +1,11 @@
 #!/bin/sh -e
 
+patch -p1 < wayland.patch
+
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
-    -DGEN8=OFF \
-    -DGEN9=OFF \
-    -DGEN10=OFF \
-    -DGEN11=OFF \
-    -DGEN12=OFF \
-    -DGEN12_TGLLP=ON
+    -DINSTALL_DRIVER_SYSCONF=OFF
 
 cmake --build   build
 cmake --install build

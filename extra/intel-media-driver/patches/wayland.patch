@@ -1,0 +1,1395 @@
+From f009144696452955ff36e93487fe6d02db831782 Mon Sep 17 00:00:00 2001
+From: XinfengZhang <carl.zhang@intel.com>
+Date: Mon, 23 Apr 2018 15:23:02 +0800
+Subject: [PATCH] add wayland output surport
+
+Signed-off-by: XinfengZhang <carl.zhang@intel.com>
+---
+ media_driver/linux/common/ddi/dso_utils.c     | 110 ++++
+ media_driver/linux/common/ddi/dso_utils.h     |  74 +++
+ media_driver/linux/common/ddi/media_libva.cpp |   4 +
+ .../linux/common/ddi/media_libva_common.h     |   3 +
+ .../ddi/media_libva_putsurface_linux.cpp      | 102 +---
+ .../common/ddi/media_libva_putsurface_linux.h |  31 +-
+ .../linux/common/ddi/media_libva_wayland.cpp  | 564 ++++++++++++++++++
+ .../linux/common/ddi/media_libva_wayland.h    |  37 ++
+ .../linux/common/ddi/media_srcs.cmake         |   5 +
+ .../common/ddi/wayland-drm-client-protocol.h  | 307 ++++++++++
+ 10 files changed, 1106 insertions(+), 131 deletions(-)
+ create mode 100644 media_driver/linux/common/ddi/dso_utils.c
+ create mode 100644 media_driver/linux/common/ddi/dso_utils.h
+ create mode 100644 media_driver/linux/common/ddi/media_libva_wayland.cpp
+ create mode 100644 media_driver/linux/common/ddi/media_libva_wayland.h
+ create mode 100644 media_driver/linux/common/ddi/wayland-drm-client-protocol.h
+
+diff --git a/media_driver/linux/common/ddi/dso_utils.c b/media_driver/linux/common/ddi/dso_utils.c
+new file mode 100644
+index 0000000000..8ded6e4cf8
+--- /dev/null
++++ b/media_driver/linux/common/ddi/dso_utils.c
+@@ -0,0 +1,110 @@
++/*
++ * Copyright (C) 2012 Intel Corporation. All Rights Reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the
++ * "Software"), to deal in the Software without restriction, including
++ * without limitation the rights to use, copy, modify, merge, publish,
++ * distribute, sub license, and/or sell copies of the Software, and to
++ * permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the
++ * next paragraph) shall be included in all copies or substantial portions
++ * of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
++ * IN NO EVENT SHALL PRECISION INSIGHT AND/OR ITS SUPPLIERS BE LIABLE FOR
++ * ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
++ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
++ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++#define _GNU_SOURCE 1
++#include <stdio.h>
++#include <stdlib.h>
++#include <dlfcn.h>
++#include "dso_utils.h"
++
++struct dso_handle {
++    void       *handle;
++};
++
++/* Opens the named shared library */
++struct dso_handle *
++dso_open(const char *path)
++{
++    struct dso_handle *h;
++
++    h = (dso_handle *)calloc(1, sizeof(*h));
++    if (!h)
++        return NULL;
++
++    if (path) {
++        h->handle = dlopen(path, RTLD_LAZY | RTLD_LOCAL);
++        if (!h->handle)
++            goto error;
++    } else
++        h->handle = RTLD_DEFAULT;
++    return h;
++
++error:
++    dso_close(h);
++    return NULL;
++}
++
++/* Closes and disposed any allocated data */
++void
++dso_close(struct dso_handle *h)
++{
++    if (!h)
++        return;
++
++    if (h->handle) {
++        if (h->handle != RTLD_DEFAULT)
++            dlclose(h->handle);
++        h->handle = NULL;
++    }
++    free(h);
++}
++
++/* Load symbol into the supplied location */
++static bool
++get_symbol(struct dso_handle *h, void *func_vptr, const char *name)
++{
++    dso_generic_func func;
++    dso_generic_func * const func_ptr = (dso_generic_func *) func_vptr;
++    const char *error;
++
++    dlerror();
++    func = (dso_generic_func)dlsym(h->handle, name);
++    error = dlerror();
++    if (error) {
++        fprintf(stderr, "error: failed to resolve %s(): %s\n", name, error);
++        return false;
++    }
++    *func_ptr = func;
++    return true;
++}
++
++/* Loads symbols into the supplied vtable */
++bool
++dso_get_symbols(
++    struct dso_handle          *h,
++    void                       *vtable,
++    unsigned int                vtable_length,
++    const struct dso_symbol    *symbols
++)
++{
++    const struct dso_symbol *s;
++
++    for (s = symbols; s->name != NULL; s++) {
++        if (s->offset + sizeof(dso_generic_func) > vtable_length)
++            return false;
++        if (!get_symbol(h, ((char *)vtable) + s->offset, s->name))
++            return false;
++    }
++    return true;
++}
+diff --git a/media_driver/linux/common/ddi/dso_utils.h b/media_driver/linux/common/ddi/dso_utils.h
+new file mode 100644
+index 0000000000..76f31883b6
+--- /dev/null
++++ b/media_driver/linux/common/ddi/dso_utils.h
+@@ -0,0 +1,74 @@
++/*
++ * Copyright (C) 2012 Intel Corporation. All Rights Reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the
++ * "Software"), to deal in the Software without restriction, including
++ * without limitation the rights to use, copy, modify, merge, publish,
++ * distribute, sub license, and/or sell copies of the Software, and to
++ * permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the
++ * next paragraph) shall be included in all copies or substantial portions
++ * of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
++ * IN NO EVENT SHALL PRECISION INSIGHT AND/OR ITS SUPPLIERS BE LIABLE FOR
++ * ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
++ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
++ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++#ifndef DSO_UTILS_H
++#define DSO_UTILS_H
++
++#include <stdbool.h>
++
++/** Generic pointer to function. */
++typedef void (*dso_generic_func)(void);
++
++/** Library handle (opaque). */
++struct dso_handle;
++
++/** Symbol lookup table. */
++struct dso_symbol {
++    /** Symbol name */
++    const char  *name;
++    /** Offset into the supplied vtable where symbol is to be loaded. */
++    unsigned int offset;
++};
++
++/**
++ * Opens the named shared library.
++ *
++ * @param[in]  path  the library name, or NULL to lookup into loaded libraries
++ * @return the newly allocated library handle
++ */
++struct dso_handle *
++dso_open(const char *path);
++
++/** Closes and disposed any allocated data. */
++void
++dso_close(struct dso_handle *h);
++
++/**
++ * Loads symbols into the supplied vtable.
++ *
++ * @param[in]  handle           the DSO handle
++ * @param[in]  vtable           the function table to fill in
++ * @param[in]  vtable_length    the size (in bytes) of the function table
++ * @param[in]  symbols          the NULL terminated array of symbols to lookup
++ * @return true on success, false otherwise
++ **/
++bool
++dso_get_symbols(
++    struct dso_handle          *h,
++    void                       *vtable,
++    unsigned int                vtable_length,
++    const struct dso_symbol    *symbols
++);
++
++#endif /* DSO_UTILS_H */
+diff --git a/media_driver/linux/common/ddi/media_libva.cpp b/media_driver/linux/common/ddi/media_libva.cpp
+index 494c9a096e..8c8c62b368 100755
+--- a/media_driver/linux/common/ddi/media_libva.cpp
++++ b/media_driver/linux/common/ddi/media_libva.cpp
+@@ -46,6 +46,7 @@
+ #if !defined(ANDROID) && defined(X11_FOUND)
+ #include "media_libva_putsurface_linux.h"
+ #endif
++#include "media_libva_wayland.h"
+ #include "media_libva_vp.h"
+ #include "media_ddi_prot.h"
+ #include "mos_os.h"
+@@ -1712,6 +1713,7 @@ VAStatus DdiMedia__Initialize (
+         }
+     }
+ #endif
++    DdiMedia_wayland_init(ctx);
+ 
+     return status;
+ }
+@@ -2068,6 +2070,8 @@ VAStatus DdiMedia_InitMediaContext (
+ 
+     DdiMediaUtil_UnLockMutex(&GlobalMutex);
+ 
++    DdiMedia_wayland_terminate(ctx);
++
+     return VA_STATUS_SUCCESS;
+ }
+ 
+diff --git a/media_driver/linux/common/ddi/media_libva_common.h b/media_driver/linux/common/ddi/media_libva_common.h
+index 3e29cfa69e..effed44969 100644
+--- a/media_driver/linux/common/ddi/media_libva_common.h
++++ b/media_driver/linux/common/ddi/media_libva_common.h
+@@ -562,6 +562,9 @@ struct DDI_MEDIA_CONTEXT
+     MediaLibvaCapsNext    *m_capsNext = nullptr;
+     bool                  m_apoDdiEnabled = false;
+ #endif
++
++    /* VA/Wayland specific data */
++    struct va_wl_output *wl_output;
+ };
+ 
+ static __inline PDDI_MEDIA_CONTEXT DdiMedia_GetMediaContext (VADriverContextP ctx)
+diff --git a/media_driver/linux/common/ddi/media_libva_putsurface_linux.cpp b/media_driver/linux/common/ddi/media_libva_putsurface_linux.cpp
+index 37ab537b93..3e0fc0204e 100755
+--- a/media_driver/linux/common/ddi/media_libva_putsurface_linux.cpp
++++ b/media_driver/linux/common/ddi/media_libva_putsurface_linux.cpp
+@@ -32,7 +32,6 @@
+ #include <fcntl.h>     //open
+ #include <sys/stat.h>  //fstat
+ #include <unistd.h>    //read, lseek
+-#include <dlfcn.h>     //dlopen,dlsym,dlclose
+ #include <time.h>      //get_clocktime
+ #include <errno.h>     //errno
+ #include <assert.h>    //assert
+@@ -43,6 +42,7 @@
+ #include <X11/Xlib.h>
+ #include <X11/Xutil.h>
+ 
++#include "dso_utils.h"
+ #include "media_libva_putsurface_linux.h"
+ #include "media_libva_util.h"
+ #include "media_libva_common.h"
+@@ -52,106 +52,6 @@ extern MOS_FORMAT     VpGetFormatFromMediaFormat(DDI_MEDIA_FORMAT mf);
+ extern VPHAL_CSPACE   DdiVp_GetColorSpaceFromMediaFormat(DDI_MEDIA_FORMAT mf);
+ extern MOS_TILE_TYPE  VpGetTileTypeFromMediaTileType(uint32_t mediaTileType);
+ 
+-/* Closes and disposed any allocated data */
+-void dso_close(struct dso_handle *h)
+-{
+-    if (!h){
+-        return;
+-    }
+-
+-    if (h->handle) {
+-        if (h->handle != RTLD_DEFAULT)
+-            dlclose(h->handle);
+-        h->handle = nullptr;
+-    }
+-    free(h);
+-}
+-
+-/* Opens the named shared library */
+-struct dso_handle * dso_open(const char *path)
+-{
+-    struct dso_handle *h = nullptr;
+-
+-    h = (dso_handle *)calloc(1, sizeof(*h));
+-    if (!h){
+-        return nullptr;
+-    }
+-
+-    if (path) {
+-        h->handle = dlopen(path, RTLD_LAZY|RTLD_LOCAL);
+-        if (!h->handle)
+-            goto error;
+-    }
+-    else{
+-        h->handle = RTLD_DEFAULT;
+-    }
+-    return h;
+-
+-error:
+-    dso_close(h);
+-    return nullptr;
+-}
+-
+-/* Load function name from one dynamic lib */
+-static bool get_symbol(struct dso_handle *h, void *func_vptr, const char *name)
+-{
+-    DDI_CHK_NULL(h, "nullptr h", false);
+-    DDI_CHK_NULL(func_vptr, "nullptr func_vptr", false);
+-
+-    dso_generic_func func;
+-    dso_generic_func * const func_ptr = (dso_generic_func*) func_vptr;
+-    const char *error = nullptr;
+-
+-    dlerror();
+-    func = (dso_generic_func)dlsym(h->handle, name);
+-    error = dlerror();
+-    if (error) {
+-        fprintf(stderr, "error: failed to resolve %s(): %s\n", name, error);
+-        return false;
+-    }
+-    *func_ptr = func;
+-    return true;
+-}
+-
+-//!
+-//! \brief  Loads function name from vtable
+-//!
+-//! \param  [in] h
+-//!     Dso handle
+-//! \param  [in] vtable
+-//!     VA api table
+-//! \param  [in] vtable_length
+-//!     Length of VA api table
+-//! \param  [in] symbols
+-//!     Dso symbol
+-//!
+-//! \return     bool 
+-//!     true if call success, else false
+-//!
+-bool
+-dso_get_symbols(
+-    struct dso_handle          *h,
+-    void                       *vtable,
+-    uint32_t                    vtable_length,
+-    const struct dso_symbol    *symbols
+-)
+-{
+-    DDI_CHK_NULL(h, "nullptr h", false);
+-
+-    const struct dso_symbol *s = nullptr;
+-    if (nullptr == symbols)
+-    {
+-        return VA_STATUS_ERROR_INVALID_PARAMETER;
+-    }
+-    for (s = symbols; s->name != nullptr; s++) {
+-        if (s->offset + sizeof(dso_generic_func) > vtable_length)
+-            return false;
+-        if (!get_symbol(h, ((char *)vtable) + s->offset, s->name))
+-            return false;
+-    }
+-    return true;
+-}
+-
+ bool output_dri_init(VADriverContextP ctx)
+ {
+     DDI_CHK_NULL(ctx, "nullptr ctx", false);
+diff --git a/media_driver/linux/common/ddi/media_libva_putsurface_linux.h b/media_driver/linux/common/ddi/media_libva_putsurface_linux.h
+index 01411ba20c..8a82e84cab 100644
+--- a/media_driver/linux/common/ddi/media_libva_putsurface_linux.h
++++ b/media_driver/linux/common/ddi/media_libva_putsurface_linux.h
+@@ -30,6 +30,7 @@
+ #include <va/va_backend.h>
+ #include <va/va_dricommon.h>
+ #include "mos_defs.h"
++#include "dso_utils.h"
+ 
+ #define LIBVA_X11_NAME "libva-x11.so.2"
+ typedef struct dri_drawable *(*dri_get_drawable_func)(
+@@ -58,29 +59,6 @@ struct va_dri_output {
+     struct dri_vtable   vtable;
+ };
+ 
+-//!
+-//! \struct dso_symbol
+-//! \brief  Symbol lookup table
+-//!
+-struct dso_symbol {
+-    /** Symbol name */
+-    const char  *name;
+-    /** Offset into the supplied vtable where symbol is to be loaded. */
+-    uint32_t offset;
+-};
+-
+-#include <dlfcn.h>
+-//#include "dso_utils.h"
+-/** Generic pointer to function. */
+-typedef void (*dso_generic_func)(void);
+-
+-//!
+-//! \struct dso_handle
+-//! \brief  Dso handle
+-//!
+-struct dso_handle {
+-    void       *handle;
+-};
+ 
+ //!
+ //! \brief  Output driver initialization
+@@ -92,13 +70,6 @@ struct dso_handle {
+ //!     true if call success, else false
+ //!
+ bool output_dri_init(VADriverContextP ctx);
+-//!
+-//! \brief  Closes and disposed any allocated data
+-//!
+-//! \param  [in] h
+-//!     Dso handle
+-//!
+-void dso_close(struct dso_handle *h);
+ 
+ //!
+ //! \brief  Rectangle initialization
+diff --git a/media_driver/linux/common/ddi/media_libva_wayland.cpp b/media_driver/linux/common/ddi/media_libva_wayland.cpp
+new file mode 100644
+index 0000000000..36a670626e
+--- /dev/null
++++ b/media_driver/linux/common/ddi/media_libva_wayland.cpp
+@@ -0,0 +1,564 @@
++/*
++* Copyright (c) 2009-2017, Intel Corporation
++*
++* Permission is hereby granted, free of charge, to any person obtaining a
++* copy of this software and associated documentation files (the "Software"),
++* to deal in the Software without restriction, including without limitation
++* the rights to use, copy, modify, merge, publish, distribute, sublicense,
++* and/or sell copies of the Software, and to permit persons to whom the
++* Software is furnished to do so, subject to the following conditions:
++*
++* The above copyright notice and this permission notice shall be included
++* in all copies or substantial portions of the Software.
++*
++* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
++* OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
++* THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
++* OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
++* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++* OTHER DEALINGS IN THE SOFTWARE.
++*/
++//!
++//! \file      media_libva_wayland.cpp
++//! \brief     libva get surface buffer wayland implementation
++//!
++
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <va/va_backend.h>
++#include <va/va_backend_wayland.h>
++#include <wayland-client.h>
++#include <wayland-drm-client-protocol.h>
++#include "media_libva_wayland.h"
++#include "media_libva.h"
++#include "dso_utils.h"
++/* We need mesa's libEGL, first try the soname of a glvnd enabled mesa build */
++#define LIBEGL_NAME             "libEGL_mesa.so.0"
++/* Then fallback to plain libEGL.so.1 (which might not be mesa) */
++#define LIBEGL_NAME_FALLBACK    "libEGL.so.1"
++#define LIBWAYLAND_CLIENT_NAME  "libwayland-client.so.0"
++#ifndef VA_FOURCC_IMC1
++#define VA_FOURCC_IMC1 VA_FOURCC('I','M','C','1')
++#endif
++typedef uint32_t (*wl_display_get_global_func)(struct wl_display *display,
++                                               const char *interface, uint32_t version);
++typedef struct wl_event_queue *(*wl_display_create_queue_func)(struct wl_display *display);
++typedef void (*wl_display_roundtrip_queue_func)(struct wl_display *display,
++                                                struct wl_event_queue *queue);
++typedef void (*wl_event_queue_destroy_func)(struct wl_event_queue *queue);
++typedef void *(*wl_proxy_create_wrapper_func)(struct wl_proxy *proxy);
++typedef void(*wl_proxy_wrapper_destroy_func)(void *proxy);
++typedef struct wl_proxy *(*wl_proxy_create_func)(struct wl_proxy *factory,
++                                                 const struct wl_interface *interface);
++typedef void (*wl_proxy_destroy_func)(struct wl_proxy *proxy);
++typedef void (*wl_proxy_marshal_func)(struct wl_proxy *p, uint32_t opcode, ...);
++typedef int (*wl_proxy_add_listener_func)(struct wl_proxy *proxy,
++                                          void (**implementation)(void), void *data);
++typedef void (*wl_proxy_set_queue_func)(struct wl_proxy *proxy, struct wl_event_queue *queue);
++
++struct wl_vtable {
++    const struct wl_interface        *buffer_interface;
++    const struct wl_interface        *drm_interface;
++    const struct wl_interface        *registry_interface;
++    wl_display_create_queue_func      display_create_queue;
++    wl_display_roundtrip_queue_func   display_roundtrip_queue;
++    wl_event_queue_destroy_func       event_queue_destroy;
++    wl_proxy_create_wrapper_func      proxy_create_wrapper;
++    wl_proxy_wrapper_destroy_func     proxy_wrapper_destroy;
++    wl_proxy_create_func              proxy_create;
++    wl_proxy_destroy_func             proxy_destroy;
++    wl_proxy_marshal_func             proxy_marshal;
++    wl_proxy_add_listener_func        proxy_add_listener;
++    wl_proxy_set_queue_func           proxy_set_queue;
++};
++
++struct va_wl_output {
++    struct dso_handle     *libegl_handle;
++    struct dso_handle     *libwl_client_handle;
++    struct wl_vtable       vtable;
++    struct wl_event_queue *queue;
++    struct wl_drm         *wl_drm;
++    uint32_t               wl_drm_name;
++    struct wl_registry    *wl_registry;
++};
++
++/* These function are copied and adapted from the version inside
++ * wayland-client-protocol.h
++ */
++static void *
++registry_bind(
++    struct wl_vtable          *wl_vtable,
++    struct wl_registry        *wl_registry,
++    uint32_t                   name,
++    const struct wl_interface *interface,
++    uint32_t                   version
++)
++{
++    struct wl_proxy *id;
++
++    id = wl_vtable->proxy_create((struct wl_proxy *) wl_registry,
++                                 interface);
++    if (!id)
++        return NULL;
++
++    wl_vtable->proxy_marshal((struct wl_proxy *) wl_registry,
++                             WL_REGISTRY_BIND, name, interface->name,
++                             version, id);
++
++    return (void *) id;
++}
++
++static struct wl_registry *
++display_get_registry(
++    struct wl_vtable  *wl_vtable,
++    struct wl_display *wl_display
++)
++{
++    struct wl_proxy *callback;
++
++    callback = wl_vtable->proxy_create((struct wl_proxy *) wl_display,
++                                       wl_vtable->registry_interface);
++    if (!callback)
++        return NULL;
++
++    wl_vtable->proxy_marshal((struct wl_proxy *) wl_display,
++                             WL_DISPLAY_GET_REGISTRY, callback);
++
++    return (struct wl_registry *) callback;
++}
++
++static int
++registry_add_listener(
++    struct wl_vtable                  *wl_vtable,
++    struct wl_registry                *wl_registry,
++    const struct wl_registry_listener *listener,
++    void                              *data
++)
++{
++    return wl_vtable->proxy_add_listener((struct wl_proxy *) wl_registry,
++                                         (void (**)(void)) listener, data);
++}
++
++static void
++registry_handle_global(
++    void               *data,
++    struct wl_registry *registry,
++    uint32_t            name,
++    const char         *interface,
++    uint32_t            version
++)
++{
++    VADriverContextP ctx = (VADriverContextP)data;
++    DDI_MEDIA_CONTEXT *mediaCtx = DdiMedia_GetMediaContext(ctx);
++    struct va_wl_output * const wl_output = mediaCtx->wl_output;
++    struct wl_vtable * const wl_vtable = &wl_output->vtable;
++
++    if (strcmp(interface, "wl_drm") == 0) {
++        wl_output->wl_drm_name = name;
++        wl_output->wl_drm = (wl_drm*)registry_bind(wl_vtable, wl_output->wl_registry,
++                                          name, wl_vtable->drm_interface,
++                                          (version < 2) ? version : 2);
++    }
++}
++
++static void
++registry_handle_global_remove(
++    void               *data,
++    struct wl_registry *registry,
++    uint32_t            name
++)
++{
++    VADriverContextP ctx = (VADriverContextP)data;
++    DDI_MEDIA_CONTEXT *mediaCtx = DdiMedia_GetMediaContext(ctx);
++    struct va_wl_output * const wl_output = mediaCtx->wl_output;
++
++    if (wl_output->wl_drm && name == wl_output->wl_drm_name) {
++        wl_output->vtable.proxy_destroy((struct wl_proxy *)wl_output->wl_drm);
++        wl_output->wl_drm = NULL;
++    }
++}
++
++static const struct wl_registry_listener registry_listener = {
++    registry_handle_global,
++    registry_handle_global_remove
++};
++
++/* Ensure wl_drm instance is created */
++static bool
++ensure_wl_output(VADriverContextP ctx)
++{
++    DDI_MEDIA_CONTEXT *mediaCtx = DdiMedia_GetMediaContext(ctx);
++    struct va_wl_output * const wl_output = mediaCtx->wl_output;
++    struct wl_vtable * const wl_vtable = &wl_output->vtable;
++    struct wl_display *display_wrapper;
++
++    if (wl_output->wl_drm)
++        return true;
++
++    if (wl_output->queue) {
++        wl_output->vtable.event_queue_destroy(wl_output->queue);
++        wl_output->queue = NULL;
++    }
++    wl_output->queue = (wl_event_queue*)wl_vtable->display_create_queue((wl_display*)ctx->native_dpy);
++    if (!wl_output->queue)
++        return false;
++
++    display_wrapper = (wl_display*)wl_vtable->proxy_create_wrapper((wl_proxy*)ctx->native_dpy);
++    if (!display_wrapper)
++        return false;
++    wl_vtable->proxy_set_queue((struct wl_proxy *) display_wrapper, wl_output->queue);
++
++    if (wl_output->wl_registry) {
++        wl_output->vtable.proxy_destroy((struct wl_proxy *)wl_output->wl_registry);
++        wl_output->wl_registry = NULL;
++    }
++    wl_output->wl_registry = display_get_registry(wl_vtable, display_wrapper);
++    wl_vtable->proxy_wrapper_destroy(display_wrapper);
++    registry_add_listener(wl_vtable, wl_output->wl_registry,
++                          &registry_listener, ctx);
++    wl_vtable->display_roundtrip_queue((wl_display*)ctx->native_dpy, wl_output->queue);
++    if (!wl_output->wl_drm)
++        return false;
++    return true;
++}
++
++/* Create planar/prime YUV buffer
++ * Create a prime buffer if fd is not -1, otherwise a
++ * planar buffer
++ */
++static struct wl_buffer *
++create_prime_or_planar_buffer(
++    struct va_wl_output *wl_output,
++    uint32_t             name,
++    int                  fd,
++    int32_t              width,
++    int32_t              height,
++    uint32_t             format,
++    int32_t              offsets[3],
++    int32_t              pitches[3]
++)
++{
++    struct wl_vtable * const wl_vtable = &wl_output->vtable;
++    struct wl_proxy *id;
++
++    id = wl_vtable->proxy_create(
++             (struct wl_proxy *)wl_output->wl_drm,
++             wl_vtable->buffer_interface
++         );
++    if (!id)
++        return NULL;
++
++    wl_vtable->proxy_marshal(
++        (struct wl_proxy *)wl_output->wl_drm,
++        (fd != -1) ? WL_DRM_CREATE_PRIME_BUFFER : WL_DRM_CREATE_PLANAR_BUFFER,
++        id,
++        (fd != -1) ? fd : name,
++        width, height, format,
++        offsets[0], pitches[0],
++        offsets[1], pitches[1],
++        offsets[2], pitches[2]
++    );
++    return (struct wl_buffer *)id;
++}
++extern int32_t DdiMedia_MediaFormatToOsFormat(DDI_MEDIA_FORMAT format);
++/* Hook to return Wayland buffer associated with the VA surface */
++static VAStatus
++va_GetSurfaceBufferWl(
++    struct VADriverContext *ctx,
++    VASurfaceID             surface,
++    unsigned int            flags,
++    struct wl_buffer      **out_buffer
++)
++{
++    struct VADriverVTableWayland * const vtable = ctx->vtable_wayland;
++    DDI_MEDIA_CONTEXT *mediaCtx = DdiMedia_GetMediaContext(ctx);
++    DDI_MEDIA_SURFACE* mediaSurface = DdiMedia_GetSurfaceFromVASurfaceID(mediaCtx, surface);
++    struct wl_buffer *buffer;
++    uint32_t  drm_format;
++    int offsets[3], pitches[3];
++    int fd = -1;
++
++    if (!mediaSurface)
++        return VA_STATUS_ERROR_INVALID_SURFACE;
++
++    if (flags != VA_FRAME_PICTURE)
++        return VA_STATUS_ERROR_FLAG_NOT_SUPPORTED;
++
++    if (!out_buffer)
++        return VA_STATUS_ERROR_INVALID_PARAMETER;
++
++    if (!ensure_wl_output(ctx))
++        return VA_STATUS_ERROR_INVALID_DISPLAY;
++
++    if (!vtable->has_prime_sharing || (mos_bo_gem_export_to_prime(mediaSurface->bo, &fd) != 0)) {
++        fd = -1;
++
++        if (mos_bo_flink(mediaSurface->bo, &mediaSurface->name) != 0)
++            return VA_STATUS_ERROR_INVALID_SURFACE;
++    }
++    offsets[0] = 0;
++    int32_t fourcc = DdiMedia_MediaFormatToOsFormat(mediaSurface->format);
++    switch (fourcc) {
++    case VA_FOURCC_NV12:
++        drm_format = WL_DRM_FORMAT_NV12;
++        pitches[0] = mediaSurface->iPitch;
++        offsets[1] = mediaSurface->iPitch * mediaSurface->iHeight;
++        pitches[1] = mediaSurface->iPitch;
++        offsets[2] = 0;
++        pitches[2] = 0;
++        break;
++    case VA_FOURCC_YV12:
++        drm_format = WL_DRM_FORMAT_YUV420;
++        pitches[0]               = mediaSurface->iPitch;
++        pitches[1]               =
++        pitches[2]               = mediaSurface->iPitch / 2;
++        offsets[1]               = mediaSurface->iHeight * mediaSurface->iPitch;
++        offsets[2]               = mediaSurface->iPitch * mediaSurface->iHeight * 5 / 4;
++        break;
++    case VA_FOURCC_I420:
++        drm_format = WL_DRM_FORMAT_YUV420;
++        pitches[0]               = mediaSurface->iPitch;
++        pitches[1]               =
++        pitches[2]               = mediaSurface->iPitch / 2;
++        offsets[1]               = mediaSurface->iPitch * mediaSurface->iHeight * 5 / 4;
++        offsets[2]               = mediaSurface->iHeight * mediaSurface->iPitch;
++        break;
++    case VA_FOURCC_IMC1:
++    case VA_FOURCC_IMC3:
++        drm_format = WL_DRM_FORMAT_YUV420;
++        pitches[0]               =
++        pitches[1]               =
++        pitches[2]               = mediaSurface->iPitch;
++        offsets[1]               = mediaSurface->iHeight * mediaSurface->iPitch;
++        offsets[2]               = mediaSurface->iHeight * mediaSurface->iPitch * 3 / 2;
++        break;
++    case VA_FOURCC_422H:
++        drm_format = WL_DRM_FORMAT_YUV422;
++        pitches[0]               =
++        pitches[1]               =
++        pitches[2]               = mediaSurface->iPitch;
++        offsets[1]               = mediaSurface->iHeight * mediaSurface->iPitch;
++        offsets[2]               = mediaSurface->iHeight * mediaSurface->iPitch * 2;
++        break;
++    case VA_FOURCC_422V:
++        drm_format = WL_DRM_FORMAT_YUV422;
++        pitches[0]               =
++        pitches[1]               =
++        pitches[2]               = mediaSurface->iPitch;
++        offsets[1]               = mediaSurface->iHeight * mediaSurface->iPitch;
++        offsets[2]               = mediaSurface->iHeight * mediaSurface->iPitch * 3 / 2;
++        break;
++    case VA_FOURCC_411P:
++        drm_format = WL_DRM_FORMAT_YUV411;
++        pitches[0]               =
++        pitches[1]               =
++        pitches[2]               = mediaSurface->iPitch;
++        offsets[1]               = mediaSurface->iHeight * mediaSurface->iPitch;
++        offsets[2]               = mediaSurface->iHeight * mediaSurface->iPitch * 2;
++        break;
++    case VA_FOURCC_444P:
++        drm_format = WL_DRM_FORMAT_YUV444;
++        pitches[0]               =
++        pitches[1]               =
++        pitches[2]               = mediaSurface->iPitch;
++        offsets[1]               = mediaSurface->iHeight * mediaSurface->iPitch;
++        offsets[2]               = mediaSurface->iHeight * mediaSurface->iPitch * 2;
++        break;
++    default:
++        return VA_STATUS_ERROR_INVALID_IMAGE_FORMAT;
++    }
++
++    buffer = create_prime_or_planar_buffer(
++                 mediaCtx->wl_output,
++                 mediaSurface->name,
++                 fd,
++                 mediaSurface->iWidth,
++                 mediaSurface->iRealHeight,
++                 drm_format,
++                 offsets,
++                 pitches
++             );
++
++    if (fd != -1)
++        close(fd);
++
++    if (!buffer)
++        return VA_STATUS_ERROR_ALLOCATION_FAILED;
++
++    *out_buffer = buffer;
++    return VA_STATUS_SUCCESS;
++}
++
++/* Hook to return Wayland buffer associated with the VA image */
++static VAStatus
++va_GetImageBufferWl(
++    struct VADriverContext *ctx,
++    VAImageID               image,
++    unsigned int            flags,
++    struct wl_buffer      **out_buffer
++)
++{
++    return VA_STATUS_ERROR_UNIMPLEMENTED;
++}
++
++bool
++ensure_driver_vtable(VADriverContextP ctx)
++{
++    struct VADriverVTableWayland * const vtable = ctx->vtable_wayland;
++
++    if (!vtable)
++        return false;
++
++    vtable->vaGetSurfaceBufferWl = va_GetSurfaceBufferWl;
++    vtable->vaGetImageBufferWl   = va_GetImageBufferWl;
++    return true;
++}
++
++bool
++DdiMedia_wayland_init(VADriverContextP ctx)
++{
++    DDI_MEDIA_CONTEXT *mediaCtx = DdiMedia_GetMediaContext(ctx);
++    struct dso_handle *dso_handle;
++    struct wl_vtable *wl_vtable;
++
++    static const struct dso_symbol libegl_symbols[] = {
++        {
++            "wl_drm_interface",
++            offsetof(struct wl_vtable, drm_interface)
++        },
++        { NULL, }
++    };
++
++    static const struct dso_symbol libwl_client_symbols[] = {
++        {
++            "wl_buffer_interface",
++            offsetof(struct wl_vtable, buffer_interface)
++        },
++        {
++            "wl_registry_interface",
++            offsetof(struct wl_vtable, registry_interface)
++        },
++        {
++            "wl_display_create_queue",
++            offsetof(struct wl_vtable, display_create_queue)
++        },
++        {
++            "wl_display_roundtrip_queue",
++            offsetof(struct wl_vtable, display_roundtrip_queue)
++        },
++        {
++            "wl_event_queue_destroy",
++            offsetof(struct wl_vtable, event_queue_destroy)
++        },
++        {
++            "wl_proxy_create_wrapper",
++            offsetof(struct wl_vtable, proxy_create_wrapper)
++        },
++        {
++            "wl_proxy_wrapper_destroy",
++            offsetof(struct wl_vtable, proxy_wrapper_destroy)
++        },
++        {
++            "wl_proxy_create",
++            offsetof(struct wl_vtable, proxy_create)
++        },
++        {
++            "wl_proxy_destroy",
++            offsetof(struct wl_vtable, proxy_destroy)
++        },
++        {
++            "wl_proxy_marshal",
++            offsetof(struct wl_vtable, proxy_marshal)
++        },
++        {
++            "wl_proxy_add_listener",
++            offsetof(struct wl_vtable, proxy_add_listener)
++        },
++        {
++            "wl_proxy_set_queue",
++            offsetof(struct wl_vtable, proxy_set_queue)
++        },
++        { NULL, }
++    };
++
++    if (ctx->display_type != VA_DISPLAY_WAYLAND)
++        return false;
++
++    mediaCtx->wl_output = (va_wl_output *)calloc(1, sizeof(struct va_wl_output));
++    if (!mediaCtx->wl_output)
++        goto error;
++
++    mediaCtx->wl_output->libegl_handle = dso_open(LIBEGL_NAME);
++    if (!mediaCtx->wl_output->libegl_handle) {
++        mediaCtx->wl_output->libegl_handle = dso_open(LIBEGL_NAME_FALLBACK);
++        if (!mediaCtx->wl_output->libegl_handle)
++            goto error;
++    }
++
++    dso_handle = mediaCtx->wl_output->libegl_handle;
++    wl_vtable  = &mediaCtx->wl_output->vtable;
++    if (!dso_get_symbols(dso_handle, wl_vtable, sizeof(*wl_vtable),
++                         libegl_symbols))
++        goto error;
++
++    mediaCtx->wl_output->libwl_client_handle = dso_open(LIBWAYLAND_CLIENT_NAME);
++    if (!mediaCtx->wl_output->libwl_client_handle)
++        goto error;
++
++    dso_handle = mediaCtx->wl_output->libwl_client_handle;
++    wl_vtable  = &mediaCtx->wl_output->vtable;
++    if (!dso_get_symbols(dso_handle, wl_vtable, sizeof(*wl_vtable),
++                         libwl_client_symbols))
++        goto error;
++
++    if (!ensure_driver_vtable(ctx))
++        goto error;
++    return true;
++
++error:
++    DdiMedia_wayland_terminate(ctx);
++    return false;
++}
++
++void
++DdiMedia_wayland_terminate(VADriverContextP ctx)
++{
++    DDI_MEDIA_CONTEXT *mediaCtx = DdiMedia_GetMediaContext(ctx);
++    struct va_wl_output *wl_output;
++
++    if (ctx->display_type != VA_DISPLAY_WAYLAND)
++        return;
++
++    wl_output = mediaCtx->wl_output;
++    if (!wl_output)
++        return;
++
++    if (wl_output->wl_drm) {
++        wl_output->vtable.proxy_destroy((struct wl_proxy *)wl_output->wl_drm);
++        wl_output->wl_drm = NULL;
++    }
++
++    if (wl_output->wl_registry) {
++        wl_output->vtable.proxy_destroy((struct wl_proxy *)wl_output->wl_registry);
++        wl_output->wl_registry = NULL;
++    }
++
++    if (wl_output->queue) {
++        wl_output->vtable.event_queue_destroy(wl_output->queue);
++        wl_output->queue = NULL;
++    }
++
++    if (wl_output->libegl_handle) {
++        dso_close(wl_output->libegl_handle);
++        wl_output->libegl_handle = NULL;
++    }
++
++    if (wl_output->libwl_client_handle) {
++        dso_close(wl_output->libwl_client_handle);
++        wl_output->libwl_client_handle = NULL;
++    }
++    free(wl_output);
++    mediaCtx->wl_output = NULL;
++}
+diff --git a/media_driver/linux/common/ddi/media_libva_wayland.h b/media_driver/linux/common/ddi/media_libva_wayland.h
+new file mode 100644
+index 0000000000..5902908549
+--- /dev/null
++++ b/media_driver/linux/common/ddi/media_libva_wayland.h
+@@ -0,0 +1,37 @@
++/*
++ * Copyright (C) 2012 Intel Corporation. All Rights Reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the
++ * "Software"), to deal in the Software without restriction, including
++ * without limitation the rights to use, copy, modify, merge, publish,
++ * distribute, sub license, and/or sell copies of the Software, and to
++ * permit persons to whom the Software is furnished to do so, subject to
++ * the following conditions:
++ *
++ * The above copyright notice and this permission notice (including the
++ * next paragraph) shall be included in all copies or substantial portions
++ * of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
++ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.
++ * IN NO EVENT SHALL PRECISION INSIGHT AND/OR ITS SUPPLIERS BE LIABLE FOR
++ * ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
++ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
++ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++#ifndef MEDIA_LIBVA_WAYLAND_H
++#define MEDIA_LIBVA_WAYLAND_H
++
++#include <stdbool.h>
++#include <va/va_backend.h>
++
++bool
++DdiMedia_wayland_init(VADriverContextP ctx);
++
++void
++DdiMedia_wayland_terminate(VADriverContextP ctx);
++
++#endif /* MEDIA_LIBVA_WAYLAND_H */
+diff --git a/media_driver/linux/common/ddi/media_srcs.cmake b/media_driver/linux/common/ddi/media_srcs.cmake
+index 5a7e9351f8..76f912f5ac 100755
+--- a/media_driver/linux/common/ddi/media_srcs.cmake
++++ b/media_driver/linux/common/ddi/media_srcs.cmake
+@@ -25,6 +25,8 @@ set(TMP_SOURCES_
+     ${CMAKE_CURRENT_LIST_DIR}/media_libva_common.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/media_libva_util.cpp
+     ${CMAKE_CURRENT_LIST_DIR}/media_libva_apo_decision.cpp
++    ${CMAKE_CURRENT_LIST_DIR}/media_libva_wayland.cpp
++    ${CMAKE_CURRENT_LIST_DIR}/dso_utils.c
+ )
+ 
+ set(TMP_HEADERS_
+@@ -37,6 +39,9 @@ set(TMP_HEADERS_
+     ${CMAKE_CURRENT_LIST_DIR}/media_libva_common.h
+     ${CMAKE_CURRENT_LIST_DIR}/media_libva_util.h
+     ${CMAKE_CURRENT_LIST_DIR}/media_libva_apo_decision.h
++    ${CMAKE_CURRENT_LIST_DIR}/media_libva_wayland.h
++    ${CMAKE_CURRENT_LIST_DIR}/wayland-drm-client-protocol.h
++    ${CMAKE_CURRENT_LIST_DIR}/dso_utils.h
+ )
+ 
+ if(NOT ${PLATFORM} STREQUAL "android" AND X11_FOUND)
+diff --git a/media_driver/linux/common/ddi/wayland-drm-client-protocol.h b/media_driver/linux/common/ddi/wayland-drm-client-protocol.h
+new file mode 100644
+index 0000000000..a476b07d9b
+--- /dev/null
++++ b/media_driver/linux/common/ddi/wayland-drm-client-protocol.h
+@@ -0,0 +1,307 @@
++/* Generated by wayland-scanner 1.12.0 */
++
++#ifndef DRM_CLIENT_PROTOCOL_H
++#define DRM_CLIENT_PROTOCOL_H
++
++#include <stdint.h>
++#include <stddef.h>
++#include "wayland-client.h"
++
++#ifdef  __cplusplus
++extern "C" {
++#endif
++
++/**
++ * @page page_drm The drm protocol
++ * @section page_ifaces_drm Interfaces
++ * - @subpage page_iface_wl_drm - 
++ * @section page_copyright_drm Copyright
++ * <pre>
++ *
++ * Copyright © 2008-2011 Kristian Høgsberg
++ * Copyright © 2010-2011 Intel Corporation
++ *
++ * Permission to use, copy, modify, distribute, and sell this
++ * software and its documentation for any purpose is hereby granted
++ * without fee, provided that\n the above copyright notice appear in
++ * all copies and that both that copyright notice and this permission
++ * notice appear in supporting documentation, and that the name of
++ * the copyright holders not be used in advertising or publicity
++ * pertaining to distribution of the software without specific,
++ * written prior permission.  The copyright holders make no
++ * representations about the suitability of this software for any
++ * purpose.  It is provided "as is" without express or implied
++ * warranty.
++ *
++ * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
++ * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
++ * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
++ * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
++ * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
++ * ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
++ * THIS SOFTWARE.
++ * </pre>
++ */
++struct wl_buffer;
++struct wl_drm;
++
++/**
++ * @page page_iface_wl_drm wl_drm
++ * @section page_iface_wl_drm_api API
++ * See @ref iface_wl_drm.
++ */
++/**
++ * @defgroup iface_wl_drm The wl_drm interface
++ */
++extern const struct wl_interface wl_drm_interface;
++
++#ifndef WL_DRM_ERROR_ENUM
++#define WL_DRM_ERROR_ENUM
++enum wl_drm_error {
++	WL_DRM_ERROR_AUTHENTICATE_FAIL = 0,
++	WL_DRM_ERROR_INVALID_FORMAT = 1,
++	WL_DRM_ERROR_INVALID_NAME = 2,
++};
++#endif /* WL_DRM_ERROR_ENUM */
++
++#ifndef WL_DRM_FORMAT_ENUM
++#define WL_DRM_FORMAT_ENUM
++enum wl_drm_format {
++	WL_DRM_FORMAT_C8 = 0x20203843,
++	WL_DRM_FORMAT_RGB332 = 0x38424752,
++	WL_DRM_FORMAT_BGR233 = 0x38524742,
++	WL_DRM_FORMAT_XRGB4444 = 0x32315258,
++	WL_DRM_FORMAT_XBGR4444 = 0x32314258,
++	WL_DRM_FORMAT_RGBX4444 = 0x32315852,
++	WL_DRM_FORMAT_BGRX4444 = 0x32315842,
++	WL_DRM_FORMAT_ARGB4444 = 0x32315241,
++	WL_DRM_FORMAT_ABGR4444 = 0x32314241,
++	WL_DRM_FORMAT_RGBA4444 = 0x32314152,
++	WL_DRM_FORMAT_BGRA4444 = 0x32314142,
++	WL_DRM_FORMAT_XRGB1555 = 0x35315258,
++	WL_DRM_FORMAT_XBGR1555 = 0x35314258,
++	WL_DRM_FORMAT_RGBX5551 = 0x35315852,
++	WL_DRM_FORMAT_BGRX5551 = 0x35315842,
++	WL_DRM_FORMAT_ARGB1555 = 0x35315241,
++	WL_DRM_FORMAT_ABGR1555 = 0x35314241,
++	WL_DRM_FORMAT_RGBA5551 = 0x35314152,
++	WL_DRM_FORMAT_BGRA5551 = 0x35314142,
++	WL_DRM_FORMAT_RGB565 = 0x36314752,
++	WL_DRM_FORMAT_BGR565 = 0x36314742,
++	WL_DRM_FORMAT_RGB888 = 0x34324752,
++	WL_DRM_FORMAT_BGR888 = 0x34324742,
++	WL_DRM_FORMAT_XRGB8888 = 0x34325258,
++	WL_DRM_FORMAT_XBGR8888 = 0x34324258,
++	WL_DRM_FORMAT_RGBX8888 = 0x34325852,
++	WL_DRM_FORMAT_BGRX8888 = 0x34325842,
++	WL_DRM_FORMAT_ARGB8888 = 0x34325241,
++	WL_DRM_FORMAT_ABGR8888 = 0x34324241,
++	WL_DRM_FORMAT_RGBA8888 = 0x34324152,
++	WL_DRM_FORMAT_BGRA8888 = 0x34324142,
++	WL_DRM_FORMAT_XRGB2101010 = 0x30335258,
++	WL_DRM_FORMAT_XBGR2101010 = 0x30334258,
++	WL_DRM_FORMAT_RGBX1010102 = 0x30335852,
++	WL_DRM_FORMAT_BGRX1010102 = 0x30335842,
++	WL_DRM_FORMAT_ARGB2101010 = 0x30335241,
++	WL_DRM_FORMAT_ABGR2101010 = 0x30334241,
++	WL_DRM_FORMAT_RGBA1010102 = 0x30334152,
++	WL_DRM_FORMAT_BGRA1010102 = 0x30334142,
++	WL_DRM_FORMAT_YUYV = 0x56595559,
++	WL_DRM_FORMAT_YVYU = 0x55595659,
++	WL_DRM_FORMAT_UYVY = 0x59565955,
++	WL_DRM_FORMAT_VYUY = 0x59555956,
++	WL_DRM_FORMAT_AYUV = 0x56555941,
++	WL_DRM_FORMAT_NV12 = 0x3231564e,
++	WL_DRM_FORMAT_NV21 = 0x3132564e,
++	WL_DRM_FORMAT_NV16 = 0x3631564e,
++	WL_DRM_FORMAT_NV61 = 0x3136564e,
++	WL_DRM_FORMAT_YUV410 = 0x39565559,
++	WL_DRM_FORMAT_YVU410 = 0x39555659,
++	WL_DRM_FORMAT_YUV411 = 0x31315559,
++	WL_DRM_FORMAT_YVU411 = 0x31315659,
++	WL_DRM_FORMAT_YUV420 = 0x32315559,
++	WL_DRM_FORMAT_YVU420 = 0x32315659,
++	WL_DRM_FORMAT_YUV422 = 0x36315559,
++	WL_DRM_FORMAT_YVU422 = 0x36315659,
++	WL_DRM_FORMAT_YUV444 = 0x34325559,
++	WL_DRM_FORMAT_YVU444 = 0x34325659,
++};
++#endif /* WL_DRM_FORMAT_ENUM */
++
++#ifndef WL_DRM_CAPABILITY_ENUM
++#define WL_DRM_CAPABILITY_ENUM
++/**
++ * @ingroup iface_wl_drm
++ * wl_drm capability bitmask
++ *
++ * Bitmask of capabilities.
++ */
++enum wl_drm_capability {
++	/**
++	 * wl_drm prime available
++	 */
++	WL_DRM_CAPABILITY_PRIME = 1,
++};
++#endif /* WL_DRM_CAPABILITY_ENUM */
++
++/**
++ * @ingroup iface_wl_drm
++ * @struct wl_drm_listener
++ */
++struct wl_drm_listener {
++	/**
++	 */
++	void (*device)(void *data,
++		       struct wl_drm *wl_drm,
++		       const char *name);
++	/**
++	 */
++	void (*format)(void *data,
++		       struct wl_drm *wl_drm,
++		       uint32_t format);
++	/**
++	 */
++	void (*authenticated)(void *data,
++			      struct wl_drm *wl_drm);
++	/**
++	 */
++	void (*capabilities)(void *data,
++			     struct wl_drm *wl_drm,
++			     uint32_t value);
++};
++
++/**
++ * @ingroup wl_drm_iface
++ */
++static inline int
++wl_drm_add_listener(struct wl_drm *wl_drm,
++		    const struct wl_drm_listener *listener, void *data)
++{
++	return wl_proxy_add_listener((struct wl_proxy *) wl_drm,
++				     (void (**)(void)) listener, data);
++}
++
++#define WL_DRM_AUTHENTICATE 0
++#define WL_DRM_CREATE_BUFFER 1
++#define WL_DRM_CREATE_PLANAR_BUFFER 2
++#define WL_DRM_CREATE_PRIME_BUFFER 3
++
++/**
++ * @ingroup iface_wl_drm
++ */
++#define WL_DRM_DEVICE_SINCE_VERSION 1
++/**
++ * @ingroup iface_wl_drm
++ */
++#define WL_DRM_FORMAT_SINCE_VERSION 1
++/**
++ * @ingroup iface_wl_drm
++ */
++#define WL_DRM_AUTHENTICATED_SINCE_VERSION 1
++/**
++ * @ingroup iface_wl_drm
++ */
++#define WL_DRM_CAPABILITIES_SINCE_VERSION 1
++
++/**
++ * @ingroup iface_wl_drm
++ */
++#define WL_DRM_AUTHENTICATE_SINCE_VERSION 1
++/**
++ * @ingroup iface_wl_drm
++ */
++#define WL_DRM_CREATE_BUFFER_SINCE_VERSION 1
++/**
++ * @ingroup iface_wl_drm
++ */
++#define WL_DRM_CREATE_PLANAR_BUFFER_SINCE_VERSION 1
++/**
++ * @ingroup iface_wl_drm
++ */
++#define WL_DRM_CREATE_PRIME_BUFFER_SINCE_VERSION 2
++
++/** @ingroup iface_wl_drm */
++static inline void
++wl_drm_set_user_data(struct wl_drm *wl_drm, void *user_data)
++{
++	wl_proxy_set_user_data((struct wl_proxy *) wl_drm, user_data);
++}
++
++/** @ingroup iface_wl_drm */
++static inline void *
++wl_drm_get_user_data(struct wl_drm *wl_drm)
++{
++	return wl_proxy_get_user_data((struct wl_proxy *) wl_drm);
++}
++
++static inline uint32_t
++wl_drm_get_version(struct wl_drm *wl_drm)
++{
++	return wl_proxy_get_version((struct wl_proxy *) wl_drm);
++}
++
++/** @ingroup iface_wl_drm */
++static inline void
++wl_drm_destroy(struct wl_drm *wl_drm)
++{
++	wl_proxy_destroy((struct wl_proxy *) wl_drm);
++}
++
++/**
++ * @ingroup iface_wl_drm
++ */
++static inline void
++wl_drm_authenticate(struct wl_drm *wl_drm, uint32_t id)
++{
++	wl_proxy_marshal((struct wl_proxy *) wl_drm,
++			 WL_DRM_AUTHENTICATE, id);
++}
++
++/**
++ * @ingroup iface_wl_drm
++ */
++static inline struct wl_buffer *
++wl_drm_create_buffer(struct wl_drm *wl_drm, uint32_t name, int32_t width, int32_t height, uint32_t stride, uint32_t format)
++{
++	struct wl_proxy *id;
++
++	id = wl_proxy_marshal_constructor((struct wl_proxy *) wl_drm,
++			 WL_DRM_CREATE_BUFFER, &wl_buffer_interface, NULL, name, width, height, stride, format);
++
++	return (struct wl_buffer *) id;
++}
++
++/**
++ * @ingroup iface_wl_drm
++ */
++static inline struct wl_buffer *
++wl_drm_create_planar_buffer(struct wl_drm *wl_drm, uint32_t name, int32_t width, int32_t height, uint32_t format, int32_t offset0, int32_t stride0, int32_t offset1, int32_t stride1, int32_t offset2, int32_t stride2)
++{
++	struct wl_proxy *id;
++
++	id = wl_proxy_marshal_constructor((struct wl_proxy *) wl_drm,
++			 WL_DRM_CREATE_PLANAR_BUFFER, &wl_buffer_interface, NULL, name, width, height, format, offset0, stride0, offset1, stride1, offset2, stride2);
++
++	return (struct wl_buffer *) id;
++}
++
++/**
++ * @ingroup iface_wl_drm
++ */
++static inline struct wl_buffer *
++wl_drm_create_prime_buffer(struct wl_drm *wl_drm, int32_t name, int32_t width, int32_t height, uint32_t format, int32_t offset0, int32_t stride0, int32_t offset1, int32_t stride1, int32_t offset2, int32_t stride2)
++{
++	struct wl_proxy *id;
++
++	id = wl_proxy_marshal_constructor((struct wl_proxy *) wl_drm,
++			 WL_DRM_CREATE_PRIME_BUFFER, &wl_buffer_interface, NULL, name, width, height, format, offset0, stride0, offset1, stride1, offset2, stride2);
++
++	return (struct wl_buffer *) id;
++}
++
++#ifdef  __cplusplus
++}
++#endif
++
++#endif

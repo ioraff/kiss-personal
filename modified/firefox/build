@@ -1,11 +1,26 @@
 #!/bin/sh -e
 
-for p in *.patch; do
+(
+    cd dom/media/webrtc/third_party_build/gn-configs
+
+    mv x64_False_arm64_linux.json      x64_False_arm64_linux_True.json
+    mv x64_False_arm64_linux.mozconfig x64_False_arm64_linux_True.mozconfig
+    mv x64_False_x64_linux.json        x64_False_x64_linux_True.json
+    mv x64_False_x86_linux.json        x64_False_x86_linux_True.json
+    mv x64_False_x86_linux.mozconfig   x64_False_x86_linux_True.mozconfig
+    mv x64_True_arm64_linux.json       x64_True_arm64_linux_True.json
+    mv x64_True_arm64_linux.mozconfig  x64_True_arm64_linux_True.mozconfig
+    mv x64_True_x64_linux.json         x64_True_x64_linux_True.json
+    mv x64_True_x64_linux.mozconfig    x64_True_x64_linux_True.mozconfig
+    mv x64_True_x86_linux.json         x64_True_x86_linux_True.json
+    mv x64_True_x86_linux.mozconfig    x64_True_x86_linux_True.mozconfig
+)
+
+mv widget/gtk/mozwayland/mozwayland.h widget/gtk/wayland/mozwayland.h
+
+for p in no-x11/*.patch *.patch; do
     patch -p1 < "$p"
 done
-
-mv widget/x11/keysym2ucs.c widget/gtk/keysym2ucs.c
-mv widget/x11/keysym2ucs.h widget/gtk/keysym2ucs.h
 
 # Build autoconf 2.13 for Firefox's sole use.
 # See: https://bugzilla.mozilla.org/show_bug.cgi?id=104642
@@ -48,14 +63,13 @@ for f in zip unzip; do (
 export PATH="$PWD/junk/bin:$PATH"
 
 unset MAKEFLAGS
-export CC=clang
-export CXX=clang++
+export CC=/usr/bin/clang
+export CXX=/usr/bin/clang++
 export AR=llvm-ar
 export NM=llvm-nm
 export RANLIB=llvm-ranlib
 export CFLAGS="--target=x86_64-pc-linux-musl $CFLAGS -w"
 export CXXFLAGS="--target=x86_64-pc-linux-musl $CXXFLAGS -w"
-export CCACHE_DISABLE=1
 export LLVM_PROFDATA=llvm-profdata
 
 # If using libc++, CXXSTDLIB needs to be set manually.
@@ -69,7 +83,7 @@ export RUSTFLAGS="$RUSTFLAGS --remap-path-prefix=$PWD=."
 
 export LDFLAGS="$LDFLAGS -Wl,-rpath=/usr/lib/firefox,--enable-new-dtags"
 export RUSTFLAGS="$RUSTFLAGS -Cdebuginfo=0"
-export MACH_USE_SYSTEM_PYTHON=1
+export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=system
 export MOZ_DEBUG_FLAGS=-g0
 export MOZBUILD_STATE_PATH="$PWD/state"
 export MOZ_NOSPAM=1
@@ -77,19 +91,19 @@ export MOZ_NOSPAM=1
 cat > .mozconfig << EOF
 ac_add_options --prefix=/usr
 ac_add_options --libdir=/usr/lib
-ac_add_options --enable-alsa
 ac_add_options --enable-strip
 ac_add_options --enable-release
 ac_add_options --enable-rust-simd
+ac_add_options --enable-audio-backends=alsa
 ac_add_options --enable-install-strip
 ac_add_options --enable-official-branding
 ac_add_options --enable-application=browser
 ac_add_options --enable-optimize
-ac_add_options --with-wayland
 ac_add_options --enable-hardening
 ac_add_options --enable-linker=lld
 ac_add_options --enable-lto=cross
 ac_add_options MOZ_PGO=1
+ac_add_options --with-wayland
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-ffi
 ac_add_options --with-system-png
@@ -110,7 +124,6 @@ ac_add_options --disable-callgrind
 ac_add_options --disable-profiling
 ac_add_options --disable-necko-wifi
 ac_add_options --disable-crashreporter
-ac_add_options --disable-pulseaudio
 ac_add_options --disable-accessibility
 ac_add_options --disable-debug
 ac_add_options --disable-debug-symbols

@@ -1,32 +1,10 @@
 #!/bin/sh -e
 
-patch -p1 < libressl.patch
-
-out=$PWD/out
-mkdir -p out
-
-(
-    cd libcbor
-
-    cmake -B build \
-        -DCMAKE_INSTALL_PREFIX=/usr \
-        -DCMAKE_INSTALL_LIBDIR=lib \
-        -DBUILD_SHARED_LIBS=False \
-        -DCMAKE_BUILD_TYPE=None
-
-    cmake --build build
-    DESTDIR="$out" cmake --install build
-)
-
-export PKG_CONFIG_PATH=$out/usr/lib/pkgconfig
-
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
-    -DBUILD_STATIC_LIBS=False \
-    -DCMAKE_BUILD_TYPE=None \
-    -DCBOR_INCLUDE_DIRS="$out/usr/include" \
-    -DCBOR_LIBRARY_DIRS="$out/usr/lib"
+    -DBUILD_SHARED_LIBS=True \
+    -DCMAKE_BUILD_TYPE=MinSizeRel
 
 cmake --build   build
 cmake --install build

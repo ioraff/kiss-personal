@@ -1,3 +1,2 @@
-https://github.com/Yubico/libfido2/archive/1.10.0.tar.gz
+https://github.com/Yubico/libfido2/archive/VERSION.tar.gz
 https://github.com/PJK/libcbor/archive/v0.9.0.tar.gz libcbor
-patches/libressl.patch

@@ -3,7 +3,6 @@
 ./configure \
     prefix=/usr \
     CONFIG_CUE=n \
-    CONFIG_FFMPEG=n \
     CONFIG_FLAC=y \
     CONFIG_MAD=y \
     CONFIG_OPUS=y \

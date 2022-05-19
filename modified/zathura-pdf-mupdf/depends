@@ -1,5 +1,5 @@
 cairo
 jbig2dec
 libmupdf
-muon make
+meson make
 zathura

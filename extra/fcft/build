@@ -1,9 +1,9 @@
 #!/bin/sh -e
 
-muon setup \
+meson setup \
     -Dprefix=/usr \
     -Dsvg-backend=none \
     output
 
 ninja -C output
-muon  -C output install
+ninja -C output install

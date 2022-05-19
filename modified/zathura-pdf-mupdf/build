@@ -4,9 +4,9 @@ export CFLAGS="$CFLAGS -fPIC"
 
 patch -p1 < meson.patch
 
-muon setup \
+meson setup \
     -Dprefix=/usr \
     output
 
 ninja -C output
-muon  -C output install
+ninja -C output install

@@ -49,7 +49,6 @@ meson \
     -Dvalgrind=false \
     -Dzstd=false \
     -Dglvnd="${glvnd_enabled:-true}" \
-    -Ddri-drivers='' \
     -Dgallium-drivers=iris \
     -Dvulkan-drivers=intel \
     . output

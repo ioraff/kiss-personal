@@ -63,8 +63,8 @@ for f in zip unzip; do (
 export PATH="$PWD/junk/bin:$PATH"
 
 unset MAKEFLAGS
-export CC=/usr/bin/clang
-export CXX=/usr/bin/clang++
+export CC=clang
+export CXX=clang++
 export AR=llvm-ar
 export NM=llvm-nm
 export RANLIB=llvm-ranlib
@@ -112,6 +112,7 @@ ac_add_options --with-system-zlib
 ac_add_options --with-system-pixman
 ac_add_options --with-system-nss
 ac_add_options --with-system-nspr
+ac_add_options --with-system-av1
 ac_add_options --without-wasm-sandboxed-libraries
 ac_add_options --disable-eme
 ac_add_options --disable-dbus

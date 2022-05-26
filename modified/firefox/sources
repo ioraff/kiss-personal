@@ -7,5 +7,7 @@ https://fossies.org/linux/misc/unzip60.tar.gz unzip
 patches/fix-clang-as.patch
 patches/fix-linux-header.patch
 patches/fix-pgo.patch
+patches/no-build-id.patch
 patches/no-dbus.patch
 patches/no-fribidi.patch
+patches/system-av1.patch

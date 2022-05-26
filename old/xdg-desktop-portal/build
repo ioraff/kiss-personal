@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --disable-nls \
+    --disable-libportal \
+    --disable-geoclue \
+    --enable-pipewire \
+    --without-systemd
+
+make
+make install

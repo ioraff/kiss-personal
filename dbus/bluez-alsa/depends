@@ -1,2 +1,5 @@
+alsa-lib
 autoconf make
 automake make
+bluez
+libtool  make

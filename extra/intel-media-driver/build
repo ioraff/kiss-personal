@@ -1,5 +1,6 @@
 #!/bin/sh -e
 
+patch -p1 < no-execinfo.patch
 patch -p1 < wayland.patch
 
 cmake -B build \

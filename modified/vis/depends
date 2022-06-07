@@ -1,4 +1,1 @@
-libtermkey make
-lpeg       make
-lua        make
-ncurses
+../../../repo-community/community/vis/depends

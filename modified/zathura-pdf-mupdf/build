@@ -3,6 +3,7 @@
 export CFLAGS="$CFLAGS -fPIC"
 
 patch -p1 < meson.patch
+patch -p1 < mupdf-1.20.0.patch
 
 meson setup \
     -Dprefix=/usr \

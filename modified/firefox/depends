@@ -1,10 +1,8 @@
 alsa-lib
-atk
 bzip2
 cairo
 cbindgen      make
 clang         make
-compiler-rt   make
 expat
 ffmpeg
 fontconfig
@@ -17,7 +15,6 @@ libffi
 libjpeg-turbo
 libpng
 libvpx
-lld           make
 llvm          make
 m4            make
 mesa
@@ -26,6 +23,7 @@ nodejs        make
 nspr
 nss
 pango
+perl          make
 pixman
 pkgconf       make
 python        make

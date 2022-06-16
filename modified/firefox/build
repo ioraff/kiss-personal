@@ -4,19 +4,6 @@ for p in *.patch; do
     patch -p1 < "$p"
 done
 
-# Build autoconf 2.13 for Firefox's sole use.
-# See: https://bugzilla.mozilla.org/show_bug.cgi?id=104642
-(
-    cd autoconf2.13
-
-    ./configure \
-        --prefix="$PWD/../junk" \
-        --program-suffix=-2.13
-
-    make
-    make install
-)
-
 # Build yasm for Firefox's sole use. Firefox is the only package which needs it
 # and upstream is kinda dead.
 (
@@ -43,16 +30,6 @@ for f in zip unzip; do (
 ) done
 
 export PATH="$PWD/junk/bin:$PATH"
-
-unset MAKEFLAGS
-export CC=clang
-export CXX=clang++
-export AR=llvm-ar
-export NM=llvm-nm
-export RANLIB=llvm-ranlib
-export LLVM_PROFDATA=llvm-profdata
-export CFLAGS="--target=x86_64-pc-linux-musl $CFLAGS -w"
-export CXXFLAGS="--target=x86_64-pc-linux-musl $CXXFLAGS -w"
 
 # If using libc++, CXXSTDLIB needs to be set manually.
 case $("$CC" -print-file-name=libc++.so) in */*)
@@ -83,9 +60,7 @@ ac_add_options --enable-official-branding
 ac_add_options --enable-application=browser
 ac_add_options --enable-optimize
 ac_add_options --enable-hardening
-ac_add_options --enable-linker=lld
-ac_add_options --enable-lto=cross
-ac_add_options MOZ_PGO=1
+ac_add_options --enable-lto=full
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-ffi
 ac_add_options --with-system-png

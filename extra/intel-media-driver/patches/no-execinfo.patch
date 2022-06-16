@@ -1,5 +1,5 @@
 diff --git a/media_softlet/linux/common/os/osservice/mos_utilities_specific.cpp b/media_softlet/linux/common/os/osservice/mos_utilities_specific.cpp
-index 4e3c6e0..bdd5c2c 100644
+index 4e3c6e0..e6392c4 100644
 --- a/media_softlet/linux/common/os/osservice/mos_utilities_specific.cpp
 +++ b/media_softlet/linux/common/os/osservice/mos_utilities_specific.cpp
 @@ -51,7 +51,9 @@
@@ -12,15 +12,6 @@ index 4e3c6e0..bdd5c2c 100644
  
  const char           *MosUtilitiesSpecificNext::m_szUserFeatureFile     = USER_FEATURE_FILE;
  MOS_PUF_KEYLIST      MosUtilitiesSpecificNext::m_ufKeyList              = nullptr;
-@@ -1923,7 +1925,7 @@ MOS_STATUS MosUtilities::MosReadMediaSoloEnabledUserFeature(bool &mediasoloEnabl
-     {
-         mediasoloEnabled = true;
-     }
--    MosUserFeatureCloseKey(UFKey); 
-+    MosUserFeatureCloseKey(UFKey);
- 
- #endif
-     return eStatus;
 @@ -2489,6 +2491,7 @@ void MosUtilities::MosTraceEvent(
                  MOS_FreeMemory(pTraceBuf);
              }
@@ -33,7 +24,7 @@ index 4e3c6e0..bdd5c2c 100644
                  size_t ret = write(MosUtilitiesSpecificNext::m_mosTraceFd, traceBuf, nLen);
              }
          }
-+#endif // defined(__GLIBC__)
++#endif  // defined(__GLIBC__)
      }
      return;
  }

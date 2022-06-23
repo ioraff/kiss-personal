@@ -11,7 +11,7 @@ mv -f _ src/Makefile.in
     --prefix=/usr \
     --enable-ipv6 \
     --enable-unix-sockets \
-    --enable-hidden-symbols \
+    --enable-symbol-hiding \
     --disable-manual \
     --disable-ldap \
     --disable-ares \
@@ -19,9 +19,7 @@ mv -f _ src/Makefile.in
     --with-pic \
     --with-ca-bundle=/etc/ssl/cert.pem \
     --without-librtmp \
-    --without-icu \
     --without-libpsl \
-    --without-libidn \
     --without-libidn2 \
     --without-brotli \
     --without-zstd

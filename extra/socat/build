@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+./configure \
+    sc_cv_getprotobynumber_r=2 \
+    --prefix=/usr
+
+make
+make install

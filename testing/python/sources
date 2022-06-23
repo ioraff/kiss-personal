@@ -1,0 +1,4 @@
+https://www.python.org/ftp/python/3.11.0/Python-VERSION.tar.xz
+patches/libressl-support.patch
+patches/python3-always-pip.patch
+patches/python3-pyc-hash.patch

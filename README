@@ -1,27 +1,5 @@
-My personal repository conforming to the KISS Linux standard. Any package I
-don't have the will to keep updated will be deleted from this repository
-without warning.
-
-
-dbus:
-	dbus and bluez(-alsa). The most up-to-date repository of these packages
-	of those searched by kiss-find.
-
-extra:
-	Various. Packages dependent on SSL/TLS are dependent on the ssl/ 
-	repository.
-
-modified:
-	Forks of packages from other repositories, with all unmodified files
-	symlinked to the parent repository.
-
-old:
-	Unmaintained packages
-
-ssl:
-	libressl and (libtls-)bearssl. Packages that would otherwise depend on
-	openssl are modified so as to work with bearssl if possible, and
-	or libressl otherwise.
+My personal repository conforming to the KISS Linux standard. Any
+package I don't have the will to keep updated will be moved to old/.
 
 
 Every commit is signed with my GPG key, which has the following fingerprint:
@@ -29,5 +7,4 @@ Every commit is signed with my GPG key, which has the following fingerprint:
 5BAF 496C CC19 1FBA 1938  4D4E A68B 10E2 554D EBCB
 
 
-Everything here should be reasonably safe, as many builds were inspired by or
-copied nearly verbatim from Arch or Alpine. Still, use at your own risk.
+Everything here should be reasonably safe. Use at your own risk.

@@ -1,8 +1,8 @@
-diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc b/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
-index 33112b7..857a230 100644
+diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc ./sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
+index ff5a1c0..da56b9b 100644
 --- a/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
-+++ b/sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
-@@ -133,21 +133,11 @@ namespace sandbox {
++++ ./sandbox/linux/seccomp-bpf-helpers/syscall_parameters_restrictions.cc
+@@ -139,21 +139,11 @@ namespace sandbox {
  // present (as in newer versions of posix_spawn).
  ResultExpr RestrictCloneToThreadsAndEPERMFork() {
    const Arg<unsigned long> flags(0);
@@ -29,7 +29,7 @@ index 33112b7..857a230 100644
  
    // The following two flags are the two important flags in any vfork-emulating
    // clone call. EPERM any clone call that contains both of them.
-@@ -157,7 +147,7 @@ ResultExpr RestrictCloneToThreadsAndEPERMFork() {
+@@ -163,7 +153,7 @@ ResultExpr RestrictCloneToThreadsAndEPERMFork() {
        AnyOf((flags & (CLONE_VM | CLONE_THREAD)) == 0,
              (flags & kImportantCloneVforkFlags) == kImportantCloneVforkFlags);
  
@@ -38,11 +38,11 @@ index 33112b7..857a230 100644
        .ElseIf(is_fork_or_clone_vfork, Error(EPERM))
        .Else(CrashSIGSYSClone());
  }
-diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc b/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
-index b3cf6fc..87ecedc 100644
+diff --git a/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc ./sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
+index d9d1882..0567557 100644
 --- a/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
-+++ b/sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
-@@ -423,6 +423,7 @@ bool SyscallSets::IsAllowedProcessStartOrDeath(int sysno) {
++++ ./sandbox/linux/seccomp-bpf-helpers/syscall_sets.cc
+@@ -392,6 +392,7 @@ bool SyscallSets::IsAllowedProcessStartOrDeath(int sysno) {
  #if defined(__i386__)
      case __NR_waitpid:
  #endif
@@ -50,7 +50,7 @@ index b3cf6fc..87ecedc 100644
        return true;
      case __NR_clone:  // Should be parameter-restricted.
      case __NR_setns:  // Privileged.
-@@ -435,7 +436,6 @@ bool SyscallSets::IsAllowedProcessStartOrDeath(int sysno) {
+@@ -404,7 +405,6 @@ bool SyscallSets::IsAllowedProcessStartOrDeath(int sysno) {
  #if defined(__i386__) || defined(__x86_64__) || defined(__mips__)
      case __NR_set_thread_area:
  #endif
@@ -58,7 +58,7 @@ index b3cf6fc..87ecedc 100644
      case __NR_unshare:
  #if !defined(__mips__) && !defined(__aarch64__)
      case __NR_vfork:
-@@ -549,6 +549,8 @@ bool SyscallSets::IsAllowedAddressSpaceAccess(int sysno) {
+@@ -514,6 +514,8 @@ bool SyscallSets::IsAllowedAddressSpaceAccess(int sysno) {
      case __NR_mlock:
      case __NR_munlock:
      case __NR_munmap:
@@ -67,7 +67,7 @@ index b3cf6fc..87ecedc 100644
        return true;
      case __NR_madvise:
      case __NR_mincore:
-@@ -566,7 +568,6 @@ bool SyscallSets::IsAllowedAddressSpaceAccess(int sysno) {
+@@ -531,7 +533,6 @@ bool SyscallSets::IsAllowedAddressSpaceAccess(int sysno) {
      case __NR_modify_ldt:
  #endif
      case __NR_mprotect:
@@ -75,40 +75,10 @@ index b3cf6fc..87ecedc 100644
      case __NR_msync:
      case __NR_munlockall:
      case __NR_readahead:
-diff --git a/sandbox/linux/system_headers/arm64_linux_syscalls.h b/sandbox/linux/system_headers/arm64_linux_syscalls.h
-index ab86b36..052368e 100644
---- a/sandbox/linux/system_headers/arm64_linux_syscalls.h
-+++ b/sandbox/linux/system_headers/arm64_linux_syscalls.h
-@@ -1063,6 +1063,10 @@
- #define __NR_memfd_create 279
- #endif
- 
-+#if !defined(__NR_membarrier)
-+#define __NR_membarrier 283
-+#endif
-+
- #if !defined(__NR_bpf)
- #define __NR_bpf 280
- #endif
-diff --git a/sandbox/linux/system_headers/arm_linux_syscalls.h b/sandbox/linux/system_headers/arm_linux_syscalls.h
-index 9c44368..b7949b2 100644
---- a/sandbox/linux/system_headers/arm_linux_syscalls.h
-+++ b/sandbox/linux/system_headers/arm_linux_syscalls.h
-@@ -1385,6 +1385,10 @@
- #define __NR_memfd_create (__NR_SYSCALL_BASE+385)
- #endif
- 
-+#if !defined(__NR_membarrier)
-+#define __NR_membarrier (__NR_SYSCALL_BASE+389)
-+#endif
-+
- #if !defined(__NR_bpf)
- #define __NR_bpf (__NR_SYSCALL_BASE+386)
- #endif
-diff --git a/sandbox/linux/system_headers/linux_syscalls.h b/sandbox/linux/system_headers/linux_syscalls.h
+diff --git a/sandbox/linux/system_headers/linux_syscalls.h ./sandbox/linux/system_headers/linux_syscalls.h
 index 2b78a0c..b6fedb5 100644
 --- a/sandbox/linux/system_headers/linux_syscalls.h
-+++ b/sandbox/linux/system_headers/linux_syscalls.h
++++ ./sandbox/linux/system_headers/linux_syscalls.h
 @@ -10,6 +10,7 @@
  #define SANDBOX_LINUX_SYSTEM_HEADERS_LINUX_SYSCALLS_H_
  
@@ -117,11 +87,11 @@ index 2b78a0c..b6fedb5 100644
  
  #if defined(__x86_64__)
  #include "sandbox/linux/system_headers/x86_64_linux_syscalls.h"
-diff --git a/sandbox/policy/linux/bpf_renderer_policy_linux.cc b/sandbox/policy/linux/bpf_renderer_policy_linux.cc
-index f789e92..5cc0861 100644
+diff --git a/services/service_manager/sandbox/linux/bpf_renderer_policy_linux.cc ./services/service_manager/sandbox/linux/bpf_renderer_policy_linux.cc
+index a85c0ea..715aa1e 100644
 --- a/sandbox/policy/linux/bpf_renderer_policy_linux.cc
-+++ b/sandbox/policy/linux/bpf_renderer_policy_linux.cc
-@@ -97,11 +97,11 @@ ResultExpr RendererProcessPolicy::EvaluateSyscall(int sysno) const {
++++ ./sandbox/policy/linux/bpf_renderer_policy_linux.cc
+@@ -93,11 +93,11 @@
      case __NR_sysinfo:
      case __NR_times:
      case __NR_uname:
@@ -130,8 +100,9 @@ index f789e92..5cc0861 100644
      case __NR_sched_getparam:
      case __NR_sched_getscheduler:
      case __NR_sched_setscheduler:
-+        return Allow();
++      return Allow();
 +    case __NR_sched_getaffinity:
        return RestrictSchedTarget(GetPolicyPid(), sysno);
      case __NR_prlimit64:
        // See crbug.com/662450 and setrlimit comment above.
+

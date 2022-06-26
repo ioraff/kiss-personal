@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+patch -p1 < musl.patch
+patch -p1 < small.patch
+
+meson \
+    --prefix=/usr \
+    -Dtests=disabled \
+    -Drunner=disabled \
+    . output
+
+ninja -C output
+ninja -C output install

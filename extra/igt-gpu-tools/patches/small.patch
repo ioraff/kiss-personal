@@ -1,0 +1,201 @@
+diff --git a/lib/drmtest.c b/lib/drmtest.c
+index a8ba6e1..3c351e8 100644
+--- a/lib/drmtest.c
++++ b/lib/drmtest.c
+@@ -54,7 +54,6 @@
+ #include "igt_debugfs.h"
+ #include "igt_device.h"
+ #include "igt_gt.h"
+-#include "igt_kmod.h"
+ #include "igt_params.h"
+ #include "igt_sysfs.h"
+ #include "igt_device_scan.h"
+@@ -158,13 +157,11 @@ static const char *forced_driver(void)
+ 
+ static int modprobe(const char *driver)
+ {
+-	return igt_kmod_load(driver, "");
++	return 0;
+ }
+ 
+ static void modprobe_i915(const char *name)
+ {
+-	/* When loading i915, we also want to load snd-hda et al */
+-	igt_i915_driver_load(NULL);
+ }
+ 
+ static const struct module {
+diff --git a/lib/igt_core.c b/lib/igt_core.c
+index ec05535..254c675 100644
+--- a/lib/igt_core.c
++++ b/lib/igt_core.c
+@@ -77,7 +77,6 @@
+ 
+ #define UNW_LOCAL_ONLY
+ #include <libunwind.h>
+-#include <elfutils/libdwfl.h>
+ 
+ #ifdef HAVE_LIBGEN_H
+ #include <libgen.h>   /* for basename() on Solaris */
+@@ -1755,67 +1754,6 @@ static void write_stderr(const char *str)
+ 	__write_stderr(str, strlen(str));
+ }
+ 
+-static void print_backtrace(void)
+-{
+-	unw_cursor_t cursor;
+-	unw_context_t uc;
+-	int stack_num = 0;
+-
+-	Dwfl_Callbacks cbs = {
+-		.find_elf = dwfl_linux_proc_find_elf,
+-		.find_debuginfo = dwfl_standard_find_debuginfo,
+-	};
+-
+-	Dwfl *dwfl = dwfl_begin(&cbs);
+-
+-	if (dwfl_linux_proc_report(dwfl, getpid())) {
+-		dwfl_end(dwfl);
+-		dwfl = NULL;
+-	} else
+-		dwfl_report_end(dwfl, NULL, NULL);
+-
+-	igt_info("Stack trace:\n");
+-
+-	unw_getcontext(&uc);
+-	unw_init_local(&cursor, &uc);
+-	while (unw_step(&cursor) > 0) {
+-		char name[255];
+-		unw_word_t off, ip;
+-		Dwfl_Module *mod = NULL;
+-
+-		unw_get_reg(&cursor, UNW_REG_IP, &ip);
+-
+-		if (dwfl)
+-			mod = dwfl_addrmodule(dwfl, ip);
+-
+-		if (mod) {
+-			const char *src, *dwfl_name;
+-			Dwfl_Line *line;
+-			int lineno;
+-			GElf_Sym sym;
+-
+-			line = dwfl_module_getsrc(mod, ip);
+-			dwfl_name = dwfl_module_addrsym(mod, ip, &sym, NULL);
+-
+-			if (line && dwfl_name) {
+-				src = dwfl_lineinfo(line, NULL, &lineno, NULL, NULL, NULL);
+-				igt_info("  #%d %s:%d %s()\n", stack_num++, src, lineno, dwfl_name);
+-				continue;
+-			}
+-		}
+-
+-		if (unw_get_proc_name(&cursor, name, 255, &off) < 0)
+-			igt_info("  #%d [<unknown>+0x%x]\n", stack_num++,
+-				 (unsigned int) ip);
+-		else
+-			igt_info("  #%d [%s+0x%x]\n", stack_num++, name,
+-				 (unsigned int) off);
+-	}
+-
+-	if (dwfl)
+-		dwfl_end(dwfl);
+-}
+-
+ static const char hex[] = "0123456789abcdef";
+ 
+ static void
+@@ -2010,8 +1948,6 @@ void __igt_fail_assert(const char *domain, const char *file, const int line,
+ 		va_end(args);
+ 	}
+ 
+-	print_backtrace();
+-
+ 	if (running_under_gdb())
+ 		abort();
+ 	igt_fail(IGT_EXIT_FAILURE);
+@@ -2051,8 +1987,6 @@ void __igt_abort(const char *domain, const char *file, const int line,
+ 	/* just try our best, we are aborting the execution anyway */
+ 	kill_children();
+ 
+-	print_backtrace();
+-
+ 	if (running_under_gdb())
+ 		abort();
+ 
+diff --git a/lib/meson.build b/lib/meson.build
+index 9929520..3d86bbc 100644
+--- a/lib/meson.build
++++ b/lib/meson.build
+@@ -70,7 +70,6 @@ lib_sources = [
+ 	'igt_pm.c',
+ 	'igt_dummyload.c',
+ 	'uwildmat/uwildmat.c',
+-	'igt_kmod.c',
+ 	'igt_panfrost.c',
+ 	'igt_v3d.c',
+ 	'igt_vc4.c',
+@@ -87,8 +86,6 @@ lib_deps = [
+ 	glib,
+ 	libatomic,
+ 	libdrm,
+-	libdw,
+-	libkmod,
+ 	libprocps,
+ 	libudev,
+ 	math,
+@@ -152,7 +149,7 @@ lib_version = vcs_tag(input : 'version.h.in', output : 'version.h',
+ 
+ lib_intermediates = []
+ foreach f: lib_sources
+-    name = f.underscorify(f)
++    name = f.underscorify()
+     lib = static_library('igt-' + name,
+ 	[ f, lib_version ],
+ 	include_directories: inc,
+diff --git a/lib/sw_sync.c b/lib/sw_sync.c
+index 6c762c8..48b9a18 100644
+--- a/lib/sw_sync.c
++++ b/lib/sw_sync.c
+@@ -36,7 +36,6 @@
+ #include "sync_file.h"
+ 
+ #include "igt_debugfs.h"
+-#include "igt_kmod.h"
+ #include "sw_sync.h"
+ #include "drmtest.h"
+ #include "ioctl_wrappers.h"
+@@ -248,7 +247,6 @@ int sync_fence_status(int fence)
+ 
+ static void modprobe(const char *driver)
+ {
+-	igt_kmod_load(driver, NULL);
+ }
+ 
+ static bool kernel_has_sw_sync(void)
+diff --git a/meson.build b/meson.build
+index 5d9655f..9fcc06c 100644
+--- a/meson.build
++++ b/meson.build
+@@ -120,13 +120,11 @@ endif
+ build_info += 'With libdrm: ' + ','.join(libdrm_info)
+ 
+ pciaccess = dependency('pciaccess', version : '>=0.10')
+-libkmod = dependency('libkmod')
+ libprocps = dependency('libprocps', required : true)
+ 
+ libunwind = dependency('libunwind', required : get_option('libunwind'))
+ build_info += 'With libunwind: @0@'.format(libunwind.found())
+ 
+-libdw = dependency('libdw', required : true)
+ pixman = dependency('pixman-1', required : true)
+ 
+ valgrind = dependency('valgrind', required : get_option('valgrind'))
+@@ -306,7 +304,6 @@ if build_tests
+ endif
+ build_info += 'Build tests: @0@'.format(build_tests)
+ 
+-subdir('benchmarks')
+ subdir('tools')
+ subdir('runner')
+ if libdrm_intel.found()

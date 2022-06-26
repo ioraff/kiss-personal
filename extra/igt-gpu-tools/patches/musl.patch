@@ -1,0 +1,101 @@
+diff --git a/benchmarks/gem_syslatency.c b/benchmarks/gem_syslatency.c
+index c10d4f5..1e11b58 100644
+--- a/benchmarks/gem_syslatency.c
++++ b/benchmarks/gem_syslatency.c
+@@ -47,7 +47,11 @@
+ #include "i915/gem.h"
+ #include "i915/gem_ring.h"
+ 
+-#define sigev_notify_thread_id _sigev_un._tid
++#ifndef __GLIBC__
++#include "signal_compat.h"
++#endif
++
++#define sigev_notify_thread_id sigev_notify_function
+ 
+ static volatile int done;
+ 
+diff --git a/lib/igt_aux.c b/lib/igt_aux.c
+index 1217f5e..258e837 100644
+--- a/lib/igt_aux.c
++++ b/lib/igt_aux.c
+@@ -31,6 +31,7 @@
+ #endif
+ #include <stdio.h>
+ #include <fcntl.h>
++#include <limits.h>
+ #include <sys/stat.h>
+ #include <sys/ioctl.h>
+ #include <string.h>
+@@ -74,6 +75,10 @@
+ #include <libgen.h>   /* for dirname() */
+ #endif
+ 
++#ifndef __GLIBC__
++#include "signal_compat.h"
++#endif
++
+ /**
+  * SECTION:igt_aux
+  * @short_description: Auxiliary libraries and support functions
+diff --git a/lib/igt_aux.h b/lib/igt_aux.h
+index bf57ccf..3c4f7ab 100644
+--- a/lib/igt_aux.h
++++ b/lib/igt_aux.h
+@@ -46,7 +46,7 @@
+ #  define gettid() (pid_t)(syscall(__NR_gettid))
+ # endif
+ #endif
+-#define sigev_notify_thread_id _sigev_un._tid
++#define sigev_notify_thread_id sigev_notify_function
+ 
+ /* auxialiary igt helpers from igt_aux.c */
+ /* generally useful helpers */
+diff --git a/lib/igt_halffloat.c b/lib/igt_halffloat.c
+index 08ab05f..7d6a6e6 100644
+--- a/lib/igt_halffloat.c
++++ b/lib/igt_halffloat.c
+@@ -162,7 +162,7 @@ static inline float _half_to_float(uint16_t val)
+ 	return fi.f;
+ }
+ 
+-#if defined(__x86_64__) && !defined(__clang__)
++#if defined(__x86_64__) && !defined(__clang__) && defined(__GLIBC__)
+ #pragma GCC push_options
+ #pragma GCC target("f16c")
+ 
+diff --git a/lib/igt_x86.c b/lib/igt_x86.c
+index 6ac700d..ddf5edd 100644
+--- a/lib/igt_x86.c
++++ b/lib/igt_x86.c
+@@ -190,7 +190,7 @@ char *igt_x86_features_to_string(unsigned features, char *line)
+ }
+ #endif
+ 
+-#if defined(__x86_64__) && !defined(__clang__)
++#if defined(__x86_64__) && !defined(__clang__) && defined(__GLIBC__)
+ #pragma GCC push_options
+ #pragma GCC target("sse4.1")
+ #pragma GCC diagnostic ignored "-Wpointer-arith"
+diff --git a/lib/signal_compat.h b/lib/signal_compat.h
+new file mode 100644
+index 0000000..acae648
+--- /dev/null
++++ b/lib/signal_compat.h
+@@ -0,0 +1,4 @@
++#define SIGEV_SIGNAL    0       /* notify via signal */
++#define SIGEV_NONE      1       /* other notification: meaningless */
++#define SIGEV_THREAD    2       /* deliver via thread creation */
++#define SIGEV_THREAD_ID 4       /* deliver to thread */
+diff --git a/lib/igt_eld.c b/lib/igt_eld.c
+index ef6625d..d314485 100644
+--- a/lib/igt_eld.c
++++ b/lib/igt_eld.c
+@@ -28,6 +28,7 @@
+ #include <dirent.h>
+ #include <errno.h>
+ #include <glob.h>
++#include <limits.h>
+ #include <stdint.h>
+ #include <stdio.h>
+ #include <string.h>

@@ -31,10 +31,23 @@ for f in zip unzip; do (
 
 export PATH="$PWD/junk/bin:$PATH"
 
+_clear_vendor_checksums() {
+    sed 's/\("files":{\)[^}]*/\1/' \
+        third_party/rust/"$1"/.cargo-checksum.json > _
+    mv -f _ third_party/rust/"$1"/.cargo-checksum.json
+}
+
+_clear_vendor_checksums audioipc
+_clear_vendor_checksums audioipc-client
+_clear_vendor_checksums audioipc-server
+
 # If using libc++, CXXSTDLIB needs to be set manually.
 case $("$CC" -print-file-name=libc++.so) in */*)
     export CXXSTDLIB=c++
 esac
+
+export CFLAGS="$CFLAGS -w"
+export CXXFLAGS="$CXXFLAGS -w"
 
 # Instruct the compiler to trim absolute paths in resulting binaries and instead
 # change them to relative paths ($PWD/... ./...).

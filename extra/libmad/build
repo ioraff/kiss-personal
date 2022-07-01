@@ -2,6 +2,7 @@
 
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
     -DEXAMPLE=OFF
 
 cmake --build   build

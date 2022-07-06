@@ -47,9 +47,16 @@ profiler       = false
 full-bootstrap = false
 EOF
 
-# If possible, use local rust to bootstrap.
-case $(rustc --version 2>/dev/null) in
-    *1.62*|*1.61*)
+maj="${2%%.*}"
+min="${2%.*}"
+min="${min#*.}"
+
+rust_version=$(rustc --version 2>/dev/null) || rust_version=null
+rust_version="${rust_version#rustc }"
+
+# If possible, use system rust to bootstrap.
+case "$rust_version" in
+    "$2"|"$maj.$((min - 1))".*)
         cat >> config.toml <<EOF
 cargo          = "/usr/bin/cargo"
 rustc          = "/usr/bin/rustc"

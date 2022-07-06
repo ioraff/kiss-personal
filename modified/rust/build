@@ -13,16 +13,15 @@ sed 's/\(crt_static_default = \)true/\1false/' \
     compiler/rustc_target/src/spec/linux_musl_base.rs > _
 mv -f _ compiler/rustc_target/src/spec/linux_musl_base.rs
 
-_clear_vendor_checksums() {
-    sed 's/\("files":{\)[^}]*/\1/' \
-        vendor/"$1"/.cargo-checksum.json > _
-    mv -f _ vendor/"$1"/.cargo-checksum.json
-}
-
 # Ignore checksums of files modified above.
-_clear_vendor_checksums curl-sys
-_clear_vendor_checksums libssh2-sys
-_clear_vendor_checksums openssl-sys
+for p in \
+    curl-sys
+    libssh2-sys
+    openssl-sys
+do
+    sed 's/\("files":{\)[^}]*/\1/' vendor/"$p"/.cargo-checksum.json > _
+    mv -f _ vendor/"$p"/.cargo-checksum.json
+done
 
 cat > config.toml <<EOF
 [llvm]

@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+patch -p1 < libressl.patch
+
 # Fix build when libatomic.so does not exist in the system.
 # This may be provided by compiler-rt which requires no additional
 # linker flags to be used.
@@ -10,6 +12,7 @@ esac
 
 ./configure \
     --shared-zlib \
+    --shared-openssl \
     --with-intl=none \
     --without-etw \
     --without-dtrace \

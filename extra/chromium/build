@@ -112,6 +112,7 @@ conf="
     use_allocator=\"none\"
     use_allocator_shim=false
     use_atk=false
+    use_bluez=false
     use_cups=false
     use_custom_libcxx=false
     use_dbus=false

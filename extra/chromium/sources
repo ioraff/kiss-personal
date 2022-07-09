@@ -2,3 +2,26 @@ https://commondatastorage.googleapis.com/chromium-browser-official/chromium-103.
 https://github.com/stha09/chromium-patches/releases/download/chromium-103-patchset-4/chromium-103-patchset-4.tar.xz
 https://github.com/Eloston/ungoogled-chromium/archive/103.0.5060.53-1.tar.gz ungoogled-chromium
 files/chromium.sh
+patches/chromium-InkDropHost-crash.patch
+patches/chromium-fix-narrowing-cast.patch
+patches/chromium-no-x11.patch
+patches/chromium-optional-atk-dbus.patch
+patches/chromium-roll-src-third_party-ffmpeg.patch
+patches/musl-crashpad.patch
+patches/musl-default-pthread-stacksize.patch
+patches/musl-fixes.patch
+patches/musl-hacks.patch
+patches/musl-missing-cstdint-include.patch
+patches/musl-missing-unistd-include.patch
+patches/musl-no-execinfo.patch
+patches/musl-no-getcontext.patch
+patches/musl-no-mallinfo.patch
+patches/musl-quiche-arena-size.patch
+patches/musl-resolver.patch
+patches/musl-sandbox.patch
+patches/musl-scoped-file.patch
+patches/musl-stacktrace.patch
+patches/musl-stat.patch
+patches/musl-sync.patch
+patches/musl-tid-caching.patch
+patches/musl-v8-monotonic-pthread-cont_timedwait.patch

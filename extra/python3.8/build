@@ -1,0 +1,42 @@
+#!/bin/sh -e
+
+# Remove util-linux dependency among other things.
+cat >> Modules/Setup <<EOF
+*disabled*
+_uuid nis ossaudiodev
+EOF
+
+# Reported 20-27% performance improvements.
+# See: "PythonNoSemanticInterpositionSpeedup"
+export CFLAGS="$CFLAGS -fno-semantic-interposition"
+export CXXFLAGS="$CFLAGS -fno-semantic-interposition"
+export LDFLAGS="$LDFLAGS -fno-semantic-interposition"
+
+patch -p1 < python3-always-pip.patch
+
+./configure \
+    --prefix=/usr \
+    --enable-shared \
+    --with-system-expat \
+    --with-system-ffi \
+    --with-ssl-default-suites='TLSv1.3:TLSv1.2+AEAD+ECDHE:TLSv1.2+AEAD+DHE' \
+    --with-ensurepip=yes \
+    --without-doc-strings
+
+make
+make install
+
+# Let's make some kind of effort to reduce the overall
+# size of Python by removing a bunch of rarely used and
+# otherwise useless components.
+#
+# This can't be done via ./configure as the build system
+# doesn't give you this much control over the process.
+{
+    cd "$1/usr/lib/python"*
+    rm -rf test ./*/test ./*/tests
+    rm -rf pydoc* idlelib turtle* config-*
+
+    cd "$1/usr/bin"
+    rm -f pydoc* idle*
+}

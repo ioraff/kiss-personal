@@ -1,1 +1,3 @@
-../../../repo/wayland/libdrm/depends
+linux-headers make
+meson         make
+pkgconf       make

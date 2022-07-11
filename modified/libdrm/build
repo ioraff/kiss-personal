@@ -23,6 +23,7 @@ meson \
     -Damdgpu=false \
     -Dnouveau=false \
     -Dradeon=false \
+    -Dintel=false \
     . build
 
 ninja -C build

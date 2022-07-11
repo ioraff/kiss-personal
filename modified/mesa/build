@@ -51,6 +51,7 @@ meson \
     -Dglvnd="${glvnd_enabled:-true}" \
     -Dgallium-drivers=iris \
     -Dvulkan-drivers=intel \
+    -Dllvm=disabled \
     . output
 
 ninja -C output

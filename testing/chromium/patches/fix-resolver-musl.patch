@@ -1,28 +1,3 @@
-diff --git a/net/dns/BUILD.gn b/net/dns/BUILD.gn
-index a69d9a5..18916e1 100644
---- a/net/dns/BUILD.gn
-+++ b/net/dns/BUILD.gn
-@@ -114,11 +114,6 @@ source_set("dns") {
-       "dns_config_service_android.cc",
-       "dns_config_service_android.h",
-     ]
--  } else if (is_linux) {
--    sources += [
--      "dns_config_service_linux.cc",
--      "dns_config_service_linux.h",
--    ]
-   } else if (is_posix) {
-     sources += [
-       "dns_config_service_posix.cc",
-@@ -416,8 +411,6 @@ source_set("tests") {
- 
-   if (is_android) {
-     sources += [ "dns_config_service_android_unittest.cc" ]
--  } else if (is_linux) {
--    sources += [ "dns_config_service_linux_unittest.cc" ]
-   } else if (is_posix) {
-     sources += [ "dns_config_service_posix_unittest.cc" ]
-   }
 diff --git a/net/dns/dns_reloader.cc b/net/dns/dns_reloader.cc
 index 43cc164..0cdbe89 100644
 --- a/net/dns/dns_reloader.cc
@@ -38,10 +13,10 @@ index 43cc164..0cdbe89 100644
  #include <resolv.h>
  
 diff --git a/net/dns/host_resolver_manager.cc b/net/dns/host_resolver_manager.cc
-index 931706c..faabaca 100644
+index 2e15f94..5b923cb 100644
 --- a/net/dns/host_resolver_manager.cc
 +++ b/net/dns/host_resolver_manager.cc
-@@ -2980,7 +2980,7 @@ HostResolverManager::HostResolverManager(
+@@ -3157,7 +3157,7 @@ HostResolverManager::HostResolverManager(
    if (system_dns_config_notifier_)
      system_dns_config_notifier_->AddObserver(this);
  #if BUILDFLAG(IS_POSIX) && !BUILDFLAG(IS_APPLE) && !BUILDFLAG(IS_OPENBSD) && \

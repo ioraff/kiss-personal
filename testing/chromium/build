@@ -85,11 +85,13 @@ esac
 
 kiss list libva && vaapi=true
 
+:> nostrip
+
 conf="
     angle_enable_null=true
     angle_enable_swiftshader=false
     blink_enable_generated_code_formatting=false
-    blink_symbol_level=0
+    blink_symbol_level=1
     clang_use_chrome_plugins=false
     custom_toolchain=\"//build/toolchain/linux/unbundle:default\"
     enable_swiftshader=false
@@ -108,7 +110,7 @@ conf="
     ozone_platform_x11=false
     proprietary_codecs=true
     rtc_build_examples=false
-    symbol_level=0
+    symbol_level=1
     use_allocator=\"none\"
     use_allocator_shim=false
     use_atk=false

@@ -1,0 +1,17 @@
+diff --git a/sandbox/policy/linux/bpf_renderer_policy_linux.cc b/sandbox/policy/linux/bpf_renderer_policy_linux.cc
+index f789e92..b1dcb1a 100644
+--- a/sandbox/policy/linux/bpf_renderer_policy_linux.cc
++++ b/sandbox/policy/linux/bpf_renderer_policy_linux.cc
+@@ -97,10 +97,10 @@ ResultExpr RendererProcessPolicy::EvaluateSyscall(int sysno) const {
+     case __NR_sysinfo:
+     case __NR_times:
+     case __NR_uname:
+-      return Allow();
+-    case __NR_sched_getaffinity:
+     case __NR_sched_getparam:
+     case __NR_sched_getscheduler:
++      return Allow();
++    case __NR_sched_getaffinity:
+     case __NR_sched_setscheduler:
+       return RestrictSchedTarget(GetPolicyPid(), sysno);
+     case __NR_prlimit64:

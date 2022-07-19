@@ -15,8 +15,8 @@ mv -f _ compiler/rustc_target/src/spec/linux_musl_base.rs
 
 # Ignore checksums of files modified above.
 for p in \
-    curl-sys
-    libssh2-sys
+    curl-sys \
+    libssh2-sys \
     openssl-sys
 do
     sed 's/\("files":{\)[^}]*/\1/' vendor/"$p"/.cargo-checksum.json > _
@@ -55,7 +55,7 @@ rust_version="${rust_version#rustc }"
 
 # If possible, use system rust to bootstrap.
 case "$rust_version" in
-    "$2"|"$maj.$((min - 1))".*)
+    "$maj.$min".*|"$maj.$((min - 1))".*)
         cat >> config.toml <<EOF
 cargo          = "/usr/bin/cargo"
 rustc          = "/usr/bin/rustc"

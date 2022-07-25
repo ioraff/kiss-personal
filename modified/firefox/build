@@ -31,15 +31,15 @@ for f in zip unzip; do (
 
 export PATH="$PWD/junk/bin:$PATH"
 
-_clear_vendor_checksums() {
+for p in \
+    audioipc \
+    audioipc-client \
+    audioipc-server
+do
     sed 's/\("files":{\)[^}]*/\1/' \
-        third_party/rust/"$1"/.cargo-checksum.json > _
-    mv -f _ third_party/rust/"$1"/.cargo-checksum.json
-}
-
-_clear_vendor_checksums audioipc
-_clear_vendor_checksums audioipc-client
-_clear_vendor_checksums audioipc-server
+        "third_party/rust/$p/.cargo-checksum.json" > _
+    mv -f _ "third_party/rust/$p/.cargo-checksum.json"
+done
 
 # If using libc++, CXXSTDLIB needs to be set manually.
 case $("$CC" -print-file-name=libc++.so) in */*)

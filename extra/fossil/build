@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --json \
+    --disable-internal-sqlite \
+    --with-tcl=/usr \
+    --with-tcl-private-stubs=1
+
+make
+make install

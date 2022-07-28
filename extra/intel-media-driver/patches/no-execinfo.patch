@@ -1,18 +1,18 @@
 diff --git a/media_softlet/linux/common/os/osservice/mos_utilities_specific.cpp b/media_softlet/linux/common/os/osservice/mos_utilities_specific.cpp
-index 4e3c6e0..e6392c4 100644
+index bd1c5d1..bb7e97c 100644
 --- a/media_softlet/linux/common/os/osservice/mos_utilities_specific.cpp
 +++ b/media_softlet/linux/common/os/osservice/mos_utilities_specific.cpp
-@@ -51,7 +51,9 @@
+@@ -34,7 +34,9 @@
  #include <signal.h>
  #include <unistd.h>  // fork
  #include <algorithm>
 +#ifdef __GLIBC__
  #include <execinfo.h> // backtrace
 +#endif
- 
- const char           *MosUtilitiesSpecificNext::m_szUserFeatureFile     = USER_FEATURE_FILE;
- MOS_PUF_KEYLIST      MosUtilitiesSpecificNext::m_ufKeyList              = nullptr;
-@@ -2489,6 +2491,7 @@ void MosUtilities::MosTraceEvent(
+ #include <sys/types.h>
+ #include <sys/stat.h>  // fstat
+ #include <sys/ipc.h>  // System V IPC
+@@ -2469,6 +2471,7 @@ void MosUtilities::MosTraceEvent(
                  MOS_FreeMemory(pTraceBuf);
              }
          }
@@ -20,11 +20,11 @@ index 4e3c6e0..e6392c4 100644
          if (m_mosTraceFilter & (1ULL << TR_KEY_CALL_STACK))
          {
              // reserve space for header and stack size field.
-@@ -2508,6 +2511,7 @@ void MosUtilities::MosTraceEvent(
+@@ -2488,6 +2491,7 @@ void MosUtilities::MosTraceEvent(
                  size_t ret = write(MosUtilitiesSpecificNext::m_mosTraceFd, traceBuf, nLen);
              }
          }
-+#endif  // defined(__GLIBC__)
++#endif
      }
      return;
  }

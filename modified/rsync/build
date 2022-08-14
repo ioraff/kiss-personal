@@ -1,18 +1,1 @@
-#!/bin/sh -e
-
-# Swap to awk script instead of perl script
-# for building rsync. See files/mkproto.awk.
-sed 's/perl/awk -f/;s/mkproto.pl/mkproto.awk/' Makefile.in > _
-mv -f _ Makefile.in
-
-./configure \
-    --prefix=/usr \
-    --disable-openssl \
-    --disable-xxhash \
-    --disable-zstd \
-    --disable-lz4 \
-    --with-included-popt \
-    --without-included-zlib
-
-make
-make install
+../../../repo-community/community/rsync/build

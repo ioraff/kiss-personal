@@ -1,0 +1,6 @@
+#!/bin/sh -e
+
+make
+make PREFIX=/usr install
+
+ln -sf pdpmake "$1/usr/bin/make"

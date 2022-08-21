@@ -81,6 +81,7 @@ done
 
 case $("$CC" --version) in (*clang*)
     clang=true
+    # Silence annoying warning on every compiler invocation.
     export CFLAGS="$CFLAGS -Wno-unknown-warning-option"
     export CXXFLAGS="$CXXFLAGS -Wno-unknown-warning-option"
 esac

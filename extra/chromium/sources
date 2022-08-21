@@ -2,6 +2,7 @@ https://commondatastorage.googleapis.com/chromium-browser-official/chromium-VERS
 https://github.com/stha09/chromium-patches/releases/download/chromium-MAJOR-patchset-2/chromium-MAJOR-patchset-2.tar.xz
 https://github.com/ungoogled-software/ungoogled-chromium/archive/VERSION-1.tar.gz ungoogled-chromium
 files/chromium.sh
+patches/EnumTable-crash.patch
 patches/chromium-no-x11.patch
 patches/chromium-optional-atk-dbus.patch
 patches/fix-gnu-libc-version-usage.patch

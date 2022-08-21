@@ -79,12 +79,11 @@ done
 
 ./third_party/libaddressinput/chromium/tools/update-strings.py
 
-# GCC builds segfault in certain circumstances, e.g. immediately after visiting
-# youtube.com
-export CC=clang
-export CXX=clang++
-export AR=llvm-ar
-export NM=llvm-nm
+case $("$CC" --version) in (*clang*)
+    clang=true
+    export CFLAGS="$CFLAGS -Wno-unknown-warning-option"
+    export CXXFLAGS="$CXXFLAGS -Wno-unknown-warning-option"
+esac
 
 kiss list libva && vaapi=true
 kiss list pipewire && pipewire=true
@@ -100,7 +99,7 @@ conf="
     fatal_linker_warnings=false
     ffmpeg_branding=\"Chrome\"
     is_cfi=false
-    is_clang=true
+    is_clang=${clang:-false}
     is_debug=false
     is_official_build=true
     link_pulseaudio=false

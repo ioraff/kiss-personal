@@ -19,11 +19,11 @@
 
 meson \
     --prefix=/usr \
-    -Dvalgrind=false \
-    -Damdgpu=false \
-    -Dnouveau=false \
-    -Dradeon=false \
-    -Dintel=false \
+    -Dvalgrind=disabled \
+    -Damdgpu=disabled \
+    -Dnouveau=disabled \
+    -Dradeon=disabled \
+    -Dintel=disabled \
     . build
 
 ninja -C build

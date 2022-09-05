@@ -31,16 +31,6 @@ for f in zip unzip; do (
 
 export PATH="$PWD/junk/bin:$PATH"
 
-for p in \
-    audioipc \
-    audioipc-client \
-    audioipc-server
-do
-    sed 's/\("files":{\)[^}]*/\1/' \
-        "third_party/rust/$p/.cargo-checksum.json" > _
-    mv -f _ "third_party/rust/$p/.cargo-checksum.json"
-done
-
 # If using libc++, CXXSTDLIB needs to be set manually.
 case $("$CC" -print-file-name=libc++.so) in */*)
     export CXXSTDLIB=c++
@@ -53,7 +43,6 @@ export CXXFLAGS="$CXXFLAGS -w"
 # change them to relative paths ($PWD/... ./...).
 export RUSTFLAGS="$RUSTFLAGS --remap-path-prefix=$PWD=."
 
-export LDFLAGS="$LDFLAGS -Wl,-rpath=/usr/lib/firefox,--enable-new-dtags"
 export RUSTFLAGS="$RUSTFLAGS -Cdebuginfo=0"
 export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=system
 export MOZ_DEBUG_FLAGS=-g0
@@ -116,3 +105,6 @@ rm -rf \
     "$1/usr/lib/firefox/browser/features/webcompat-reporter@mozilla.org.xpi" \
     "$1/usr/lib/firefox/browser/features/webcompat@mozilla.org.xpi" \
     "$1/usr/lib/firefox/browser/features/doh-rollout@mozilla.org.xpi"
+
+rm "$1/usr/bin/firefox"
+cp firefox.sh "$1/usr/bin/firefox"

@@ -1,0 +1,10 @@
+fontconfig
+freetype-harfbuzz
+libxkbcommon
+meson         make
+netbsd-curses make
+pixman
+pkgconf       make
+python        make
+wayland
+wayland-protocols make

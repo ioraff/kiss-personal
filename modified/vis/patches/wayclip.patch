@@ -1,0 +1,36 @@
+diff --git a/vis-clipboard b/vis-clipboard
+index c5fcc29..8f32e14 100755
+--- a/vis-clipboard
++++ b/vis-clipboard
+@@ -19,8 +19,15 @@ vc_determine_command() {
+ 				return 0
+ 			fi
+ 		done
++
++		for c in waycopy waypaste; do
++			if command -v "$c" >/dev/null 2>&1; then
++				echo "wayclip"
++				return 0
++			fi
++		done
+ 	fi
+-	
++
+ 	if [ -n "$DISPLAY" ]; then
+ 		for c in xclip xsel; do
+ 			if command -v "$c" >/dev/null 2>&1; then
+@@ -97,6 +104,14 @@ vc_wlclipboard_paste() {
+ 	fi
+ }
+ 
++vc_wayclip_copy() {
++	waycopy
++}
++
++vc_wayclip_paste() {
++	waypaste
++}
++
+ vc_xsel_copy() {
+ 	xsel --"$sel" -bi
+ }

@@ -1,1 +1,11 @@
-../../../repo-community/community/vis/build
+#!/bin/sh -e
+
+patch -p1 < wayclip.patch
+
+./configure \
+	--prefix=/usr \
+	--enable-lua \
+	--enable-lpeg-static
+
+make
+make DESTDIR="$1" install

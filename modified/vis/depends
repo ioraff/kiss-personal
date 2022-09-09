@@ -1,1 +1,4 @@
-../../../repo-community/community/vis/depends
+libtermkey make
+lpeg       make
+lua        make
+netbsd-curses

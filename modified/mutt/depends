@@ -1,3 +1,3 @@
 lmdb
-ncurses
+netbsd-curses
 zlib

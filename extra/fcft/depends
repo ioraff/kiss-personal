@@ -1,6 +1,6 @@
 fontconfig
 freetype-harfbuzz
-meson             make
+muon make
 pixman
 wayland
 wayland-protocols make

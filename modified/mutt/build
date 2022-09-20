@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+patch -p1 < netbsd-curses.patch
+
 # Remove perl dependency.
 sed 's/ doc contrib/ contrib/g' Makefile.in > _
 mv -f _ Makefile.in

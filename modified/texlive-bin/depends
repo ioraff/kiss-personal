@@ -3,7 +3,6 @@ fontconfig
 freetype-harfbuzz
 gd
 gmp
-harfbuzz-icu
 icu
 libpng
 mpfr make

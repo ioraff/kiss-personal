@@ -47,10 +47,10 @@ meson \
     -Dglx=disabled \
     -Degl=enabled \
     -Dvalgrind=false \
-    -Dzstd=false \
+    -Dzstd=disabled \
     -Dglvnd="${glvnd_enabled:-true}" \
+    -Dvulkan-drivers='' \
     -Dgallium-drivers=iris \
-    -Dvulkan-drivers=intel \
     -Dllvm=disabled \
     . output
 

@@ -1,7 +1,5 @@
 #!/bin/sh -e
 
-mv Modules/* cmake/Modules/
-
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=Release \

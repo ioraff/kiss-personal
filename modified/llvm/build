@@ -2,11 +2,6 @@
 
 mv Modules/* cmake/modules/
 
-# Remove ncurses dependency.
-sed 's/\(LLVM_ENABLE_TERMINFO\) 1/\1 2/' \
-    cmake/config-ix.cmake > _
-mv -f _ cmake/config-ix.cmake
-
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=Release \

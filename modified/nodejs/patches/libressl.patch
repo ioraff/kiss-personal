@@ -1,28 +1,29 @@
-From 0f7412943d8e0cfaf3f58c446deaf4fa8d29114a Mon Sep 17 00:00:00 2001
+From c75df2178ebbcd5a69729c106865365c2baadd22 Mon Sep 17 00:00:00 2001
+Message-Id: <c75df2178ebbcd5a69729c106865365c2baadd22.1663950504.git.owen@owenrafferty.com>
 From: Owen Rafferty <owen@owenrafferty.com>
 Date: Thu, 8 Sep 2022 15:46:03 -0500
-Subject: [PATCH] crypto: initial LibreSSL support
+Subject: [PATCH] crypto: LibreSSL support
 
 ---
- lib/_tls_common.js           |  5 +++
- lib/_tls_wrap.js             | 48 ++++++++++++++-------
- src/crypto/crypto_cipher.cc  |  6 ++-
- src/crypto/crypto_common.cc  | 23 +++++++++-
- src/crypto/crypto_context.cc |  2 +
- src/crypto/crypto_ec.cc      | 14 +++++-
- src/crypto/crypto_hash.cc    | 12 ++++++
- src/crypto/crypto_hkdf.cc    |  4 ++
- src/crypto/crypto_keys.cc    | 20 +++++++++
- src/crypto/crypto_random.cc  |  4 ++
- src/crypto/crypto_rsa.cc     |  4 ++
- src/crypto/crypto_scrypt.cc  |  4 +-
- src/crypto/crypto_tls.cc     | 17 +++++++-
- src/crypto/crypto_util.cc    | 83 +++++++++++++++++++++++++++++++++++-
- src/crypto/crypto_util.h     | 35 ++++++++++++++-
+ lib/_tls_common.js           |  5 ++++
+ lib/_tls_wrap.js             | 48 ++++++++++++++++++++++-----------
+ src/crypto/crypto_cipher.cc  |  6 ++++-
+ src/crypto/crypto_common.cc  | 23 +++++++++++++++-
+ src/crypto/crypto_context.cc |  2 ++
+ src/crypto/crypto_ec.cc      | 14 ++++++++--
+ src/crypto/crypto_hash.cc    | 12 +++++++++
+ src/crypto/crypto_hkdf.cc    |  4 +++
+ src/crypto/crypto_keys.cc    | 12 +++++++++
+ src/crypto/crypto_random.cc  |  4 +++
+ src/crypto/crypto_rsa.cc     |  4 +++
+ src/crypto/crypto_scrypt.cc  |  4 +--
+ src/crypto/crypto_tls.cc     | 17 ++++++++++--
+ src/crypto/crypto_util.cc    | 51 ++++++++++++++++++++++++++++++++++--
+ src/crypto/crypto_util.h     | 24 ++++++++++++++++-
  src/node.cc                  |  2 +-
  src/node_crypto.cc           |  2 +-
- src/node_metadata.cc         |  4 ++
- 18 files changed, 259 insertions(+), 30 deletions(-)
+ src/node_metadata.cc         |  4 +++
+ 18 files changed, 209 insertions(+), 29 deletions(-)
 
 diff --git a/lib/_tls_common.js b/lib/_tls_common.js
 index 373286fe67..834a4588ff 100644
@@ -263,7 +264,7 @@ index 3bf480f8f0..4e48a8250f 100644
                    info,
                    env->version_string(),
 diff --git a/src/crypto/crypto_context.cc b/src/crypto/crypto_context.cc
-index 7eab9de37c..93fd1bb661 100644
+index e70ddc64f3..e871de4757 100644
 --- a/src/crypto/crypto_context.cc
 +++ b/src/crypto/crypto_context.cc
 @@ -604,6 +604,7 @@ void SecureContext::SetKey(const FunctionCallbackInfo<Value>& args) {
@@ -418,26 +419,10 @@ index 43bf8a9350..afbc7885ee 100644
  
  void HKDFConfig::MemoryInfo(MemoryTracker* tracker) const {
 diff --git a/src/crypto/crypto_keys.cc b/src/crypto/crypto_keys.cc
-index d52ffeb9d4..274256a08f 100644
+index d52ffeb9d4..bb989fecb2 100644
 --- a/src/crypto/crypto_keys.cc
 +++ b/src/crypto/crypto_keys.cc
-@@ -95,7 +95,15 @@ ParseKeyResult TryParsePublicKey(
-   // OpenSSL might modify the pointer, so we need to make a copy before parsing.
-   const unsigned char* p = der_data;
-   pkey->reset(parse(&p, der_len));
-+#ifdef LIBRESSL_VERSION_NUMBER
-+  if (der_data != NULL) {
-+    if (der_len)
-+      OPENSSL_cleanse(der_data, der_len);
-+    OPENSSL_free(der_data);
-+  }
-+#else
-   OPENSSL_clear_free(der_data, der_len);
-+#endif
- 
-   return *pkey ? ParseKeyResult::kParseKeyOk :
-                  ParseKeyResult::kParseKeyFailed;
-@@ -598,15 +606,23 @@ void ManagedEVPPKey::MemoryInfo(MemoryTracker* tracker) const {
+@@ -598,15 +598,23 @@ void ManagedEVPPKey::MemoryInfo(MemoryTracker* tracker) const {
  }
  
  size_t ManagedEVPPKey::size_of_private_key() const {
@@ -461,7 +446,7 @@ index d52ffeb9d4..274256a08f 100644
  }
  
  // This maps true to Just<bool>(true) and false to Nothing<bool>().
-@@ -1088,6 +1104,9 @@ void KeyObjectHandle::InitECRaw(const FunctionCallbackInfo<Value>& args) {
+@@ -1088,6 +1096,9 @@ void KeyObjectHandle::InitECRaw(const FunctionCallbackInfo<Value>& args) {
  }
  
  void KeyObjectHandle::InitEDRaw(const FunctionCallbackInfo<Value>& args) {
@@ -471,7 +456,7 @@ index d52ffeb9d4..274256a08f 100644
    Environment* env = Environment::GetCurrent(args);
    KeyObjectHandle* key;
    ASSIGN_OR_RETURN_UNWRAP(&key, args.Holder());
-@@ -1127,6 +1146,7 @@ void KeyObjectHandle::InitEDRaw(const FunctionCallbackInfo<Value>& args) {
+@@ -1127,6 +1138,7 @@ void KeyObjectHandle::InitEDRaw(const FunctionCallbackInfo<Value>& args) {
    }
  
    args.GetReturnValue().Set(true);
@@ -480,10 +465,10 @@ index d52ffeb9d4..274256a08f 100644
  
  void KeyObjectHandle::Equals(const FunctionCallbackInfo<Value>& args) {
 diff --git a/src/crypto/crypto_random.cc b/src/crypto/crypto_random.cc
-index d0736a9cf1..528064d07b 100644
+index 2f9e9aacb1..e26d89ccc2 100644
 --- a/src/crypto/crypto_random.cc
 +++ b/src/crypto/crypto_random.cc
-@@ -147,7 +147,11 @@ Maybe<bool> RandomPrimeTraits::AdditionalConfig(
+@@ -146,7 +146,11 @@ Maybe<bool> RandomPrimeTraits::AdditionalConfig(
  
    params->bits = bits;
    params->safe = safe;
@@ -616,10 +601,10 @@ index 849b21f28d..1834c48b95 100644
  
  void TLSWrap::NewSessionDone(const FunctionCallbackInfo<Value>& args) {
 diff --git a/src/crypto/crypto_util.cc b/src/crypto/crypto_util.cc
-index 805f8978b2..7e9faa6e34 100644
+index e878c5ea15..c9bd3de83f 100644
 --- a/src/crypto/crypto_util.cc
 +++ b/src/crypto/crypto_util.cc
-@@ -142,7 +142,7 @@ static Mutex fips_mutex;
+@@ -130,7 +130,7 @@ static Mutex fips_mutex;
  void InitCryptoOnce() {
    Mutex::ScopedLock lock(per_process::cli_options_mutex);
    Mutex::ScopedLock fips_lock(fips_mutex);
@@ -628,7 +613,7 @@ index 805f8978b2..7e9faa6e34 100644
    OPENSSL_INIT_SETTINGS* settings = OPENSSL_INIT_new();
  
  #if OPENSSL_VERSION_MAJOR < 3
-@@ -186,7 +186,7 @@ void InitCryptoOnce() {
+@@ -174,7 +174,7 @@ void InitCryptoOnce() {
    }
  #endif
  
@@ -637,52 +622,7 @@ index 805f8978b2..7e9faa6e34 100644
  
    // Turn off compression. Saves memory and protects against CRIME attacks.
    // No-op with OPENSSL_NO_COMP builds of OpenSSL.
-@@ -324,12 +324,28 @@ ByteSource::ByteSource(ByteSource&& other) noexcept
- }
- 
- ByteSource::~ByteSource() {
-+#ifdef LIBRESSL_VERSION_NUMBER
-+  if (allocated_data_ != NULL) {
-+    if (size_)
-+      OPENSSL_cleanse(allocated_data_, size_);
-+    OPENSSL_free(allocated_data_);
-+  }
-+#else
-   OPENSSL_clear_free(allocated_data_, size_);
-+#endif
- }
- 
- ByteSource& ByteSource::operator=(ByteSource&& other) noexcept {
-   if (&other != this) {
-+#ifdef LIBRESSL_VERSION_NUMBER
-+    if (allocated_data_ != NULL) {
-+      if (size_)
-+        OPENSSL_cleanse(allocated_data_, size_);
-+      OPENSSL_free(allocated_data_);
-+    }
-+#else
-     OPENSSL_clear_free(allocated_data_, size_);
-+#endif
-     data_ = other.data_;
-     allocated_data_ = other.allocated_data_;
-     other.allocated_data_ = nullptr;
-@@ -346,7 +362,15 @@ std::unique_ptr<BackingStore> ByteSource::ReleaseToBackingStore() {
-       allocated_data_,
-       size(),
-       [](void* data, size_t length, void* deleter_data) {
-+#ifdef LIBRESSL_VERSION_NUMBER
-+        if (deleter_data != NULL) {
-+          if (length)
-+            OPENSSL_cleanse(deleter_data, length);
-+          OPENSSL_free(deleter_data);
-+        }
-+#else
-         OPENSSL_clear_free(deleter_data, length);
-+#endif
-       }, allocated_data_);
-   CHECK(ptr);
-   allocated_data_ = nullptr;
-@@ -488,6 +512,43 @@ Maybe<bool> Decorate(Environment* env, Local<Object> obj,
+@@ -476,6 +476,43 @@ Maybe<bool> Decorate(Environment* env, Local<Object> obj,
          c = ToUpper(c);
      }
  
@@ -726,7 +666,7 @@ index 805f8978b2..7e9faa6e34 100644
  #define OSSL_ERROR_CODES_MAP(V)                                               \
      V(SYS)                                                                    \
      V(BN)                                                                     \
-@@ -527,6 +588,8 @@ Maybe<bool> Decorate(Environment* env, Local<Object> obj,
+@@ -515,6 +552,8 @@ Maybe<bool> Decorate(Environment* env, Local<Object> obj,
      V(SM2)                                                                    \
      V(USER)                                                                   \
  
@@ -735,7 +675,7 @@ index 805f8978b2..7e9faa6e34 100644
  #define V(name) case ERR_LIB_##name: lib = #name "_"; break;
      const char* lib = "";
      const char* prefix = "OSSL_";
-@@ -683,7 +746,13 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
+@@ -671,7 +710,13 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
    CHECK(args[0]->IsUint32());
    Environment* env = Environment::GetCurrent(args);
    uint32_t len = args[0].As<Uint32>()->Value();
@@ -749,23 +689,7 @@ index 805f8978b2..7e9faa6e34 100644
    if (data == nullptr) {
      // There's no memory available for the allocation.
      // Return nothing.
-@@ -694,7 +763,15 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
-           data,
-           len,
-           [](void* data, size_t len, void* deleter_data) {
-+#ifdef LIBRESSL_VERSION_NUMBER
-+            if (data != NULL) {
-+              if (len)
-+                OPENSSL_cleanse(data, len);
-+              OPENSSL_free(data);
-+            }
-+#else
-             OPENSSL_secure_clear_free(data, len);
-+#endif
-           },
-           data);
-   Local<ArrayBuffer> buffer = ArrayBuffer::New(env->isolate(), store);
-@@ -702,10 +779,12 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
+@@ -690,10 +735,12 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
  }
  
  void SecureHeapUsed(const FunctionCallbackInfo<Value>& args) {
@@ -779,7 +703,7 @@ index 805f8978b2..7e9faa6e34 100644
  }  // namespace
  
 diff --git a/src/crypto/crypto_util.h b/src/crypto/crypto_util.h
-index 4afae1884f..afcbb7f07b 100644
+index dc3bb15cfb..152f8cd5ee 100644
 --- a/src/crypto/crypto_util.h
 +++ b/src/crypto/crypto_util.h
 @@ -15,7 +15,9 @@
@@ -793,7 +717,7 @@ index 4afae1884f..afcbb7f07b 100644
  #include <openssl/rsa.h>
  #include <openssl/dsa.h>
  #include <openssl/ssl.h>
-@@ -36,6 +38,17 @@
+@@ -36,6 +38,26 @@
  #include <string>
  #include <vector>
  
@@ -806,48 +730,22 @@ index 4afae1884f..afcbb7f07b 100644
 +#  define EVP_PKEY_ED25519 NID_ED25519
 +#  define EVP_PKEY_X448    NID_X448
 +#  define EVP_PKEY_ED448   NID_ED448
++
++inline void OPENSSL_clear_free(void *str, size_t num) {
++    if (str) {
++        if (num)
++            OPENSSL_cleanse(str, num);
++        OPENSSL_free(str);
++    }
++}
++#  define OPENSSL_secure_clear_free OPENSSL_clear_free
 +#endif
 +
  namespace node {
  namespace crypto {
  // Currently known sizes of commonly used OpenSSL struct sizes.
-@@ -234,7 +247,17 @@ class ByteSource {
-     Builder(const Builder&) = delete;
-     Builder& operator=(const Builder&) = delete;
- 
--    ~Builder() { OPENSSL_clear_free(data_, size_); }
-+    ~Builder() {
-+#ifdef LIBRESSL_VERSION_NUMBER
-+      if (data_ != NULL) {
-+        if (size_)
-+          OPENSSL_cleanse(data_, size_);
-+        OPENSSL_free(data_);
-+      }
-+#else
-+      OPENSSL_clear_free(data_, size_);
-+#endif
-+    }
- 
-     // Returns the underlying non-const pointer.
-     template <typename T>
-@@ -251,7 +274,15 @@ class ByteSource {
-       if (resize) {
-         CHECK_LE(*resize, size_);
-         if (*resize == 0) {
-+#ifdef LIBRESSL_VERSION_NUMBER
-+          if (data_ != NULL) {
-+            if (size_)
-+              OPENSSL_cleanse(data_, size_);
-+            OPENSSL_free(data_);
-+          }
-+#else
-           OPENSSL_clear_free(data_, size_);
-+#endif
-           data_ = nullptr;
-         }
-         size_ = *resize;
 diff --git a/src/node.cc b/src/node.cc
-index 71b3f7dcfe..e7606a1da3 100644
+index 75423472f0..a7f6c83c7f 100644
 --- a/src/node.cc
 +++ b/src/node.cc
 @@ -1038,7 +1038,7 @@ InitializationResult InitializeOncePerProcess(

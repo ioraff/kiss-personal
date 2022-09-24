@@ -1,9 +1,10 @@
 #!/bin/sh -e
 
-meson \
-    --prefix=/usr \
+muon setup \
+    -Dprefix=/usr \
     -Denable_tools=false \
-    . output
+    -Denable_examples=false \
+    output
 
 ninja -C output
-ninja -C output install
+muon  -C output install

@@ -1,9 +1,10 @@
+fcft
 fontconfig
-freetype-harfbuzz
 libxkbcommon
 muon          make
 netbsd-curses make
 pixman
 python        make
+tllist        make
 wayland
 wayland-protocols make

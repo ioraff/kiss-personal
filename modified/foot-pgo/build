@@ -24,7 +24,6 @@ esac
     muon setup \
         -Dprefix=/usr \
         -Dbuildtype=release \
-        -Dforce_fallback_for=fcft,tllist \
         -Dime=false \
         -Db_pgo=generate \
         build
@@ -63,7 +62,6 @@ esac
 muon setup \
     -Dprefix=/usr \
     -Dbuildtype=release \
-    -Dforce_fallback_for=fcft,tllist \
     -Dime=false \
     -Db_pgo=use \
     build

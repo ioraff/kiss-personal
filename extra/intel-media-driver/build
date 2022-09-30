@@ -1,6 +1,5 @@
 #!/bin/sh -e
 
-patch -p1 < libva-2.16.patch
 patch -p1 < no-execinfo.patch
 
 cmake -B build \

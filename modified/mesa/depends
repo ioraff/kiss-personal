@@ -5,7 +5,7 @@ libdrm
 libelf
 linux-headers make
 m4 make
-meson make
+muon make
 pkgconf make
 python make
 wayland

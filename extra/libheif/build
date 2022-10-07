@@ -1,27 +1,10 @@
 #!/bin/sh -e
 
-out=$PWD/out
-mkdir -p out
-
-(
-    export CXXFLAGS="$CXXFLAGS -fPIC"
-    cd libde265
-
-    ./configure \
-        --prefix=/usr \
-        --disable-sherlock265 \
-        --disable-shared
-
-    make
-    make DESTDIR="$out" install
-)
-
-export libde265_CFLAGS="-I$out/usr/include"
-export libde265_LIBS="-L$out/usr/lib -lde265 -lstdc++"
 ./configure \
     --prefix=/usr \
     --disable-static \
-    --disable-go
+    --disable-go \
+    --disable-aom
 
 make
 make install

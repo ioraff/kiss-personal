@@ -17,14 +17,14 @@
     export PYTHONPATH
 }
 
-meson \
-    --prefix=/usr \
+muon setup \
+    -Dprefix=/usr \
     -Dvalgrind=disabled \
     -Damdgpu=disabled \
     -Dnouveau=disabled \
     -Dradeon=disabled \
     -Dintel=disabled \
-    . build
+    build
 
 ninja -C build
-ninja -C build install
+muon  -C build install

@@ -1,0 +1,13 @@
+#!/bin/sh -e
+
+patch -p1 < disable_tools.patch
+patch -p1 < export-only-decoder-api.patch
+
+autoreconf -fiv
+
+./configure \
+    --prefix=/usr \
+    --disable-sherlock265
+
+make
+make install

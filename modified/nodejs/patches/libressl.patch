@@ -1,5 +1,5 @@
-From c75df2178ebbcd5a69729c106865365c2baadd22 Mon Sep 17 00:00:00 2001
-Message-Id: <c75df2178ebbcd5a69729c106865365c2baadd22.1663950504.git.owen@owenrafferty.com>
+From fa9d5d3d3fd382d7e1e9abbd1bdc0ff2cd4f1489 Mon Sep 17 00:00:00 2001
+Message-Id: <fa9d5d3d3fd382d7e1e9abbd1bdc0ff2cd4f1489.1665716434.git.owen@owenrafferty.com>
 From: Owen Rafferty <owen@owenrafferty.com>
 Date: Thu, 8 Sep 2022 15:46:03 -0500
 Subject: [PATCH] crypto: LibreSSL support
@@ -10,6 +10,7 @@ Subject: [PATCH] crypto: LibreSSL support
  src/crypto/crypto_cipher.cc  |  6 ++++-
  src/crypto/crypto_common.cc  | 23 +++++++++++++++-
  src/crypto/crypto_context.cc |  2 ++
+ src/crypto/crypto_dsa.cc     |  2 +-
  src/crypto/crypto_ec.cc      | 14 ++++++++--
  src/crypto/crypto_hash.cc    | 12 +++++++++
  src/crypto/crypto_hkdf.cc    |  4 +++
@@ -23,7 +24,7 @@ Subject: [PATCH] crypto: LibreSSL support
  src/node.cc                  |  2 +-
  src/node_crypto.cc           |  2 +-
  src/node_metadata.cc         |  4 +++
- 18 files changed, 209 insertions(+), 29 deletions(-)
+ 19 files changed, 210 insertions(+), 30 deletions(-)
 
 diff --git a/lib/_tls_common.js b/lib/_tls_common.js
 index 373286fe67..834a4588ff 100644
@@ -129,7 +130,7 @@ index 11ff14d725..b6eda64af3 100644
  
    let verifyError = this._handle.verifyError();
 diff --git a/src/crypto/crypto_cipher.cc b/src/crypto/crypto_cipher.cc
-index a6ce4de49d..e7587658c9 100644
+index b907e9e9cd..c5ac0bf13f 100644
 --- a/src/crypto/crypto_cipher.cc
 +++ b/src/crypto/crypto_cipher.cc
 @@ -30,7 +30,7 @@ bool IsSupportedAuthenticatedMode(const EVP_CIPHER* cipher) {
@@ -168,7 +169,7 @@ index a6ce4de49d..e7587658c9 100644
            if (check_len != iv_length)
              return;
 diff --git a/src/crypto/crypto_common.cc b/src/crypto/crypto_common.cc
-index 3bf480f8f0..4e48a8250f 100644
+index 9777737126..da53c4a84e 100644
 --- a/src/crypto/crypto_common.cc
 +++ b/src/crypto/crypto_common.cc
 @@ -132,12 +132,17 @@ long VerifyPeerCertificate(  // NOLINT(runtime/int)
@@ -232,7 +233,7 @@ index 3bf480f8f0..4e48a8250f 100644
  constexpr auto GetCipherVersion = GetCipherValue<SSL_CIPHER_get_version>;
  
  StackOfX509 CloneSSLCerts(X509Pointer&& cert,
-@@ -1045,6 +1060,9 @@ MaybeLocal<Array> GetClientHelloCiphers(
+@@ -1044,6 +1059,9 @@ MaybeLocal<Array> GetClientHelloCiphers(
      Environment* env,
      const SSLPointer& ssl) {
    EscapableHandleScope scope(env->isolate());
@@ -242,7 +243,7 @@ index 3bf480f8f0..4e48a8250f 100644
    const unsigned char* buf;
    size_t len = SSL_client_hello_get0_ciphers(ssl.get(), &buf);
    size_t count = len / 2;
-@@ -1072,6 +1090,7 @@ MaybeLocal<Array> GetClientHelloCiphers(
+@@ -1071,6 +1089,7 @@ MaybeLocal<Array> GetClientHelloCiphers(
    }
    Local<Array> ret = Array::New(env->isolate(), ciphers.out(), count);
    return scope.Escape(ret);
@@ -250,7 +251,7 @@ index 3bf480f8f0..4e48a8250f 100644
  }
  
  
-@@ -1085,10 +1104,12 @@ MaybeLocal<Object> GetCipherInfo(Environment* env, const SSLPointer& ssl) {
+@@ -1084,10 +1103,12 @@ MaybeLocal<Object> GetCipherInfo(Environment* env, const SSLPointer& ssl) {
                    info,
                    env->name_string(),
                    GetCurrentCipherValue<GetCipherName>(env, ssl)) ||
@@ -264,7 +265,7 @@ index 3bf480f8f0..4e48a8250f 100644
                    info,
                    env->version_string(),
 diff --git a/src/crypto/crypto_context.cc b/src/crypto/crypto_context.cc
-index e70ddc64f3..e871de4757 100644
+index 94890c396c..e0cdf2e93e 100644
 --- a/src/crypto/crypto_context.cc
 +++ b/src/crypto/crypto_context.cc
 @@ -604,6 +604,7 @@ void SecureContext::SetKey(const FunctionCallbackInfo<Value>& args) {
@@ -283,6 +284,19 @@ index e70ddc64f3..e871de4757 100644
  }
  
  #ifndef OPENSSL_NO_ENGINE
+diff --git a/src/crypto/crypto_dsa.cc b/src/crypto/crypto_dsa.cc
+index 862c091b05..9718c2affa 100644
+--- a/src/crypto/crypto_dsa.cc
++++ b/src/crypto/crypto_dsa.cc
+@@ -13,7 +13,7 @@
+ #include <cstdio>
+ 
+ // EVP_PKEY_CTX_set_dsa_paramgen_q_bits was added in OpenSSL 1.1.1e.
+-#if OPENSSL_VERSION_NUMBER < 0x1010105fL
++#if OPENSSL_VERSION_NUMBER < 0x1010105fL || defined(LIBRESSL_VERSION_NUMBER)
+ #define EVP_PKEY_CTX_set_dsa_paramgen_q_bits(ctx, qbits)                       \
+   EVP_PKEY_CTX_ctrl((ctx),                                                     \
+                     EVP_PKEY_DSA,                                              \
 diff --git a/src/crypto/crypto_ec.cc b/src/crypto/crypto_ec.cc
 index 2fc759e452..29084db034 100644
 --- a/src/crypto/crypto_ec.cc
@@ -481,10 +495,10 @@ index 2f9e9aacb1..e26d89ccc2 100644
      THROW_ERR_CRYPTO_OPERATION_FAILED(env, "could not generate prime");
      return Nothing<bool>();
 diff --git a/src/crypto/crypto_rsa.cc b/src/crypto/crypto_rsa.cc
-index ec339e5635..335f4d2989 100644
+index 4eacb1f142..17f91deb7e 100644
 --- a/src/crypto/crypto_rsa.cc
 +++ b/src/crypto/crypto_rsa.cc
-@@ -621,10 +621,14 @@ Maybe<bool> GetRsaKeyDetail(
+@@ -610,10 +610,14 @@ Maybe<bool> GetRsaKeyDetail(
        }
  
        if (params->saltLength != nullptr) {
@@ -601,7 +615,7 @@ index 849b21f28d..1834c48b95 100644
  
  void TLSWrap::NewSessionDone(const FunctionCallbackInfo<Value>& args) {
 diff --git a/src/crypto/crypto_util.cc b/src/crypto/crypto_util.cc
-index e878c5ea15..c9bd3de83f 100644
+index f1bb7a9c7a..942821e3bb 100644
 --- a/src/crypto/crypto_util.cc
 +++ b/src/crypto/crypto_util.cc
 @@ -130,7 +130,7 @@ static Mutex fips_mutex;
@@ -675,7 +689,7 @@ index e878c5ea15..c9bd3de83f 100644
  #define V(name) case ERR_LIB_##name: lib = #name "_"; break;
      const char* lib = "";
      const char* prefix = "OSSL_";
-@@ -671,7 +710,13 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
+@@ -686,7 +725,13 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
    CHECK(args[0]->IsUint32());
    Environment* env = Environment::GetCurrent(args);
    uint32_t len = args[0].As<Uint32>()->Value();
@@ -689,7 +703,7 @@ index e878c5ea15..c9bd3de83f 100644
    if (data == nullptr) {
      // There's no memory available for the allocation.
      // Return nothing.
-@@ -690,10 +735,12 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
+@@ -705,10 +750,12 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
  }
  
  void SecureHeapUsed(const FunctionCallbackInfo<Value>& args) {
@@ -703,7 +717,7 @@ index e878c5ea15..c9bd3de83f 100644
  }  // namespace
  
 diff --git a/src/crypto/crypto_util.h b/src/crypto/crypto_util.h
-index dc3bb15cfb..152f8cd5ee 100644
+index 7f83d6d191..b0a9023a4f 100644
 --- a/src/crypto/crypto_util.h
 +++ b/src/crypto/crypto_util.h
 @@ -15,7 +15,9 @@
@@ -745,18 +759,18 @@ index dc3bb15cfb..152f8cd5ee 100644
  namespace crypto {
  // Currently known sizes of commonly used OpenSSL struct sizes.
 diff --git a/src/node.cc b/src/node.cc
-index 75423472f0..a7f6c83c7f 100644
+index 357ca1eb55..d8609f8083 100644
 --- a/src/node.cc
 +++ b/src/node.cc
-@@ -1038,7 +1038,7 @@ InitializationResult InitializeOncePerProcess(
+@@ -1055,7 +1055,7 @@ std::unique_ptr<InitializationResult> InitializeOncePerProcess(
    }
  
-   if (init_flags & kInitOpenSSL) {
+   if (!(flags & ProcessInitializationFlags::kNoInitOpenSSL)) {
 -#if HAVE_OPENSSL && !defined(OPENSSL_IS_BORINGSSL)
-+#if HAVE_OPENSSL && !defined(OPENSSL_IS_BORINGSSL) && !defined(LIBRESSL_VERSION_NUMBER)
-     {
-       std::string extra_ca_certs;
-       if (credentials::SafeGetenv("NODE_EXTRA_CA_CERTS", &extra_ca_certs))
++#if HAVE_OPENSSL && !(defined(OPENSSL_IS_BORINGSSL) || defined(LIBRESSL_VERSION_NUMBER))
+     auto GetOpenSSLErrorString = []() -> std::string {
+       std::string ret;
+       ERR_print_errors_cb(
 diff --git a/src/node_crypto.cc b/src/node_crypto.cc
 index c3f400f1ae..a18ac89423 100644
 --- a/src/node_crypto.cc
@@ -787,5 +801,5 @@ index a221dcde05..fab0dbd04e 100644
  }
  #endif  // HAVE_OPENSSL
 -- 
-2.37.3
+2.38.0
 

@@ -14,4 +14,4 @@
     --without-authdaemond
 
 make
-make install
+make DESTDIR="$1" install

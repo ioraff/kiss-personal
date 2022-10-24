@@ -5,7 +5,8 @@ patch -p1 < no-execinfo.patch
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
-    -DINSTALL_DRIVER_SYSCONF=OFF
+    -DINSTALL_DRIVER_SYSCONF=OFF \
+    -DMEDIA_BUILD_FATAL_WARNINGS=OFF
 
 cmake --build   build
 cmake --install build

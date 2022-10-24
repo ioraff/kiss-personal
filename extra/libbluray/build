@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --disable-bdjava-jar \
+    --without-libxml2 \
+    --without-freetype
+
+make
+make DESTDIR="$1" install

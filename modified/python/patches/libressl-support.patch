@@ -282,37 +282,36 @@ index 03c125eb44..d992c5bc02 100644
 +
 +#endif
 diff --git a/Modules/clinic/_hashopenssl.c.h b/Modules/clinic/_hashopenssl.c.h
-index de01489e6a..c686eddea8 100644
+index 5d84f4ac4e..dad67a5f19 100644
 --- a/Modules/clinic/_hashopenssl.c.h
 +++ b/Modules/clinic/_hashopenssl.c.h
 @@ -1275,6 +1275,8 @@ _hashlib_HMAC_hexdigest(HMACobject *self, PyObject *Py_UNUSED(ignored))
      return _hashlib_HMAC_hexdigest_impl(self);
  }
  
-+#if !defined(LIBRESSL_VERSION_NUMBER)
++#ifndef LIBRESSL_VERSION_NUMBER
 +
  PyDoc_STRVAR(_hashlib_get_fips_mode__doc__,
  "get_fips_mode($module, /)\n"
  "--\n"
-@@ -1310,6 +1312,8 @@ _hashlib_get_fips_mode(PyObject *module, PyObject *Py_UNUSED(ignored))
+@@ -1310,6 +1312,8 @@ exit:
      return return_value;
  }
  
-+#endif /* !defined(LIBRESSL_VERSION_NUMBER) */
++#endif
 +
  PyDoc_STRVAR(_hashlib_compare_digest__doc__,
  "compare_digest($module, a, b, /)\n"
  "--\n"
-@@ -1385,4 +1389,8 @@ _hashlib_compare_digest(PyObject *module, PyObject *const *args, Py_ssize_t narg
+@@ -1385,4 +1389,8 @@ exit:
  #ifndef _HASHLIB_SCRYPT_METHODDEF
      #define _HASHLIB_SCRYPT_METHODDEF
  #endif /* !defined(_HASHLIB_SCRYPT_METHODDEF) */
--/*[clinic end generated code: output=162369cb9d43f1cc input=a9049054013a1b77]*/
 +
 +#ifndef _HASHLIB_GET_FIPS_MODE_METHODDEF
 +    #define _HASHLIB_GET_FIPS_MODE_METHODDEF
 +#endif /* !defined(_HASHLIB_GET_FIPS_MODE_METHODDEF) */
-+/*[clinic end generated code: output=a110f274fb33395d input=a9049054013a1b77]*/
+ /*[clinic end generated code: output=69f2374071bff707 input=a9049054013a1b77]*/
 diff --git a/Modules/clinic/_ssl.c.h b/Modules/clinic/_ssl.c.h
 index b59b129af8..f6bcd09e03 100644
 --- a/Modules/clinic/_ssl.c.h
@@ -392,12 +391,6 @@ index b59b129af8..f6bcd09e03 100644
  #ifndef _SSL_ENUM_CERTIFICATES_METHODDEF
      #define _SSL_ENUM_CERTIFICATES_METHODDEF
  #endif /* !defined(_SSL_ENUM_CERTIFICATES_METHODDEF) */
-@@ -1358,4 +1374,4 @@ _ssl_enum_crls(PyObject *module, PyObject *const *args, Py_ssize_t nargs, PyObje
- #ifndef _SSL_ENUM_CRLS_METHODDEF
-     #define _SSL_ENUM_CRLS_METHODDEF
- #endif /* !defined(_SSL_ENUM_CRLS_METHODDEF) */
--/*[clinic end generated code: output=5a7d7bf5cf8ee092 input=a9049054013a1b77]*/
-+/*[clinic end generated code: output=0e12e5e4ee2221b5 input=a9049054013a1b77]*/
 -- 
 2.32.0
 

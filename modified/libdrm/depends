@@ -1,2 +1,3 @@
 linux-headers make
 muon          make
+python-docutils make

@@ -1,1 +1,5 @@
-../../../repo-community/community/libmupdf/sources
+https://www.mupdf.com/downloads/archive/mupdf-VERSION-source.tar.gz
+patches/libressl-3.6.patch
+patches/no-gumbo.patch
+patches/no-openjpeg.patch
+patches/objcopy.patch

@@ -1,6 +1,19 @@
 #!/bin/sh -e
 
-patch -p1 < netbsd-curses.patch
+patch -p1 <<EOF
+--- a/color.c
++++ b/color.c
+@@ -133,9 +133,8 @@ static const struct mapping_t ComposeFields[] =
+
+ #define COLOR_QUOTE_INIT	8
+
+-#ifdef NCURSES_VERSION
+ #define ATTR_MASK (A_ATTRIBUTES ^ A_COLOR)
+-#elif defined (USE_SLANG_CURSES)
++#if defined (USE_SLANG_CURSES)
+ #define ATTR_MASK (~(unsigned int)A_NORMAL ^ (A_CHARTEXT | A_UNUSED | A_COLOR))
+ #endif
+EOF
 
 # Remove perl dependency.
 sed 's/ doc contrib/ contrib/g' Makefile.in > _

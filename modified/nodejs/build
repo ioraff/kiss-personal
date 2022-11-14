@@ -1,6 +1,5 @@
 #!/bin/sh -e
 
-patch -p1 < python-3.11.patch
 patch -p1 < libressl.patch
 
 # Fix build when libatomic.so does not exist in the system.

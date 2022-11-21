@@ -1,0 +1,15 @@
+#!/bin/sh -e
+
+#patch -Rp1 < 334a01e3f8bc.patch
+#patch -Rp1 < 0e0a1a8316b6.patch
+#patch -Rp1 < c104127e6a93.patch
+
+ln -sf makefile.linux_amd64_asm makefile.machine
+
+make all3 OPTFLAGS="$CXXFLAGS"
+make install DEST_DIR="$1" DEST_HOME=/usr DEST_MAN=/usr/share/man
+
+install -Dm755 contrib/gzip-like_CLI_wrapper_for_7z/p7zip \
+    "$1"/usr/bin/p7zip
+install -Dm644 contrib/gzip-like_CLI_wrapper_for_7z/man1/p7zip.1 \
+    "$1"/usr/share/man/man1/p7zip.1

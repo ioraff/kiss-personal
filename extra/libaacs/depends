@@ -1,1 +1,4 @@
+bison make
+flex  make
 libgcrypt
+libgpg-error

@@ -1,0 +1,9 @@
+boost
+cmake make
+libressl
+libsodium
+libzmq
+miniupnpc
+openpgm
+rapidjson make
+unbound

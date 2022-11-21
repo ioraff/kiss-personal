@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+for p in *.patch; do
+    patch -p1 < "$p"
+done
+
+cmake -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_BUILD_TYPE=None \
+    -DSTACK_TRACE=OFF \
+    -DMANUAL_SUBMODULES=1
+
+cmake --build   build
+cmake --install build

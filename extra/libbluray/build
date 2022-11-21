@@ -2,6 +2,7 @@
 
 ./configure \
     --prefix=/usr \
+    --disable-static \
     --disable-bdjava-jar \
     --without-libxml2 \
     --without-freetype

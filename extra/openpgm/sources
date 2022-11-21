@@ -1,0 +1,4 @@
+#https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/openpgm/libpgm-VERSION.tar.bz2
+#patches/openpgm-fix-includes.patch
+#patches/python3.patch
+https://github.com/steve-o/openpgm/archive/release-MAJOR-MINOR-PATCH.tar.gz

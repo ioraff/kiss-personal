@@ -1,0 +1,18 @@
+#!/bin/sh -e
+
+cd openpgm/pgm
+
+#for p in ../../*.patch; do
+#    patch -p1 < "$p"
+#done
+2to3 -wn version_generator.py
+cp openpgm-5.2.pc.in openpgm-5.3.pc.in
+
+./bootstrap.sh
+./configure \
+    --prefix=/usr \
+    --enable-shared \
+    --disable-static
+
+make
+make install

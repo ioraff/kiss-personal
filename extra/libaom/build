@@ -1,27 +1,16 @@
 #!/bin/sh -e
 
-(
-    cd yasm
-
-    ./configure \
-        --prefix=/
-
-    make
-    make DESTDIR="$PWD/../junk" install
-)
-
-export PATH="$PWD/junk/bin:$PATH"
+patch -p1 < fix-stack-size.patch
 
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=True \
+    -DBUILD_STATIC_LIBS=False \
     -DENABLE_DOCS=OFF \
     -DENABLE_EXAMPLES=OFF \
     -DENABLE_TESTS=OFF
 
 cmake --build   build
 cmake --install build
-
-rm "$1/usr/lib/libaom.a"

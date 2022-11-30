@@ -1,10 +1,10 @@
 fcft
 fontconfig
 libxkbcommon
-muon          make
-netbsd-curses make
+muon    make
+ncurses make
 pixman
-python        make
-tllist        make
+python  make
+tllist  make
 wayland
 wayland-protocols make

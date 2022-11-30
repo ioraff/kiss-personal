@@ -5,8 +5,6 @@
     exit 1
 }
 
-patch -p1 < terminfo.patch
-
 case $("$CC" --version) in
     *clang*)
         # Clang requires this for PGO.
@@ -68,10 +66,6 @@ muon setup \
 
 ninja -C build
 muon  -C build install
-
-for f in "$DESTDIR"/usr/share/terminfo/f/*; do
-    mv "$f" "${f%-terminfo}"
-done
 
 rm -rf \
     "$DESTDIR/usr/share/doc" \

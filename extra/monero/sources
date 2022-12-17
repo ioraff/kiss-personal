@@ -1,6 +1,7 @@
 https://downloads.getmonero.org/cli/source/monero-source-vVERSION.tar.bz2
 https://github.com/tevador/RandomX/archive/261d58c77fc5547c0aa7fdfeb58421ba7e0e6e1c.tar.gz external/randomx
 https://github.com/monero-project/supercop/archive/633500ad8c8759995049ccd022107d1fa8a1bbc9.tar.gz external/supercop
+patches/boost-1.81.patch
 patches/easylogging.patch
 patches/system-miniupnpc.patch
 patches/version-string.patch

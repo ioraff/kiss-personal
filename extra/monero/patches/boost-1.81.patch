@@ -1,0 +1,24 @@
+diff --git a/src/common/dns_utils.cpp b/src/common/dns_utils.cpp
+index 7bb1781..395081d 100644
+--- a/src/common/dns_utils.cpp
++++ b/src/common/dns_utils.cpp
+@@ -36,6 +36,7 @@
+ #include "crypto/crypto.h"
+ #include <boost/thread/mutex.hpp>
+ #include <boost/algorithm/string/join.hpp>
++#include <set>
+ #include <boost/optional.hpp>
+ #include <boost/utility/string_ref.hpp>
+ using namespace epee;
+diff --git a/src/common/threadpool.h b/src/common/threadpool.h
+index 53421e1..fcf8ca9 100644
+--- a/src/common/threadpool.h
++++ b/src/common/threadpool.h
+@@ -31,6 +31,7 @@
+ #include <boost/thread/mutex.hpp>
+ #include <boost/thread/thread.hpp>
+ #include <cstddef>
++#include <deque>
+ #include <functional>
+ #include <utility>
+ #include <vector>

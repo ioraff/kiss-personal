@@ -1,0 +1,12 @@
+diff --git a/src/common/threadpool.h b/src/common/threadpool.h
+index 53421e1..fcf8ca9 100644
+--- a/src/common/threadpool.h
++++ b/src/common/threadpool.h
+@@ -31,6 +31,7 @@
+ #include <boost/thread/mutex.hpp>
+ #include <boost/thread/thread.hpp>
+ #include <cstddef>
++#include <deque>
+ #include <functional>
+ #include <utility>
+ #include <vector>

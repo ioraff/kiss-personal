@@ -1,0 +1,56 @@
+#!/bin/sh -e
+
+_target=arm-none-eabi
+
+# Build must happen outside of gcc source.
+mkdir -p gcc-build
+cd gcc-build
+
+../configure \
+    libat_cv_have_ifunc=no \
+    --prefix=/usr \
+    --target=$_target \
+    --libexecdir=/usr/lib \
+    --mandir=/usr/share/man \
+    --infodir=/usr/share/info \
+    --disable-multilib \
+    --disable-symvers \
+    --disable-libmpx \
+    --disable-libmudflap \
+    --disable-libsanitizer \
+    --disable-werror \
+    --disable-fixed-point \
+    --disable-libstdcxx-pch \
+    --disable-nls \
+    --enable-checking=release \
+    --enable-default-pie \
+    --enable-default-ssp \
+    --enable-tls \
+    --enable-initfini-array \
+    --enable-languages=c,c++ \
+    --without-included-gettext \
+    --with-zstd=no \
+    --with-system-zlib \
+    --with-as="/usr/bin/$_target-as" \
+    --with-ld="/usr/bin/$_target-ld" \
+    --disable-bootstrap \
+    --disable-shared
+
+make all-gcc
+make DESTDIR="$1" install-gcc
+
+#Manpages
+rm -Rf $1/usr/share
+
+rm -f $1/usr/bin/cpp
+rm -f $1/usr/bin/c++
+
+# Save 35MB.
+find "$1" -name libgtkpeer.a  -exec rm -f {} +
+find "$1" -name libgjsmalsa.a -exec rm -f {} +
+find "$1" -name libgij.a      -exec rm -f {} +
+
+for prog in lto-dump gcov-tool gcov-dump gcov gcc-ranlib gcc-nm gcc-ar gcc g++
+do
+    rm -f $1/usr/bin/$prog
+done

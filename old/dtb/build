@@ -1,0 +1,25 @@
+#!/bin/sh -e
+
+for p in *.patch; do
+    patch -p1 < "$p"
+done
+
+mkdir -p "$1/usr/share/dtb/arm64"
+wrksrc=$PWD
+
+cd arch/arm64/boot/dts
+for vendor in $(find . -type d ! -name include); do
+    (
+        mkdir -p "$1/usr/share/dtb/arm64/$vendor"
+        cd $vendor
+
+        for dts in $(ls *.dts); do
+            clang-cpp -nostdinc -I. -Iinclude -I$wrksrc/include \
+                -I$wrksrc/scripts/dtc/include-prefixes \
+                -undef -D__DTS__ -x assembler-with-cpp $dts \
+                | dtc -I dts -O dtb -o ${dts%.dts}.dtb -
+            cp -f ${dts%.dts}.dtb "$1/usr/share/dtb/arm64/$vendor"
+        done
+    )
+done
+

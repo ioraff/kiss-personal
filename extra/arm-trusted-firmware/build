@@ -1,0 +1,17 @@
+#!/bin/sh -e
+
+patch -p1 < rk3399-baudrate.patch
+
+sed 's/\-Wall \-O3 \-nostdlib/\-Wall \-Os \-s \-fno\-PIC \-static \-nostdlib/g' plat/rockchip/rk3399/drivers/m0/Makefile > _
+mv -f _ plat/rockchip/rk3399/drivers/m0/Makefile
+
+unset CFLAGS CXXFLAGS
+export LDFLAGS='-no-warn-rwx-segment'
+
+make \
+    DEBUG=0 \
+    PLAT=rk3399 \
+    CROSS_COMPILE=aarch64-linux-musl- \
+    bl31
+mkdir -p "$1/usr/share/atf/rk3399"
+cp build/rk3399/release/bl31/bl31.elf "$1/usr/share/atf/rk3399"

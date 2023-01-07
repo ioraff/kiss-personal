@@ -1,0 +1,3 @@
+#!/bin/sh
+ulimit -n 30000
+exec chpst -u tor tor -f /etc/tor/torrc --runasdaemon 0

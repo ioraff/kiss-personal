@@ -1,0 +1,4 @@
+https://dist.torproject.org/tor-VERSION.tar.gz
+files/tor.run
+patches/disable-wildcard-escaping-test.patch
+patches/libressl.patch

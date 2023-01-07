@@ -1,0 +1,18 @@
+#!/bin/sh -e
+
+patch -p1 < disable-wildcard-escaping-test.patch
+patch -p1 < libressl.patch
+
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --disable-html-manual
+
+make
+#make test
+make install
+
+mkdir -p "$1/etc/sv/tor"
+cp -f tor.run "$1/etc/sv/tor/run"
+ln -sf /run/runit/supervise.tor "$1/etc/sv/tor/supervise"

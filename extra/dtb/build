@@ -1,8 +1,6 @@
 #!/bin/sh -e
 
-for p in *.patch; do
-    patch -p1 < "$p"
-done
+patch -p1 < r4s.patch
 
 mkdir -p "$1/usr/share/dtb/arm64"
 wrksrc=$PWD
@@ -22,4 +20,3 @@ for vendor in $(find . -type d ! -name include); do
         done
     )
 done
-

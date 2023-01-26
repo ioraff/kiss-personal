@@ -1,7 +1,5 @@
 #!/bin/sh -e
 
-patch -p1 < rk3399-baudrate.patch
-
 sed 's/\-Wall \-O3 \-nostdlib/\-Wall \-Os \-s \-fno\-PIC \-static \-nostdlib/g' plat/rockchip/rk3399/drivers/m0/Makefile > _
 mv -f _ plat/rockchip/rk3399/drivers/m0/Makefile
 

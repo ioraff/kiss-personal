@@ -1,2 +1,3 @@
 https://ftp.denx.de/pub/u-boot/u-boot-VERSION.tar.bz2
-patches/r4se.patch
+patches/r4s.patch
+patches/rockpro64.patch

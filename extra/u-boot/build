@@ -1,19 +1,24 @@
 #!/bin/sh -e
 
-patch -p1 < r4se.patch
+patch -p1 < r4s.patch
+patch -p1 < rockpro64.patch
 
 unset CFLAGS CXXFLAGS
 
 sed 's/\-lgcc//g' Makefile > _
 mv -f _ Makefile
 
-mkdir -p build/nanopi-r4s-rk3399
+for board in nanopi-r4s-rk3399 rockpro64-rk3399; do
+    mkdir -p "build/$board"
 
-make O=build/nanopi-r4s-rk3399 nanopi-r4s-rk3399_defconfig
-make CROSS_COMPILE=aarch64-linux-musl- BL31=$KISS_ROOT/usr/share/atf/rk3399/bl31.elf O=build/nanopi-r4s-rk3399
+    make O="build/$board" "${board}_defconfig"
+    make \
+        CROSS_COMPILE=aarch64-linux-musl- \
+        BL31=$KISS_ROOT/usr/share/atf/rk3399/bl31.elf \
+        O="build/$board"
 
-mkdir -p "$1/usr/share/u-boot/nanopi-r4s-rk3399"
-cd build/nanopi-r4s-rk3399
-for f in u-boot* idbloader.img; do
-    cp "$f" "$1/usr/share/u-boot/nanopi-r4s-rk3399/"
+    mkdir -p "$1/usr/share/u-boot/$board"
+
+    cp "build/$board/u-boot.itb"    "$1/usr/share/u-boot/$board/"
+    cp "build/$board/idbloader.img" "$1/usr/share/u-boot/$board/"
 done

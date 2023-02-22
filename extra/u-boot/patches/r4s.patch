@@ -1,0 +1,26 @@
+diff --git a/arch/arm/dts/rk3399-nanopi4.dtsi b/arch/arm/dts/rk3399-nanopi4.dtsi
+index 8c0ff6c96e..1940462f76 100644
+--- a/arch/arm/dts/rk3399-nanopi4.dtsi
++++ b/arch/arm/dts/rk3399-nanopi4.dtsi
+@@ -24,7 +24,7 @@
+ 	};
+ 
+ 	chosen {
+-		stdout-path = "serial2:1500000n8";
++		stdout-path = "serial2:115200n8";
+ 	};
+ 
+ 	clkin_gmac: external-gmac-clock {
+diff --git a/configs/nanopi-r4s-rk3399_defconfig b/configs/nanopi-r4s-rk3399_defconfig
+index 2185f87d7d..7c2281dac7 100644
+--- a/configs/nanopi-r4s-rk3399_defconfig
++++ b/configs/nanopi-r4s-rk3399_defconfig
+@@ -50,7 +50,7 @@ CONFIG_REGULATOR_PWM=y
+ CONFIG_REGULATOR_RK8XX=y
+ CONFIG_PWM_ROCKCHIP=y
+ CONFIG_RAM_RK3399_LPDDR4=y
+-CONFIG_BAUDRATE=1500000
++CONFIG_BAUDRATE=115200
+ CONFIG_DEBUG_UART_SHIFT=2
+ CONFIG_SYSRESET=y
+ CONFIG_USB=y

@@ -1,0 +1,43 @@
+diff --git a/arch/arm/dts/rk3399-rockpro64.dtsi b/arch/arm/dts/rk3399-rockpro64.dtsi
+index 6bff8db..6d7825e 100644
+--- a/arch/arm/dts/rk3399-rockpro64.dtsi
++++ b/arch/arm/dts/rk3399-rockpro64.dtsi
+@@ -17,7 +17,7 @@
+ 	};
+ 
+ 	chosen {
+-		stdout-path = "serial2:1500000n8";
++		stdout-path = "serial2:115200n8";
+ 	};
+ 
+ 	clkin_gmac: external-gmac-clock {
+@@ -573,6 +573,7 @@
+ 
+ &pcie0 {
+ 	ep-gpios = <&gpio2 RK_PD4 GPIO_ACTIVE_HIGH>;
++	max-link-speed = <2>;
+ 	num-lanes = <4>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pcie_perst>;
+diff --git a/configs/rockpro64-rk3399_defconfig b/configs/rockpro64-rk3399_defconfig
+index ba48d02..a53ab9c 100644
+--- a/configs/rockpro64-rk3399_defconfig
++++ b/configs/rockpro64-rk3399_defconfig
+@@ -17,7 +17,7 @@ CONFIG_SYS_LOAD_ADDR=0x800800
+ CONFIG_DEBUG_UART=y
+ CONFIG_HAS_CUSTOM_SYS_INIT_SP_ADDR=y
+ CONFIG_CUSTOM_SYS_INIT_SP_ADDR=0x300000
+-CONFIG_USE_PREBOOT=y
++# CONFIG_USE_PREBOOT is not set
+ CONFIG_DEFAULT_FDT_FILE="rockchip/rk3399-rockpro64.dtb"
+ CONFIG_DISPLAY_BOARDINFO_LATE=y
+ CONFIG_MISC_INIT_R=y
+@@ -77,7 +77,7 @@ CONFIG_DM_RNG=y
+ CONFIG_RNG_ROCKCHIP=y
+ CONFIG_SCSI=y
+ CONFIG_DM_SCSI=y
+-CONFIG_BAUDRATE=1500000
++CONFIG_BAUDRATE=115200
+ CONFIG_DEBUG_UART_SHIFT=2
+ CONFIG_ROCKCHIP_SPI=y
+ CONFIG_SYSRESET=y

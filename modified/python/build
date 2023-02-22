@@ -22,7 +22,8 @@ done
     --with-system-ffi \
     --with-ssl-default-suites='TLSv1.3:TLSv1.2+AEAD+ECDHE:TLSv1.2+AEAD+DHE' \
     --with-ensurepip=yes \
-    --without-doc-strings
+    --without-doc-strings \
+    --without-readline
 
 make EXTRA_CFLAGS="$CFLAGS -DTHREAD_STACK_SIZE=0x100000"
 make install

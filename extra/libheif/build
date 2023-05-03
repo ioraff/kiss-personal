@@ -1,10 +1,13 @@
 #!/bin/sh -e
 
-./configure \
-    --prefix=/usr \
-    --disable-static \
-    --disable-go \
-    --disable-aom
+export DESTDIR="$1"
 
-make
-make install
+cmake -B build \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DWITH_AOM_DECODER=OFF \
+    -DWITH_AOM_DECODER_PLUGIN=OFF \
+    -DWITH_AOM_ENCODER=OFF \
+    -DWITH_AOM_ENCODER_PLUGIN=OFF
+
+cmake --build   build
+cmake --install build

@@ -1,11 +1,5 @@
 #!/bin/sh -e
 
-ed configure <<EOF
-,s/-lcurses/-lcurses -lterminfo/
-w
-q
-EOF
-
 ./configure \
     --prefix=/usr \
     --enable-ksh \

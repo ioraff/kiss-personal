@@ -31,11 +31,11 @@ index da0589c..ab53f08 100644
      ///
      /// If this target is a path, the file name (without extension) is returned.
 diff --git a/compiler/rustc_target/src/spec/x86_64_unknown_linux_musl.rs b/compiler/rustc_target/src/spec/x86_64_unknown_linux_musl.rs
-index 8678f06..a20e999 100644
+index bf4cf7d..832a8bd 100644
 --- a/compiler/rustc_target/src/spec/x86_64_unknown_linux_musl.rs
 +++ b/compiler/rustc_target/src/spec/x86_64_unknown_linux_musl.rs
 @@ -15,7 +15,7 @@ pub fn target() -> Target {
-         | SanitizerSet::THREAD;
+     base.supports_xray = true;
  
      Target {
 -        llvm_target: "x86_64-unknown-linux-musl".into(),

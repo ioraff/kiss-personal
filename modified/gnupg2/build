@@ -1,24 +1,5 @@
 #!/bin/sh -e
 
-out=$PWD/out
-mkdir -p out
-
-(
-    cd ntbtls
-
-    ./configure \
-        --prefix=/usr \
-        --enable-static \
-        --disable-shared
-
-    make
-    make DESTDIR="$out" install
-)
-
-export CPPFLAGS="$CPPFLAGS -I$out/usr/include"
-export LDFLAGS="$CPPFLAGS -L$out/usr/lib"
-export PATH=$PATH:$out/usr/bin
-
 ./configure \
     --prefix=/usr \
     --sbindir=/usr/bin \

@@ -1,0 +1,22 @@
+diff --git a/meson_options.txt b/meson_options.txt
+index 83c1c92..d6427d5 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -146,7 +146,7 @@ option(
+ option(
+   'message_bus',
+   type: 'boolean',
+-  value: 'true',
++  value: true,
+   description: 'Enable dbus-daemon'
+ )
+ 
+@@ -260,7 +260,7 @@ option(
+ option(
+   'tools',
+   type: 'boolean',
+-  value: 'true',
++  value: true,
+   description: 'Enable CLI tools such as dbus-send and dbus-monitor'
+ )
+ 

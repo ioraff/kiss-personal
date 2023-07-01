@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+patch -p1 < muon.patch
+
 muon setup \
     -Dprefix=/usr \
     -Dsystem_pid_file=/run/dbus/dbus.pid \

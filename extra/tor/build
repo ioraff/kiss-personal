@@ -1,7 +1,6 @@
 #!/bin/sh -e
 
 patch -p1 < disable-wildcard-escaping-test.patch
-patch -p1 < libressl.patch
 
 ./configure \
     --prefix=/usr \

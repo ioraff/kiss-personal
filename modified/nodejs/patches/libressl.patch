@@ -15,7 +15,7 @@ index 16c6a647cc..8fa771d3fa 100644
    if (!(this instanceof SecureContext)) {
      return new SecureContext(secureProtocol, secureOptions, minVersion,
 diff --git a/lib/_tls_wrap.js b/lib/_tls_wrap.js
-index 78fe3191dc..97bfbca14d 100644
+index 5950c52c1d..945b1f4a4e 100644
 --- a/lib/_tls_wrap.js
 +++ b/lib/_tls_wrap.js
 @@ -116,6 +116,9 @@ const kIsVerified = Symbol('verified');
@@ -78,7 +78,7 @@ index 78fe3191dc..97bfbca14d 100644
    }
  }
  
-@@ -1528,13 +1542,15 @@ function onConnectSecure() {
+@@ -1556,13 +1570,15 @@ function onConnectSecure() {
  
    // Check the size of DHE parameter above minimum requirement
    // specified in options.
@@ -102,7 +102,7 @@ index 78fe3191dc..97bfbca14d 100644
  
    let verifyError = this._handle.verifyError();
 diff --git a/src/crypto/crypto_cipher.cc b/src/crypto/crypto_cipher.cc
-index 2685f5ea0b..002d26819e 100644
+index 2e6e02d229..a69d827711 100644
 --- a/src/crypto/crypto_cipher.cc
 +++ b/src/crypto/crypto_cipher.cc
 @@ -30,7 +30,7 @@ bool IsSupportedAuthenticatedMode(const EVP_CIPHER* cipher) {
@@ -141,10 +141,10 @@ index 2685f5ea0b..002d26819e 100644
            if (check_len != iv_length)
              return;
 diff --git a/src/crypto/crypto_common.cc b/src/crypto/crypto_common.cc
-index a1d0dfc16c..678a12e717 100644
+index 41e607e929..bea3a05d01 100644
 --- a/src/crypto/crypto_common.cc
 +++ b/src/crypto/crypto_common.cc
-@@ -127,12 +127,17 @@ long VerifyPeerCertificate(  // NOLINT(runtime/int)
+@@ -126,12 +126,17 @@ long VerifyPeerCertificate(  // NOLINT(runtime/int)
      X509_free(peer_cert);
      err = SSL_get_verify_result(ssl.get());
    } else {
@@ -163,7 +163,7 @@ index a1d0dfc16c..678a12e717 100644
          (SSL_SESSION_get_protocol_version(sess) == TLS1_3_VERSION &&
           SSL_session_reused(ssl.get()))) {
        return X509_V_OK;
-@@ -156,6 +161,9 @@ bool UseSNIContext(
+@@ -155,6 +160,9 @@ bool UseSNIContext(
  }
  
  const char* GetClientHelloALPN(const SSLPointer& ssl) {
@@ -173,7 +173,7 @@ index a1d0dfc16c..678a12e717 100644
    const unsigned char* buf;
    size_t len;
    size_t rem;
-@@ -172,9 +180,13 @@ const char* GetClientHelloALPN(const SSLPointer& ssl) {
+@@ -171,9 +179,13 @@ const char* GetClientHelloALPN(const SSLPointer& ssl) {
    len = (buf[0] << 8) | buf[1];
    if (len + 2 != rem) return nullptr;
    return reinterpret_cast<const char*>(buf + 3);
@@ -187,7 +187,7 @@ index a1d0dfc16c..678a12e717 100644
    const unsigned char* buf;
    size_t len;
    size_t rem;
-@@ -200,6 +212,7 @@ const char* GetClientHelloServerName(const SSLPointer& ssl) {
+@@ -199,6 +211,7 @@ const char* GetClientHelloServerName(const SSLPointer& ssl) {
    if (len + 2 > rem)
      return nullptr;
    return reinterpret_cast<const char*>(buf + 5);
@@ -195,7 +195,7 @@ index a1d0dfc16c..678a12e717 100644
  }
  
  const char* GetServerName(SSL* ssl) {
-@@ -312,7 +325,9 @@ MaybeLocal<Value> GetCipherValue(Environment* env, const SSL_CIPHER* cipher) {
+@@ -311,7 +324,9 @@ MaybeLocal<Value> GetCipherValue(Environment* env, const SSL_CIPHER* cipher) {
  }
  
  constexpr auto GetCipherName = GetCipherValue<SSL_CIPHER_get_name>;
@@ -205,7 +205,7 @@ index a1d0dfc16c..678a12e717 100644
  constexpr auto GetCipherVersion = GetCipherValue<SSL_CIPHER_get_version>;
  
  StackOfX509 CloneSSLCerts(X509Pointer&& cert,
-@@ -1039,6 +1054,9 @@ MaybeLocal<Array> GetClientHelloCiphers(
+@@ -1048,6 +1063,9 @@ MaybeLocal<Array> GetClientHelloCiphers(
      Environment* env,
      const SSLPointer& ssl) {
    EscapableHandleScope scope(env->isolate());
@@ -215,7 +215,7 @@ index a1d0dfc16c..678a12e717 100644
    const unsigned char* buf;
    size_t len = SSL_client_hello_get0_ciphers(ssl.get(), &buf);
    size_t count = len / 2;
-@@ -1066,6 +1084,7 @@ MaybeLocal<Array> GetClientHelloCiphers(
+@@ -1075,6 +1093,7 @@ MaybeLocal<Array> GetClientHelloCiphers(
    }
    Local<Array> ret = Array::New(env->isolate(), ciphers.out(), count);
    return scope.Escape(ret);
@@ -223,7 +223,7 @@ index a1d0dfc16c..678a12e717 100644
  }
  
  
-@@ -1079,10 +1098,12 @@ MaybeLocal<Object> GetCipherInfo(Environment* env, const SSLPointer& ssl) {
+@@ -1088,10 +1107,12 @@ MaybeLocal<Object> GetCipherInfo(Environment* env, const SSLPointer& ssl) {
                    info,
                    env->name_string(),
                    GetCurrentCipherValue<GetCipherName>(env, ssl)) ||
@@ -237,10 +237,22 @@ index a1d0dfc16c..678a12e717 100644
                    info,
                    env->version_string(),
 diff --git a/src/crypto/crypto_context.cc b/src/crypto/crypto_context.cc
-index 1c02d2e9f5..210557a30e 100644
+index 36b59eb4d5..c850f1bbf4 100644
 --- a/src/crypto/crypto_context.cc
 +++ b/src/crypto/crypto_context.cc
-@@ -608,6 +608,7 @@ void SecureContext::SetKey(const FunctionCallbackInfo<Value>& args) {
+@@ -63,7 +63,11 @@ inline X509_STORE* GetOrCreateRootCertStore() {
+ // Caller responsible for BIO_free_all-ing the returned object.
+ BIOPointer LoadBIO(Environment* env, Local<Value> v) {
+   if (v->IsString() || v->IsArrayBufferView()) {
++#ifdef LIBRESSL_VERSION_NUMBER
++    BIOPointer bio(BIO_new(BIO_s_mem()));
++#else
+     BIOPointer bio(BIO_new(BIO_s_secmem()));
++#endif
+     if (!bio) return nullptr;
+     ByteSource bsrc = ByteSource::FromStringOrBuffer(env, v);
+     if (bsrc.size() > INT_MAX) return nullptr;
+@@ -625,6 +629,7 @@ void SecureContext::SetKey(const FunctionCallbackInfo<Value>& args) {
  }
  
  void SecureContext::SetSigalgs(const FunctionCallbackInfo<Value>& args) {
@@ -248,7 +260,7 @@ index 1c02d2e9f5..210557a30e 100644
    SecureContext* sc;
    ASSIGN_OR_RETURN_UNWRAP(&sc, args.Holder());
    Environment* env = sc->env();
-@@ -620,6 +621,7 @@ void SecureContext::SetSigalgs(const FunctionCallbackInfo<Value>& args) {
+@@ -637,6 +642,7 @@ void SecureContext::SetSigalgs(const FunctionCallbackInfo<Value>& args) {
  
    if (!SSL_CTX_set1_sigalgs_list(sc->ctx_.get(), *sigalgs))
      return ThrowCryptoError(env, ERR_get_error());
@@ -257,7 +269,7 @@ index 1c02d2e9f5..210557a30e 100644
  
  #ifndef OPENSSL_NO_ENGINE
 diff --git a/src/crypto/crypto_dsa.cc b/src/crypto/crypto_dsa.cc
-index 6839283fbf..14ba98d373 100644
+index 3fa4a415dc..78f4d2be52 100644
 --- a/src/crypto/crypto_dsa.cc
 +++ b/src/crypto/crypto_dsa.cc
 @@ -13,7 +13,7 @@
@@ -270,10 +282,10 @@ index 6839283fbf..14ba98d373 100644
    EVP_PKEY_CTX_ctrl((ctx),                                                     \
                      EVP_PKEY_DSA,                                              \
 diff --git a/src/crypto/crypto_ec.cc b/src/crypto/crypto_ec.cc
-index 3ccea99fb2..080ba889c7 100644
+index 415464be04..2d4fa57655 100644
 --- a/src/crypto/crypto_ec.cc
 +++ b/src/crypto/crypto_ec.cc
-@@ -517,7 +517,11 @@ bool ECDHBitsTraits::DeriveBits(Environment* env,
+@@ -516,7 +516,11 @@ bool ECDHBitsTraits::DeriveBits(Environment* env,
        break;
      }
      default: {
@@ -285,7 +297,7 @@ index 3ccea99fb2..080ba889c7 100644
        {
          Mutex::ScopedLock priv_lock(*m_privkey.mutex());
          private_key = EVP_PKEY_get0_EC_KEY(m_privkey.get());
-@@ -637,6 +641,9 @@ WebCryptoKeyExportStatus EC_Raw_Export(
+@@ -636,6 +640,9 @@ WebCryptoKeyExportStatus EC_Raw_Export(
    size_t len = 0;
  
    if (ec_key == nullptr) {
@@ -295,7 +307,7 @@ index 3ccea99fb2..080ba889c7 100644
      typedef int (*export_fn)(const EVP_PKEY*, unsigned char*, size_t* len);
      export_fn fn = nullptr;
      switch (key_data->GetKeyType()) {
-@@ -657,6 +664,7 @@ WebCryptoKeyExportStatus EC_Raw_Export(
+@@ -656,6 +663,7 @@ WebCryptoKeyExportStatus EC_Raw_Export(
      if (fn(m_pkey.get(), data.data<unsigned char>(), &len) == 0)
        return WebCryptoKeyExportStatus::INVALID_KEY_TYPE;
      *out = std::move(data).release(len);
@@ -303,7 +315,7 @@ index 3ccea99fb2..080ba889c7 100644
    } else {
      if (key_data->GetKeyType() != kKeyTypePublic)
        return WebCryptoKeyExportStatus::INVALID_KEY_TYPE;
-@@ -873,7 +881,9 @@ Maybe<bool> ExportJWKEdKey(
+@@ -872,7 +880,9 @@ Maybe<bool> ExportJWKEdKey(
            OneByteString(env->isolate(), curve)).IsNothing()) {
      return Nothing<bool>();
    }
@@ -314,7 +326,7 @@ index 3ccea99fb2..080ba889c7 100644
    size_t len = 0;
    Local<Value> encoded;
    Local<Value> error;
-@@ -906,7 +916,7 @@ Maybe<bool> ExportJWKEdKey(
+@@ -905,7 +915,7 @@ Maybe<bool> ExportJWKEdKey(
        env->isolate()->ThrowException(error);
      return Nothing<bool>();
    }
@@ -324,10 +336,10 @@ index 3ccea99fb2..080ba889c7 100644
            env->context(),
            env->jwk_kty_string(),
 diff --git a/src/crypto/crypto_hash.cc b/src/crypto/crypto_hash.cc
-index 200603a85e..5cd0e3d4ba 100644
+index 5627bac590..414db4a960 100644
 --- a/src/crypto/crypto_hash.cc
 +++ b/src/crypto/crypto_hash.cc
-@@ -121,12 +121,14 @@ bool Hash::HashInit(const EVP_MD* md, Maybe<unsigned int> xof_md_len) {
+@@ -119,12 +119,14 @@ bool Hash::HashInit(const EVP_MD* md, Maybe<unsigned int> xof_md_len) {
  
    md_len_ = EVP_MD_size(md);
    if (xof_md_len.IsJust() && xof_md_len.FromJust() != md_len_) {
@@ -342,7 +354,7 @@ index 200603a85e..5cd0e3d4ba 100644
      md_len_ = xof_md_len.FromJust();
    }
  
-@@ -185,8 +187,12 @@ void Hash::HashDigest(const FunctionCallbackInfo<Value>& args) {
+@@ -183,8 +185,12 @@ void Hash::HashDigest(const FunctionCallbackInfo<Value>& args) {
        // The output length should always equal hash->md_len_
        CHECK_EQ(len, hash->md_len_);
      } else {
@@ -355,7 +367,7 @@ index 200603a85e..5cd0e3d4ba 100644
      }
  
      if (ret != 1)
-@@ -266,12 +272,14 @@ Maybe<bool> HashTraits::AdditionalConfig(
+@@ -264,12 +270,14 @@ Maybe<bool> HashTraits::AdditionalConfig(
      params->length =
          static_cast<uint32_t>(args[offset + 2]
              .As<Uint32>()->Value()) / CHAR_BIT;
@@ -370,7 +382,7 @@ index 200603a85e..5cd0e3d4ba 100644
    }
  
    return Just(true);
-@@ -299,7 +307,11 @@ bool HashTraits::DeriveBits(
+@@ -297,7 +305,11 @@ bool HashTraits::DeriveBits(
      int ret =
          (length == expected)
              ? EVP_DigestFinal_ex(ctx.get(), buf.data<unsigned char>(), &length)
@@ -405,7 +417,7 @@ index 7663dd6937..d6a78accf4 100644
  
  void HKDFConfig::MemoryInfo(MemoryTracker* tracker) const {
 diff --git a/src/crypto/crypto_keys.cc b/src/crypto/crypto_keys.cc
-index cc2ff2e631..673c984fe6 100644
+index 1b8e9b25a6..dd3fed311d 100644
 --- a/src/crypto/crypto_keys.cc
 +++ b/src/crypto/crypto_keys.cc
 @@ -595,15 +595,23 @@ void ManagedEVPPKey::MemoryInfo(MemoryTracker* tracker) const {
@@ -432,7 +444,7 @@ index cc2ff2e631..673c984fe6 100644
  }
  
  // This maps true to Just<bool>(true) and false to Nothing<bool>().
-@@ -1085,6 +1093,9 @@ void KeyObjectHandle::InitECRaw(const FunctionCallbackInfo<Value>& args) {
+@@ -1087,6 +1095,9 @@ void KeyObjectHandle::InitECRaw(const FunctionCallbackInfo<Value>& args) {
  }
  
  void KeyObjectHandle::InitEDRaw(const FunctionCallbackInfo<Value>& args) {
@@ -442,7 +454,7 @@ index cc2ff2e631..673c984fe6 100644
    Environment* env = Environment::GetCurrent(args);
    KeyObjectHandle* key;
    ASSIGN_OR_RETURN_UNWRAP(&key, args.Holder());
-@@ -1124,6 +1135,7 @@ void KeyObjectHandle::InitEDRaw(const FunctionCallbackInfo<Value>& args) {
+@@ -1126,6 +1137,7 @@ void KeyObjectHandle::InitEDRaw(const FunctionCallbackInfo<Value>& args) {
    }
  
    args.GetReturnValue().Set(true);
@@ -451,10 +463,10 @@ index cc2ff2e631..673c984fe6 100644
  
  void KeyObjectHandle::Equals(const FunctionCallbackInfo<Value>& args) {
 diff --git a/src/crypto/crypto_random.cc b/src/crypto/crypto_random.cc
-index 2f9e9aacb1..e26d89ccc2 100644
+index 9850104cd6..b37bd47e92 100644
 --- a/src/crypto/crypto_random.cc
 +++ b/src/crypto/crypto_random.cc
-@@ -146,7 +146,11 @@ Maybe<bool> RandomPrimeTraits::AdditionalConfig(
+@@ -140,7 +140,11 @@ Maybe<bool> RandomPrimeTraits::AdditionalConfig(
  
    params->bits = bits;
    params->safe = safe;
@@ -486,7 +498,7 @@ index 47a42246ed..92fae3a1db 100644
  
        if (target
 diff --git a/src/crypto/crypto_scrypt.cc b/src/crypto/crypto_scrypt.cc
-index 88d355446c..c97c1d4243 100644
+index 4dae07f136..00731dae9e 100644
 --- a/src/crypto/crypto_scrypt.cc
 +++ b/src/crypto/crypto_scrypt.cc
 @@ -18,7 +18,7 @@ using v8::Uint32;
@@ -498,7 +510,7 @@ index 88d355446c..c97c1d4243 100644
  
  ScryptConfig::ScryptConfig(ScryptConfig&& other) noexcept
    : mode(other.mode),
-@@ -141,7 +141,7 @@ bool ScryptTraits::DeriveBits(
+@@ -138,7 +138,7 @@ bool ScryptTraits::DeriveBits(
    return true;
  }
  
@@ -508,10 +520,10 @@ index 88d355446c..c97c1d4243 100644
  }  // namespace crypto
  }  // namespace node
 diff --git a/src/crypto/crypto_tls.cc b/src/crypto/crypto_tls.cc
-index f14adec767..58fc5a3efc 100644
+index cc2f6d60e7..ad5f98daae 100644
 --- a/src/crypto/crypto_tls.cc
 +++ b/src/crypto/crypto_tls.cc
-@@ -419,7 +419,9 @@ void TLSWrap::InitSSL() {
+@@ -417,7 +417,9 @@ void TLSWrap::InitSSL() {
  
    ConfigureSecureContext(sc_.get());
  
@@ -521,7 +533,7 @@ index f14adec767..58fc5a3efc 100644
  
    if (is_server()) {
      SSL_set_accept_state(ssl_.get());
-@@ -1294,6 +1296,9 @@ int TLSWrap::SelectSNIContextCallback(SSL* s, int* ad, void* arg) {
+@@ -1292,6 +1294,9 @@ int TLSWrap::SelectSNIContextCallback(SSL* s, int* ad, void* arg) {
  }
  
  int TLSWrap::SetCACerts(SecureContext* sc) {
@@ -531,7 +543,7 @@ index f14adec767..58fc5a3efc 100644
    int err = SSL_set1_verify_cert_store(ssl_.get(),
                                         SSL_CTX_get_cert_store(sc->ctx().get()));
    if (err != 1)
-@@ -1305,6 +1310,7 @@ int TLSWrap::SetCACerts(SecureContext* sc) {
+@@ -1303,6 +1308,7 @@ int TLSWrap::SetCACerts(SecureContext* sc) {
    // NOTE: `SSL_set_client_CA_list` takes the ownership of `list`
    SSL_set_client_CA_list(ssl_.get(), list);
    return 1;
@@ -539,7 +551,7 @@ index f14adec767..58fc5a3efc 100644
  }
  
  #ifndef OPENSSL_NO_PSK
-@@ -1747,7 +1753,11 @@ void TLSWrap::GetSharedSigalgs(const FunctionCallbackInfo<Value>& args) {
+@@ -1744,7 +1750,11 @@ void TLSWrap::GetSharedSigalgs(const FunctionCallbackInfo<Value>& args) {
    TLSWrap* w;
    ASSIGN_OR_RETURN_UNWRAP(&w, args.Holder());
  
@@ -551,7 +563,7 @@ index f14adec767..58fc5a3efc 100644
    int nsig = SSL_get_shared_sigalgs(ssl, 0, nullptr, nullptr, nullptr, nullptr,
                                      nullptr);
    MaybeStackBuffer<Local<Value>, 16> ret_arr(nsig);
-@@ -1788,7 +1798,6 @@ void TLSWrap::GetSharedSigalgs(const FunctionCallbackInfo<Value>& args) {
+@@ -1785,7 +1795,6 @@ void TLSWrap::GetSharedSigalgs(const FunctionCallbackInfo<Value>& args) {
        case NID_id_GostR3410_2001:
          sig_with_md = "gost2001+";
          break;
@@ -559,7 +571,7 @@ index f14adec767..58fc5a3efc 100644
        case NID_id_GostR3410_2012_256:
          sig_with_md = "gost2012_256+";
          break;
-@@ -1816,7 +1825,7 @@ void TLSWrap::GetSharedSigalgs(const FunctionCallbackInfo<Value>& args) {
+@@ -1813,7 +1822,7 @@ void TLSWrap::GetSharedSigalgs(const FunctionCallbackInfo<Value>& args) {
      }
      ret_arr[i] = OneByteString(env->isolate(), sig_with_md.c_str());
    }
@@ -568,7 +580,7 @@ index f14adec767..58fc5a3efc 100644
    args.GetReturnValue().Set(
                   Array::New(env->isolate(), ret_arr.out(), ret_arr.length()));
  }
-@@ -1879,6 +1888,9 @@ void TLSWrap::Renegotiate(const FunctionCallbackInfo<Value>& args) {
+@@ -1876,6 +1885,9 @@ void TLSWrap::Renegotiate(const FunctionCallbackInfo<Value>& args) {
  }
  
  void TLSWrap::GetTLSTicket(const FunctionCallbackInfo<Value>& args) {
@@ -578,7 +590,7 @@ index f14adec767..58fc5a3efc 100644
    TLSWrap* w;
    ASSIGN_OR_RETURN_UNWRAP(&w, args.Holder());
    Environment* env = w->env();
-@@ -1896,6 +1908,7 @@ void TLSWrap::GetTLSTicket(const FunctionCallbackInfo<Value>& args) {
+@@ -1893,6 +1905,7 @@ void TLSWrap::GetTLSTicket(const FunctionCallbackInfo<Value>& args) {
          Buffer::Copy(env, reinterpret_cast<const char*>(ticket), length)
              .FromMaybe(Local<Object>()));
    }
@@ -587,10 +599,10 @@ index f14adec767..58fc5a3efc 100644
  
  void TLSWrap::NewSessionDone(const FunctionCallbackInfo<Value>& args) {
 diff --git a/src/crypto/crypto_util.cc b/src/crypto/crypto_util.cc
-index fc0d57f36e..07a90c63c9 100644
+index 9b1d7acfc4..997f500466 100644
 --- a/src/crypto/crypto_util.cc
 +++ b/src/crypto/crypto_util.cc
-@@ -144,7 +144,7 @@ static Mutex fips_mutex;
+@@ -155,7 +155,7 @@ static Mutex fips_mutex;
  void InitCryptoOnce() {
    Mutex::ScopedLock lock(per_process::cli_options_mutex);
    Mutex::ScopedLock fips_lock(fips_mutex);
@@ -599,7 +611,7 @@ index fc0d57f36e..07a90c63c9 100644
    OPENSSL_INIT_SETTINGS* settings = OPENSSL_INIT_new();
  
  #if OPENSSL_VERSION_MAJOR < 3
-@@ -188,7 +188,7 @@ void InitCryptoOnce() {
+@@ -199,7 +199,7 @@ void InitCryptoOnce() {
    }
  #endif
  
@@ -608,7 +620,7 @@ index fc0d57f36e..07a90c63c9 100644
  
    // Turn off compression. Saves memory and protects against CRIME attacks.
    // No-op with OPENSSL_NO_COMP builds of OpenSSL.
-@@ -487,6 +487,43 @@ Maybe<bool> Decorate(Environment* env, Local<Object> obj,
+@@ -498,6 +498,43 @@ Maybe<bool> Decorate(Environment* env, Local<Object> obj,
          c = ToUpper(c);
      }
  
@@ -652,7 +664,7 @@ index fc0d57f36e..07a90c63c9 100644
  #define OSSL_ERROR_CODES_MAP(V)                                               \
      V(SYS)                                                                    \
      V(BN)                                                                     \
-@@ -526,6 +563,8 @@ Maybe<bool> Decorate(Environment* env, Local<Object> obj,
+@@ -537,6 +574,8 @@ Maybe<bool> Decorate(Environment* env, Local<Object> obj,
      V(SM2)                                                                    \
      V(USER)                                                                   \
  
@@ -661,7 +673,7 @@ index fc0d57f36e..07a90c63c9 100644
  #define V(name) case ERR_LIB_##name: lib = #name "_"; break;
      const char* lib = "";
      const char* prefix = "OSSL_";
-@@ -697,7 +736,13 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
+@@ -708,7 +747,13 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
    CHECK(args[0]->IsUint32());
    Environment* env = Environment::GetCurrent(args);
    uint32_t len = args[0].As<Uint32>()->Value();
@@ -675,7 +687,7 @@ index fc0d57f36e..07a90c63c9 100644
    if (data == nullptr) {
      // There's no memory available for the allocation.
      // Return nothing.
-@@ -716,10 +761,12 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
+@@ -727,10 +772,12 @@ void SecureBuffer(const FunctionCallbackInfo<Value>& args) {
  }
  
  void SecureHeapUsed(const FunctionCallbackInfo<Value>& args) {
@@ -720,10 +732,10 @@ index bf19334cf6..8e180938aa 100644
  namespace crypto {
  // Currently known sizes of commonly used OpenSSL struct sizes.
 diff --git a/src/node.cc b/src/node.cc
-index c5b6c2b844..5db4ae549c 100644
+index b29dc57d60..8ca45cbe9e 100644
 --- a/src/node.cc
 +++ b/src/node.cc
-@@ -926,7 +926,7 @@ InitializeOncePerProcessInternal(const std::vector<std::string>& args,
+@@ -947,7 +947,7 @@ InitializeOncePerProcessInternal(const std::vector<std::string>& args,
    }
  
    if (!(flags & ProcessInitializationFlags::kNoInitOpenSSL)) {
@@ -746,10 +758,10 @@ index a94ef62d2c..68f8d045ee 100644
  #else
  #define SCRYPT_NAMESPACE_LIST(V) V(ScryptJob)
 diff --git a/src/node_metadata.cc b/src/node_metadata.cc
-index ed28871c38..922eb5ea0f 100644
+index 22546e9de2..e9337828e7 100644
 --- a/src/node_metadata.cc
 +++ b/src/node_metadata.cc
-@@ -47,7 +47,11 @@ static inline std::string GetOpenSSLVersion() {
+@@ -50,7 +50,11 @@ static inline std::string GetOpenSSLVersion() {
    // sample openssl version string format
    // for reference: "OpenSSL 1.1.0i 14 Aug 2018"
    constexpr size_t start = search(OPENSSL_VERSION_TEXT, ' ') + 1;

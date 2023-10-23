@@ -1,7 +1,8 @@
 #!/bin/sh -e
 
-mv Modules/* cmake/modules/
+export DESTDIR="$1"
 
+cd llvm
 cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=Release \

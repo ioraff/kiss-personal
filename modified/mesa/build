@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+export DESTDIR="$1"
+
 # rust_std is not (yet?) supported by muon, and we should try
 # to avoid a hard rust dependency here if possible.
 sed "s/, 'rust_std=2021'//" meson.build > _
@@ -23,6 +25,7 @@ muon setup \
     -Dvalgrind=false \
     -Dzstd=disabled \
     -Dglvnd="${glvnd_enabled:-true}" \
+    -Dvideo-codecs=vc1dec,h264dec,h264enc,h265dec,h265enc \
     -Dvulkan-drivers='' \
     -Dgallium-drivers=iris \
     -Dllvm=disabled \

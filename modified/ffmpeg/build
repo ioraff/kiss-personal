@@ -1,6 +1,7 @@
 #!/bin/sh -e
 
 patch -p1 < add-av_stream_get_first_dts-for-chromium.patch
+patch -p1 < binutils-2.41.patch
 
 ./configure \
     --cc="$CC" \

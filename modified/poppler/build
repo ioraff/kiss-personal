@@ -4,7 +4,9 @@ cmake -B build \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=/usr/lib \
     -DENABLE_BOOST=OFF \
+    -DENABLE_GPGME=OFF \
     -DENABLE_CPP=ON \
+    -DENABLE_LCMS=OFF \
     -DENABLE_LIBOPENJPEG=none \
     -DENABLE_QT5=OFF \
     -DENABLE_QT6=OFF \

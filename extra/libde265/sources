@@ -1,3 +1,3 @@
-https://github.com/strukturag/libde265/releases/download/vVERSION/libde265-VERSION.tar.gz
+https://github.com/strukturag/libde265/releases/download/v1.0.12/libde265-1.0.12.tar.gz
 patches/disable_tools.patch
 patches/export-only-decoder-api.patch

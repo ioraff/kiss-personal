@@ -1,0 +1,15 @@
+#!/bin/sh -e
+
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --with-ssl \
+    --with-zlib \
+    --disable-finger \
+    --disable-news \
+    --disable-ftp \
+    --disable-dired \
+    --without-ssl
+
+make
+make install

@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-patch -p1 < disable-wildcard-escaping-test.patch
+export CPPFLAGS="$CPPFLAGS -DDISABLE_ENGINES"
 
 ./configure \
     --prefix=/usr \
@@ -9,7 +9,6 @@ patch -p1 < disable-wildcard-escaping-test.patch
     --disable-html-manual
 
 make
-#make test
 make install
 
 mkdir -p "$1/etc/sv/tor"
